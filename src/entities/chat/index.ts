@@ -1,1 +1,1 @@
-export type { IMessage, MessageType } from "./model/types";
+export type { IMessage } from "./model/types";
