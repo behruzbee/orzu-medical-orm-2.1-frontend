@@ -1,0 +1,1 @@
+export { PatientProfilePage } from "./page";
