@@ -5,13 +5,13 @@ import { AdvancedFilters } from "./advenced-filters";
 import { useFilterStore } from "../store/filter-store"; // 👈 Импортируем стор
 
 const BRANCHES = [
-  "Zangiota",
-  "Yunusobod",
-  "Fotima-Sulton",
-  "Parkent",
-  "Yangibozor",
-  "Oqqurgon",
-  "Chinoz",
+  "ОРЗУМЕД ЗАНГИОТА",
+  "ОРЗУМЕД ЮНУСОБОД",
+  "ОРЗУМЕД ФОТІМА-СУЛТОН",
+  "ОРЗУМЕД ПАРКЕНТ",
+  "ОРЗУМЕД ЯНГИБОЗОР",
+  "ОРЗУМЕД ОКККУРГОН",
+  "ОРЗУМЕД ЧИНОЗ",
 ];
 
 export const FilterBar = () => {

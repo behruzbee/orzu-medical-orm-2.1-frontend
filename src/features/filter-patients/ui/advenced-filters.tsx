@@ -101,13 +101,13 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
               label="Filial"
               placeholder="Filialni tanlang"
               data={[
-                "Zangiota",
-                "Yunusobod",
-                "Fotima-Sulton",
-                "Parkent",
-                "Yangibozor",
-                "Oqqurgon",
-                "Chinoz",
+                "ОРЗУМЕД ЗАНГИОТА",
+                "ОРЗУМЕД ЮНУСОБОД",
+                "ОРЗУМЕД ФОТІМА-СУЛТОН",
+                "ОРЗУМЕД ПАРКЕНТ",
+                "ОРЗУМЕД ЯНГИБОЗОР",
+                "ОРЗУМЕД ОКККУРГОН",
+                "ОРЗУМЕД ЧИНОЗ",
               ]}
               value={filters.selectedBranches[0] || null}
               onChange={(val) =>

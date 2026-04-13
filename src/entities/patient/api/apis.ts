@@ -32,6 +32,7 @@ export interface EvidencePayload {
 export interface AddFeedbackPayload {
   ratings: Record<string, number>;
   comment?: string;
+  sendToTrello?: boolean; 
   evidence: EvidencePayload[];
 }
 

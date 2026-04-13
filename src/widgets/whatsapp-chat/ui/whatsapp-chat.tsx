@@ -94,19 +94,24 @@ export const WhatsAppChat = ({
   patientStatus,
 }: Props) => {
   const { data: messages = [], isLoading } = useWhatsappHistory(patientPhone);
-  const { mutate: sendMessage, isPending: isSending } = useWhatsappSendMessage();
-  const { mutate: sendFeedback, isPending: isSavingFeedback } = useAddFeedbackMutation();
+  const { mutate: sendMessage, isPending: isSending } =
+    useWhatsappSendMessage();
+  const { mutate: sendFeedback, isPending: isSavingFeedback } =
+    useAddFeedbackMutation();
 
   const [input, setInput] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [modalOpened, { open: openModal, close: closeModal }] = useDisclosure(false);
-  
+  const [modalOpened, { open: openModal, close: closeModal }] =
+    useDisclosure(false);
+
   const viewport = useRef<HTMLDivElement>(null);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [emojiOpened, setEmojiOpened] = useState(false);
 
-  const isLocked = ![PatientStatus.NEW, PatientStatus.CONTACTED].includes(patientStatus as PatientStatus);
+  const isLocked = ![PatientStatus.NEW, PatientStatus.CONTACTED].includes(
+    patientStatus as PatientStatus,
+  );
 
   useEffect(() => {
     if (viewport.current) {
@@ -141,11 +146,11 @@ export const WhatsAppChat = ({
   };
 
   const toggleSelection = (id: string) => {
-    // В режиме блокировки можно выбирать сообщения (чтобы почитать или посмотреть), 
+    // В режиме блокировки можно выбирать сообщения (чтобы почитать или посмотреть),
     // но нельзя прикрепить их к новой жалобе (так как создание жалоб закрыто).
     // Если вы хотите запретить даже выделение, добавьте: if (isLocked) return;
     setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
@@ -153,7 +158,8 @@ export const WhatsAppChat = ({
   const handleComplaintSubmit = (data: any) => {
     const payload = {
       ratings: data.ratings,
-      comment: "Shikoyat / Taklif (CRM Interface)",
+      comment: "Shikoyat / Taklif / OK (CRM Interface)",
+      sendToTrello: data.sendToTrello,
       evidence: data.evidenceMessages.map((msg: any) => ({
         type: msg.type,
         text: msg.text || "",
@@ -172,7 +178,7 @@ export const WhatsAppChat = ({
           closeModal();
           setSelectedIds([]);
         },
-      }
+      },
     );
   };
 
@@ -195,7 +201,11 @@ export const WhatsAppChat = ({
           zIndex={1000}
           overlayProps={{ blur: 2 }}
           loaderProps={{
-            children: <Text fw={700} c="white">Saqlanmoqda...</Text>,
+            children: (
+              <Text fw={700} c="white">
+                Saqlanmoqda...
+              </Text>
+            ),
           }}
         />
 
@@ -204,35 +214,45 @@ export const WhatsAppChat = ({
           <Group>
             <Avatar src={null} alt={patientName} radius="xl" color="green" />
             <Box>
-              <Text size="sm" fw={600}>{patientName}</Text>
-              <Text size="xs" c="green.7" fw={500}>WhatsApp</Text>
+              <Text size="sm" fw={600}>
+                {patientName}
+              </Text>
+              <Text size="xs" c="green.7" fw={500}>
+                WhatsApp
+              </Text>
             </Box>
           </Group>
 
           <Group gap="xs">
             {/* Если заблокировано - показываем статус Архив */}
             {isLocked ? (
-                <Badge color="gray" variant="light" size="lg">Arxiv (Read-only)</Badge>
+              <Badge color="gray" variant="light" size="lg">
+                Arxiv (Read-only)
+              </Badge>
+            ) : // Если активно
+            selectedIds.length > 0 ? (
+              <>
+                <Text size="xs" fw={700} c="brand">
+                  Tanlandi: {selectedIds.length}
+                </Text>
+                <ActionIcon
+                  variant="subtle"
+                  color="gray"
+                  onClick={() => setSelectedIds([])}
+                >
+                  <IconX size={16} />
+                </ActionIcon>
+              </>
             ) : (
-                // Если активно
-                selectedIds.length > 0 ? (
-                    <>
-                        <Text size="xs" fw={700} c="brand">Tanlandi: {selectedIds.length}</Text>
-                        <ActionIcon variant="subtle" color="gray" onClick={() => setSelectedIds([])}>
-                            <IconX size={16} />
-                        </ActionIcon>
-                    </>
-                ) : (
-                    <Button
-                        size="xs"
-                        variant="light"
-                        color="red"
-                        leftSection={<IconFilePlus size={16} />}
-                        onClick={openModal}
-                    >
-                        Shikoyat / Taklif
-                    </Button>
-                )
+              <Button
+                size="xs"
+                variant="light"
+                color="red"
+                leftSection={<IconFilePlus size={16} />}
+                onClick={openModal}
+              >
+                Shikoyat / Taklif
+              </Button>
             )}
           </Group>
         </Group>
@@ -251,10 +271,19 @@ export const WhatsAppChat = ({
           }}
         >
           {isLoading ? (
-            <Center h="100%"><Loader color="gray" type="dots" /></Center>
+            <Center h="100%">
+              <Loader color="gray" type="dots" />
+            </Center>
           ) : messages.length === 0 ? (
             <Center h="100%">
-              <Text size="sm" c="dimmed" bg="white" px="md" py="xs" style={{ borderRadius: 10, opacity: 0.8 }}>
+              <Text
+                size="sm"
+                c="dimmed"
+                bg="white"
+                px="md"
+                py="xs"
+                style={{ borderRadius: 10, opacity: 0.8 }}
+              >
                 Yozishmalar tarixi bo'sh
               </Text>
             </Center>
@@ -298,7 +327,11 @@ export const WhatsAppChat = ({
                     >
                       {/* Текст */}
                       {msg.type === "text" && (
-                        <Text size="sm" c="dark" style={{ whiteSpace: "pre-wrap" }}>
+                        <Text
+                          size="sm"
+                          c="dark"
+                          style={{ whiteSpace: "pre-wrap" }}
+                        >
                           {msg.text}
                         </Text>
                       )}
@@ -330,25 +363,49 @@ export const WhatsAppChat = ({
                       {/* Видео */}
                       {msg.type === "video" && (
                         <Stack gap={4}>
-                            <Box style={{borderRadius: 6, overflow: 'hidden', background: '#000'}}>
-                                <video src={msg.mediaUrl} controls style={{width: '100%', display: 'block'}} />
-                            </Box>
-                            {msg.text && <Text size="sm">{msg.text}</Text>}
+                          <Box
+                            style={{
+                              borderRadius: 6,
+                              overflow: "hidden",
+                              background: "#000",
+                            }}
+                          >
+                            <video
+                              src={msg.mediaUrl}
+                              controls
+                              style={{ width: "100%", display: "block" }}
+                            />
+                          </Box>
+                          {msg.text && <Text size="sm">{msg.text}</Text>}
                         </Stack>
                       )}
 
                       {/* Документы */}
-                      {(!["text", "audio", "image", "video"].includes(msg.type)) && (
-                         <Group gap="xs" bg="gray.1" p="xs" >
-                            <IconFileText size={20}/>
-                            <Text size="xs" lineClamp={1}>{msg.text || "Fayl"}</Text>
-                         </Group>
+                      {!["text", "audio", "image", "video"].includes(
+                        msg.type,
+                      ) && (
+                        <Group gap="xs" bg="gray.1" p="xs">
+                          <IconFileText size={20} />
+                          <Text size="xs" lineClamp={1}>
+                            {msg.text || "Fayl"}
+                          </Text>
+                        </Group>
                       )}
 
-                      <Group gap={4} justify="flex-end" mt={4} style={{ opacity: 0.7 }}>
-                        <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>{msg.timestamp}</Text>
+                      <Group
+                        gap={4}
+                        justify="flex-end"
+                        mt={4}
+                        style={{ opacity: 0.7 }}
+                      >
+                        <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>
+                          {msg.timestamp}
+                        </Text>
                         {isMe && (
-                          <IconChecks size={14} color={msg.status === "read" ? "#53bdeb" : "gray"} />
+                          <IconChecks
+                            size={14}
+                            color={msg.status === "read" ? "#53bdeb" : "gray"}
+                          />
                         )}
                       </Group>
                     </Paper>
@@ -361,104 +418,104 @@ export const WhatsAppChat = ({
 
         {/* --- INPUT AREA --- */}
         {!isLocked ? (
-            <Group p="sm" bg="#f0f2f5" gap="xs" align="center">
+          <Group p="sm" bg="#f0f2f5" gap="xs" align="center">
             <Popover
-                position="top-start"
-                withArrow
-                shadow="md"
-                opened={emojiOpened}
-                onChange={setEmojiOpened}
+              position="top-start"
+              withArrow
+              shadow="md"
+              opened={emojiOpened}
+              onChange={setEmojiOpened}
             >
-                <Popover.Target>
+              <Popover.Target>
                 <ActionIcon
-                    variant="subtle"
-                    color="gray"
-                    onClick={() => setEmojiOpened((o) => !o)}
+                  variant="subtle"
+                  color="gray"
+                  onClick={() => setEmojiOpened((o) => !o)}
                 >
-                    <IconMoodSmile />
+                  <IconMoodSmile />
                 </ActionIcon>
-                </Popover.Target>
-                <Popover.Dropdown p={0}>
+              </Popover.Target>
+              <Popover.Dropdown p={0}>
                 <EmojiPicker
-                    onEmojiClick={(d) => setInput(p => p + d.emoji)}
-                    width={300}
-                    height={400}
-                    previewConfig={{ showPreview: false }}
+                  onEmojiClick={(d) => setInput((p) => p + d.emoji)}
+                  width={300}
+                  height={400}
+                  previewConfig={{ showPreview: false }}
                 />
-                </Popover.Dropdown>
+              </Popover.Dropdown>
             </Popover>
 
             <TextInput
-                placeholder="Xabar yozing..."
-                style={{ flex: 1 }}
-                radius="xl"
-                value={input}
-                onChange={(e) => setInput(e.currentTarget.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSendText()}
-                disabled={isSending}
+              placeholder="Xabar yozing..."
+              style={{ flex: 1 }}
+              radius="xl"
+              value={input}
+              onChange={(e) => setInput(e.currentTarget.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleSendText()}
+              disabled={isSending}
             />
 
             <ActionIcon
-                variant="filled"
-                color="brand"
-                radius="xl"
-                size="lg"
-                onClick={handleSendText}
-                loading={isSending}
-                disabled={!input.trim()}
+              variant="filled"
+              color="brand"
+              radius="xl"
+              size="lg"
+              onClick={handleSendText}
+              loading={isSending}
+              disabled={!input.trim()}
             >
-                <IconSend size={18} />
+              <IconSend size={18} />
             </ActionIcon>
-            </Group>
+          </Group>
         ) : (
-            // Блок если чат закрыт
-            <Box p="sm" bg="gray.1" style={{borderTop: '1px solid #eee'}}>
-                <Text size="sm" c="dimmed" ta="center" fs="italic">
-                    Suhbat yakunlangan. Xabar yozish va shikoyat qoldirish imkonsiz.
-                </Text>
-            </Box>
+          // Блок если чат закрыт
+          <Box p="sm" bg="gray.1" style={{ borderTop: "1px solid #eee" }}>
+            <Text size="sm" c="dimmed" ta="center" fs="italic">
+              Suhbat yakunlangan. Xabar yozish va shikoyat qoldirish imkonsiz.
+            </Text>
+          </Box>
         )}
 
         {/* --- ПЛАВАЮЩАЯ КНОПКА --- */}
         {!isLocked && (
-            <Transition
+          <Transition
             transition="slide-up"
             mounted={selectedIds.length > 0}
             duration={200}
-            >
+          >
             {(styles) => (
-                <Box
+              <Box
                 style={{
-                    ...styles,
-                    position: "absolute",
-                    bottom: 80,
-                    left: "50%",
-                    transform: "translateX(-50%)",
-                    zIndex: 100,
+                  ...styles,
+                  position: "absolute",
+                  bottom: 80,
+                  left: "50%",
+                  transform: "translateX(-50%)",
+                  zIndex: 100,
                 }}
-                >
+              >
                 <Button
-                    color="red.7"
-                    radius="xl"
-                    size="md"
-                    leftSection={<IconAlertTriangle size={20} />}
-                    onClick={openModal}
+                  color="red.7"
+                  radius="xl"
+                  size="md"
+                  leftSection={<IconAlertTriangle size={20} />}
+                  onClick={openModal}
                 >
-                    Tanlanganni biriktirish ({selectedIds.length})
+                  Tanlanganni biriktirish ({selectedIds.length})
                 </Button>
-                </Box>
+              </Box>
             )}
-            </Transition>
+          </Transition>
         )}
       </Paper>
 
       {!isLocked && (
-          <ComplaintModal
-            opened={modalOpened}
-            onClose={closeModal}
-            selectedMessages={messages.filter((m) => selectedIds.includes(m.id))}
-            onSubmit={handleComplaintSubmit}
-          />
+        <ComplaintModal
+          opened={modalOpened}
+          onClose={closeModal}
+          selectedMessages={messages.filter((m) => selectedIds.includes(m.id))}
+          onSubmit={handleComplaintSubmit}
+        />
       )}
     </>
   );

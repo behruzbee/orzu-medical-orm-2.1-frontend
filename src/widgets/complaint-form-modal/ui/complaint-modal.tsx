@@ -19,6 +19,7 @@ import {
   Badge,
   Overlay,
   Center,
+  Checkbox,
 } from "@mantine/core";
 import {
   IconAlertTriangle,
@@ -40,6 +41,7 @@ import type { IMessage } from "@/entities/chat";
 interface ComplaintPayload {
   ratings: Record<string, number>;
   evidenceMessages: any[];
+  sendToTrello?: boolean;
   createdAt: string;
 }
 
@@ -68,19 +70,31 @@ const CATEGORIES = [
   { id: "overall", label: "Umumiy baho (Clinic Overall)" },
 ];
 
+const DEFAULT_RATINGS = CATEGORIES.reduce(
+  (acc, cat) => {
+    acc[cat.id] = 5;
+    return acc;
+  },
+  {} as Record<string, number>,
+);
+
+const DEFAULT_TEXT = "Bemor bilan bog'lanildi va natijadan mamnun.";
+
 export const ComplaintModal = ({
   opened,
   onClose,
   selectedMessages,
   onSubmit,
 }: Props) => {
-  const [ratings, setRatings] = useState<Record<string, number>>({});
+  const [ratings, setRatings] =
+    useState<Record<string, number>>(DEFAULT_RATINGS);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // --- MANUAL INPUT STATE ---
-  const [manualText, setManualText] = useState("");
+  const [manualText, setManualText] = useState(DEFAULT_TEXT);
   const [manualEvidence, setManualEvidence] = useState<IMessage[]>([]);
+  const [sendToTrello, setSendToTrello] = useState(false);
 
   // --- DRAG AND DROP STATE ---
   const [isDragging, setIsDragging] = useState(false);
@@ -93,9 +107,9 @@ export const ComplaintModal = ({
 
   useEffect(() => {
     if (opened) {
-      setRatings({});
+      setRatings(DEFAULT_RATINGS);
       setManualEvidence([]);
-      setManualText("");
+      setManualText(DEFAULT_TEXT);
       setRecordingTime(0);
       setIsRecording(false);
       setIsDragging(false);
@@ -172,9 +186,13 @@ export const ComplaintModal = ({
       mediaRecorder.onstop = async () => {
         const mimeType = "audio/webm";
         const audioBlob = new Blob(audioChunks, { type: mimeType });
-        const audioFile = new File([audioBlob], `voice_note_${Date.now()}.webm`, {
-          type: mimeType,
-        });
+        const audioFile = new File(
+          [audioBlob],
+          `voice_note_${Date.now()}.webm`,
+          {
+            type: mimeType,
+          },
+        );
         const base64 = await fileToBase64(audioFile);
 
         addManualEvidence({
@@ -219,7 +237,7 @@ export const ComplaintModal = ({
     if (!file) return;
     try {
       const base64 = await fileToBase64(file);
-      
+
       let type: IMessage["type"] = "document";
 
       if (file.type.startsWith("image/")) {
@@ -229,7 +247,7 @@ export const ComplaintModal = ({
       } else if (file.type.startsWith("audio/")) {
         type = "audio";
       }
-      
+
       addManualEvidence({
         type: type,
         mediaUrl: base64,
@@ -273,7 +291,8 @@ export const ComplaintModal = ({
     setManualEvidence((prev) => prev.filter((i) => i.id !== id));
   };
 
-  // --- SUBMIT ---
+  const isAllOk = CATEGORIES.every((cat) => ratings[cat.id] === 5);
+
   const handleSubmit = () => {
     stopPlaying();
 
@@ -282,10 +301,26 @@ export const ComplaintModal = ({
       ...manualEvidence.map((m) => ({ ...m, source: "manual" })),
     ];
 
+    if (combinedEvidence.length === 0 && manualText.trim()) {
+      combinedEvidence.push({
+        id: `manual-auto-${Date.now()}`,
+        sender: "operator",
+        timestamp: new Date().toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+        }),
+        status: "read",
+        type: "text",
+        source: "manual",
+        text: manualText,
+      } as any);
+    }
+
     onSubmit({
       ratings: ratings,
       evidenceMessages: combinedEvidence,
       createdAt: new Date().toISOString(),
+      sendToTrello: isAllOk ? sendToTrello : undefined, // 👈 ДОБАВЛЕНО
     });
   };
 
@@ -376,29 +411,35 @@ export const ComplaintModal = ({
               )}
             </Stack>
           );
-        
+
         case "document":
         default:
-           if (msg.mediaUrl) {
-              return (
-                <Stack gap={6}>
-                    <Group gap="xs">
-                        <ThemeIcon size="sm" variant="light" color="blue" radius="xl">
-                        <IconFileText size={12} />
-                        </ThemeIcon>
-                        <Text size="sm" fw={500}>Fayl</Text>
-                    </Group>
-                    <Paper withBorder p="xs" bg="white" radius="sm">
-                        <Group gap="xs" wrap="nowrap">
-                            <IconFileText size={20} color="gray"/>
-                            <Text size="xs" lineClamp={2} style={{wordBreak: 'break-all'}}>
-                                {msg.text || "Fayl nomi yo'q"}
-                            </Text>
-                        </Group>
-                    </Paper>
-                </Stack>
-              )
-           }
+          if (msg.mediaUrl) {
+            return (
+              <Stack gap={6}>
+                <Group gap="xs">
+                  <ThemeIcon size="sm" variant="light" color="blue" radius="xl">
+                    <IconFileText size={12} />
+                  </ThemeIcon>
+                  <Text size="sm" fw={500}>
+                    Fayl
+                  </Text>
+                </Group>
+                <Paper withBorder p="xs" bg="white" radius="sm">
+                  <Group gap="xs" wrap="nowrap">
+                    <IconFileText size={20} color="gray" />
+                    <Text
+                      size="xs"
+                      lineClamp={2}
+                      style={{ wordBreak: "break-all" }}
+                    >
+                      {msg.text || "Fayl nomi yo'q"}
+                    </Text>
+                  </Group>
+                </Paper>
+              </Stack>
+            );
+          }
           return (
             <Text size="sm" lineClamp={3} style={{ fontStyle: "italic" }}>
               "{msg.text}"
@@ -425,7 +466,10 @@ export const ComplaintModal = ({
   };
 
   const isFormValid = CATEGORIES.every((cat) => (ratings[cat.id] || 0) > 0);
-  const totalEvidenceCount = selectedMessages.length + manualEvidence.length;
+  const totalEvidenceCount =
+    selectedMessages.length +
+    manualEvidence.length +
+    (manualText.trim() ? 1 : 0);
 
   return (
     <Modal
@@ -435,7 +479,7 @@ export const ComplaintModal = ({
         <Group gap="xs">
           <IconAlertTriangle size={20} color="red" />
           <Text fw={700} size="lg">
-            Shikoyatni rasmiylashtirish
+            Ma'lumotni rasmiylashtirish
           </Text>
         </Group>
       }
@@ -443,31 +487,37 @@ export const ComplaintModal = ({
       size="lg"
       radius="md"
       closeOnClickOutside={false}
-      // Overlay to'g'ri ishlashi uchun muhim:
-      styles={{ content: { position: 'relative' } }}
+      styles={{ content: { position: "relative" } }}
     >
       {/* DRAG AND DROP KONTENYERI */}
-      <Box 
-        onDragOver={handleDragOver} 
-        onDragLeave={handleDragLeave} 
+      <Box
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        style={{ position: 'relative' }}
+        style={{ position: "relative" }}
       >
         {isDragging && (
-          <Overlay 
-            color="#fff" 
-            backgroundOpacity={0.85} 
-            zIndex={1000} 
-            radius="md" 
-            style={{ border: '2px dashed var(--mantine-color-blue-5)', margin: 4 }}
+          <Overlay
+            color="#fff"
+            backgroundOpacity={0.85}
+            zIndex={1000}
+            radius="md"
+            style={{
+              border: "2px dashed var(--mantine-color-blue-5)",
+              margin: 4,
+            }}
           >
             <Center h="100%">
               <Stack align="center" gap="xs">
                 <ThemeIcon size={60} radius="xl" variant="light">
                   <IconUpload size={34} />
                 </ThemeIcon>
-                <Text fw={600} size="lg">Fayllarni shu yerga tashlang</Text>
-                <Text size="sm" c="dimmed">Rasm, video yoki hujjat</Text>
+                <Text fw={600} size="lg">
+                  Fayllarni shu yerga tashlang
+                </Text>
+                <Text size="sm" c="dimmed">
+                  Rasm, video yoki hujjat
+                </Text>
               </Stack>
             </Center>
           </Overlay>
@@ -659,6 +709,20 @@ export const ComplaintModal = ({
             })}
           </Stack>
 
+          {isAllOk && (
+            <Box bg="blue.0" p="sm" style={{ borderRadius: 8 }}>
+              <Checkbox
+                label="Trelloga 'Taklif' sifatida yuborish"
+                description="Bemorning ijobiy fikrini Trelloga qo'shish uchun belgilang"
+                checked={sendToTrello}
+                onChange={(event) =>
+                  setSendToTrello(event.currentTarget.checked)
+                }
+                color="blue"
+              />
+            </Box>
+          )}
+
           <Group grow mt="md">
             <Button variant="light" color="gray" onClick={onClose}>
               Bekor qilish
@@ -667,7 +731,7 @@ export const ComplaintModal = ({
               color="red.7"
               size="md"
               onClick={handleSubmit}
-              disabled={!isFormValid || totalEvidenceCount === 0}
+              disabled={!isFormValid || totalEvidenceCount === 0} 
             >
               Saqlash ({totalEvidenceCount} dalil)
             </Button>

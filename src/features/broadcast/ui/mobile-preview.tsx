@@ -104,27 +104,6 @@ export const MobilePreview = () => {
           </Box>
         </Box>
       </Box>
-
-      <Paper withBorder p="sm" radius="md" w="100%" mt="md" bg="blue.0">
-        <Stack gap="xs">
-          <Group justify="space-between">
-            <Text size="sm" c="dimmed">
-              Qabul qiluvchilar:
-            </Text>
-            <Text size="sm" fw={700}>
-              154 bemor
-            </Text>
-          </Group>
-          <Group justify="space-between">
-            <Text size="sm" c="dimmed">
-              Taxminiy narx:
-            </Text>
-            <Text size="sm" fw={700}>
-              $15.40
-            </Text>
-          </Group>
-        </Stack>
-      </Paper>
     </Stack>
   );
 };
