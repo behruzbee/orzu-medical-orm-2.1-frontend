@@ -39,7 +39,7 @@ export const AudienceFilters = () => {
             "ОРЗУМЕД ПАРКЕНТ",
             "ОРЗУМЕД ЯНГИБОЗОР",
             "ОРЗУМЕД ОКККУРГОН",
-            "ОРЗУМЕД ЧИНОЗ",
+            "ОРЗУМЕД Насима Бону",
           ]}
           value={branch}
           onChange={setBranch}
