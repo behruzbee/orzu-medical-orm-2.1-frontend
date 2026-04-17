@@ -2,7 +2,7 @@ import { useBroadcastStore } from "@/entities/broadcast";
 import { Paper, Stack, Select, Text, Group, Divider } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { PatientStatus } from "@/entities/patient";
-import { PHONE_CODES_DATA } from "@/features/constants/filter-data"; // 👈 Предполагаю, что он у вас тут
+import { PHONE_CODES_DATA } from "@/features/constants/filter-data";
 
 export const AudienceFilters = () => {
   const {
@@ -15,6 +15,12 @@ export const AudienceFilters = () => {
     dateRange,
     setDateRange,
   } = useBroadcastStore();
+
+  // ✅ Преобразуем данные из store в массив объектов Date перед передачей в Mantine
+  const parsedDateRange: [Date | null, Date | null] = [
+    dateRange?.[0] ? new Date(dateRange[0]) : null,
+    dateRange?.[1] ? new Date(dateRange[1]) : null,
+  ];
 
   return (
     <Paper withBorder p="md" radius="md" h="100%">
@@ -71,9 +77,10 @@ export const AudienceFilters = () => {
           type="range"
           label="Sana oralig'i (Ketish)"
           placeholder="Sanani tanlang"
-          value={dateRange}
-          // @ts-ignore
-          onChange={setDateRange}
+          value={parsedDateRange}
+          onChange={(val) => {
+            setDateRange(val as [Date | null, Date | null]);
+          }}
           clearable
         />
 
@@ -90,7 +97,6 @@ export const AudienceFilters = () => {
             <Text size="sm" fw={600} c="blue.8">
               Tanlangan filtrlar:
             </Text>
-            {/* Простая визуализация того, что выбрано */}
             <Text size="xs" c="dimmed">
               {branch ? `Filial: ${branch}` : "Barcha filiallar"}
             </Text>

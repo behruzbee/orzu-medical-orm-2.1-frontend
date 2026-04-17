@@ -20,24 +20,30 @@ export const BroadcastPage = () => {
   const { mutate: sendBroadcast, isPending } = useBroadcastMutation();
 
   const handleSend = () => {
-    if (!messageText.trim()) return;
+  if (!messageText.trim()) return;
 
-    // Формируем payload на основе фильтров из AudienceFilters
-    const payload = {
-      text: messageText,
-      branch: branch || undefined,
-      phoneCode: phoneCode || undefined,
-      status: status || undefined,
-      dateFrom: dateRange[0] ? dateRange[0].toISOString() : undefined,
-      dateTo: dateRange[1] ? dateRange[1].toISOString() : undefined,
-    };
+  const from = dateRange?.[0] ? new Date(dateRange[0]) : null;
+  const to = dateRange?.[1] ? new Date(dateRange[1]) : null;
 
-    sendBroadcast(payload, {
-      onSuccess: () => {
-        resetStore(); 
-      }
-    });
+  if (to) {
+    to.setHours(23, 59, 59, 999);
+  }
+
+  const payload = {
+    text: messageText,
+    branch: branch || undefined,
+    phoneCode: phoneCode || undefined,
+    status: status || undefined,
+    dateFrom: from ? from.toISOString() : undefined,
+    dateTo: to ? to.toISOString() : undefined,
   };
+
+  sendBroadcast(payload, {
+    onSuccess: () => {
+      resetStore(); 
+    }
+  });
+};
 
   return (
     <Stack h="100%" gap="md">
