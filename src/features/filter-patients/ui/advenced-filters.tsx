@@ -119,7 +119,7 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
 
             <DatePickerInput
               type="range"
-              label="Ketish va kelish sanasi"
+              label="Kelish sanasi"
               placeholder="Sanani tanlang"
               value={filters.dateRange}
               onChange={(val) => filters.setDateRange(val)}
