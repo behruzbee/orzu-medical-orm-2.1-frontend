@@ -33,10 +33,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import EmojiPicker from "emoji-picker-react";
 
-// 👇 Импорт Enum статусов (проверьте путь)
 import { PatientStatus } from "@/entities/patient";
-
-// 👇 Импорт Модалки
 import { ComplaintModal } from "@/widgets/complaint-form-modal";
 
 // 👇 Импорт API Хуков
@@ -98,7 +95,6 @@ export const WhatsAppChat = ({
     useWhatsappSendMessage();
   const { mutate: sendFeedback, isPending: isSavingFeedback } =
     useAddFeedbackMutation();
-
   const [input, setInput] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [modalOpened, { open: openModal, close: closeModal }] =
@@ -515,6 +511,7 @@ export const WhatsAppChat = ({
           onClose={closeModal}
           selectedMessages={messages.filter((m) => selectedIds.includes(m.id))}
           onSubmit={handleComplaintSubmit}
+          isLoading={isSavingFeedback}
         />
       )}
     </>

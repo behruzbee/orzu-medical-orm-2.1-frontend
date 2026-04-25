@@ -50,6 +50,7 @@ interface Props {
   onClose: () => void;
   selectedMessages: IMessage[];
   onSubmit: (payload: ComplaintPayload) => void;
+  isLoading?: boolean;
 }
 
 // Утилита для конвертации в Base64
@@ -85,6 +86,7 @@ export const ComplaintModal = ({
   onClose,
   selectedMessages,
   onSubmit,
+  isLoading = false,
 }: Props) => {
   const [ratings, setRatings] =
     useState<Record<string, number>>(DEFAULT_RATINGS);
@@ -731,7 +733,8 @@ export const ComplaintModal = ({
               color="red.7"
               size="md"
               onClick={handleSubmit}
-              disabled={!isFormValid || totalEvidenceCount === 0} 
+              disabled={!isFormValid || totalEvidenceCount === 0 || isLoading}
+              loading={isLoading} // 👈 Крутилка загрузки
             >
               Saqlash ({totalEvidenceCount} dalil)
             </Button>
