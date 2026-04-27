@@ -106,7 +106,7 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
                 "ОРЗУМЕД ФОТИМА СУЛТОН",
                 "ОРЗУМЕД ПАРКЕНТ",
                 "ОРЗУМЕД ЯНГИБОЗОР",
-                "ОРЗУМЕД ОКККУРГОН",
+                "ОРЗУМЕД ОККУРГОН",
                 "ОРЗУМЕД Насима Бону",
               ]}
               value={filters.selectedBranches[0] || null}
