@@ -10,23 +10,21 @@ import {
 import { IconArrowLeft, IconAlertCircle } from "@tabler/icons-react";
 import { Link, useParams } from "react-router-dom";
 
-// Widgets
 import { PatientCard } from "@/widgets/patient-info";
 import { CallResultForm } from "@/widgets/call-form";
 import { WhatsAppChat } from "@/widgets/whatsapp-chat";
 
-// Entity
 import { useRequest } from "@/entities/patient/api";
 import { PatientFinishAlert } from "@/widgets/patient-fnish-alert";
 
 export const PatientProfilePage = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: patient, isLoading, isError } = useRequest(id || "");
+  const { data: request, isLoading, isError } = useRequest(id || "");
 
   if (isLoading)
     return <LoadingOverlay visible zIndex={1000} overlayProps={{ blur: 2 }} />;
 
-  if (isError || !patient) {
+  if (isError || !request) {
     return (
       <Center h="100%">
         <Stack align="center">
@@ -42,6 +40,8 @@ export const PatientProfilePage = () => {
     );
   }
 
+  const person = request.patient || {};
+
   return (
     <Stack h="100%" gap="md">
       <Group justify="space-between">
@@ -56,22 +56,22 @@ export const PatientProfilePage = () => {
         </Button>
       </Group>
 
-      <PatientFinishAlert patientId={patient.id} status={patient.status} />
+      <PatientFinishAlert patientId={request.id} status={request.status} />
 
       <Grid gutter="md" style={{ flex: 1, minHeight: 0 }}>
         <Grid.Col span={{ base: 12, md: 4, lg: 3 }} h="100%">
           <Stack gap="md" pb="xl">
-            <PatientCard patient={patient} />
-            <CallResultForm patient={patient} />
+            <PatientCard patient={request} />
+            <CallResultForm patient={request} />
           </Stack>
         </Grid.Col>
 
         <Grid.Col span={{ base: 12, md: 8, lg: 9 }} h="100%">
           <WhatsAppChat
-            patientId={patient.id}
-            patientName={patient.name}
-            patientPhone={patient.phone}
-            patientStatus={patient.status}
+            patientId={request.id}
+            patientName={person.name || "Noma'lum"}
+            patientPhone={person.phone || ""}
+            patientStatus={request.status}
           />
         </Grid.Col>
       </Grid>

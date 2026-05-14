@@ -33,10 +33,15 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import EmojiPicker from "emoji-picker-react";
 
-import { RequestStatus } from "@/entities/patient";
+// Импортируем типы
+import {
+  RequestStatus,
+  type EvidenceType,
+  type EvidenceSource,
+} from "@/entities/patient";
+import type { IMessage } from "@/entities/chat"; // 👈 Правильный импорт интерфейса сообщений
 import { ComplaintModal } from "@/widgets/complaint-form-modal";
 
-// 👇 Импорт API Хуков
 import {
   useWhatsappHistory,
   useWhatsappSendMessage,
@@ -47,11 +52,42 @@ interface Props {
   patientId: string;
   patientName: string;
   patientPhone: string;
-  patientStatus: string; // 👈 Принимаем статус для блокировки
+  patientStatus: RequestStatus;
 }
 
-// --- КОМПОНЕНТ АУДИО ПЛЕЕРА ---
-const AudioBubble = ({ duration, isMe, isPlaying, onPlay }: any) => (
+interface AudioBubbleProps {
+  duration?: string;
+  isMe: boolean;
+  isPlaying: boolean;
+  onPlay: () => void;
+}
+
+// Интерфейс для элемента доказательства (Evidence)
+interface EvidenceItem {
+  type: EvidenceType;
+  text?: string;
+  mediaUrl?: string;
+  duration?: string;
+  source?: EvidenceSource;
+  sender?: "operator" | "patient";
+  timestamp?: string;
+}
+
+// Строго типизированные данные для отправки жалобы/предложения
+interface ComplaintSubmitData {
+  type?: "complaint" | "suggestion";
+  category?: string;
+  ratings: Record<string, number>;
+  sendToTrello?: boolean;
+  evidenceMessages: EvidenceItem[];
+}
+
+const AudioBubble = ({
+  duration,
+  isMe,
+  isPlaying,
+  onPlay,
+}: AudioBubbleProps) => (
   <Group gap="xs" wrap="nowrap" align="center" style={{ minWidth: 200 }}>
     <ActionIcon
       variant="filled"
@@ -90,11 +126,12 @@ export const WhatsAppChat = ({
   patientPhone,
   patientStatus,
 }: Props) => {
-  const { data: messages = [], isLoading } = useWhatsappHistory(patientPhone);
+  const { data, isLoading } = useWhatsappHistory(patientPhone);
   const { mutate: sendMessage, isPending: isSending } =
     useWhatsappSendMessage();
   const { mutate: sendFeedback, isPending: isSavingFeedback } =
     useAddFeedbackMutation();
+
   const [input, setInput] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [modalOpened, { open: openModal, close: closeModal }] =
@@ -105,8 +142,11 @@ export const WhatsAppChat = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [emojiOpened, setEmojiOpened] = useState(false);
 
+  // @ts-ignore
+  const messages: IMessage[] = Array.isArray(data) ? data : data?.data || [];
+
   const isLocked = ![RequestStatus.NEW, RequestStatus.CONTACTED].includes(
-    patientStatus as RequestStatus,
+    patientStatus,
   );
 
   useEffect(() => {
@@ -120,7 +160,9 @@ export const WhatsAppChat = ({
 
   const handleSendText = () => {
     if (!input.trim() || isLocked) return;
-    sendMessage({ phone: patientPhone, text: input });
+
+    // Передаем requestId для бэкенда, чтобы он привязал отправку к конкретной заявке
+    sendMessage({ phone: patientPhone, text: input, requestId: patientId });
     setInput("");
     setEmojiOpened(false);
   };
@@ -142,21 +184,19 @@ export const WhatsAppChat = ({
   };
 
   const toggleSelection = (id: string) => {
-    // В режиме блокировки можно выбирать сообщения (чтобы почитать или посмотреть),
-    // но нельзя прикрепить их к новой жалобе (так как создание жалоб закрыто).
-    // Если вы хотите запретить даже выделение, добавьте: if (isLocked) return;
     setSelectedIds((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id],
     );
   };
 
-  // --- ОТПРАВКА ЖАЛОБЫ ---
-  const handleComplaintSubmit = (data: any) => {
+  const handleComplaintSubmit = (data: ComplaintSubmitData) => {
     const payload = {
+      type: data.type || "complaint",
+      category: data.category || "OTHER",
       ratings: data.ratings,
-      comment: "Shikoyat / Taklif / OK (CRM Interface)",
+      comment: "Shikoyat / Taklif (CRM Interface)",
       sendToTrello: data.sendToTrello,
-      evidence: data.evidenceMessages.map((msg: any) => ({
+      evidence: data.evidenceMessages.map((msg: EvidenceItem) => ({
         type: msg.type,
         text: msg.text || "",
         mediaUrl: msg.mediaUrl,
@@ -191,7 +231,6 @@ export const WhatsAppChat = ({
           position: "relative",
         }}
       >
-        {/* Оверлей загрузки при сохранении жалобы */}
         <LoadingOverlay
           visible={isSavingFeedback}
           zIndex={1000}
@@ -220,13 +259,11 @@ export const WhatsAppChat = ({
           </Group>
 
           <Group gap="xs">
-            {/* Если заблокировано - показываем статус Архив */}
             {isLocked ? (
               <Badge color="gray" variant="light" size="lg">
                 Arxiv (Read-only)
               </Badge>
-            ) : // Если активно
-            selectedIds.length > 0 ? (
+            ) : selectedIds.length > 0 ? (
               <>
                 <Text size="xs" fw={700} c="brand">
                   Tanlandi: {selectedIds.length}
@@ -285,7 +322,7 @@ export const WhatsAppChat = ({
             </Center>
           ) : (
             <Stack p="md" gap="xs" pb={20}>
-              {messages.map((msg) => {
+              {messages.map((msg: IMessage) => {
                 const isMe = msg.sender === "operator";
                 const isSelected = selectedIds.includes(msg.id);
 
@@ -295,7 +332,7 @@ export const WhatsAppChat = ({
                     justify={isMe ? "flex-end" : "flex-start"}
                     align="flex-start"
                     gap="sm"
-                    onClick={() => !isLocked && toggleSelection(msg.id)} // Блокируем выбор, если locked (опционально)
+                    onClick={() => !isLocked && toggleSelection(msg.id)}
                     style={{ cursor: isLocked ? "default" : "pointer" }}
                   >
                     {isSelected && (
@@ -321,7 +358,6 @@ export const WhatsAppChat = ({
                         border: isSelected ? "1px solid #fab005" : "none",
                       }}
                     >
-                      {/* Текст */}
                       {msg.type === "text" && (
                         <Text
                           size="sm"
@@ -332,7 +368,6 @@ export const WhatsAppChat = ({
                         </Text>
                       )}
 
-                      {/* Аудио */}
                       {msg.type === "audio" && (
                         <AudioBubble
                           duration={msg.duration}
@@ -342,7 +377,6 @@ export const WhatsAppChat = ({
                         />
                       )}
 
-                      {/* Фото */}
                       {msg.type === "image" && (
                         <Stack gap={4}>
                           <Image
@@ -356,7 +390,6 @@ export const WhatsAppChat = ({
                         </Stack>
                       )}
 
-                      {/* Видео */}
                       {msg.type === "video" && (
                         <Stack gap={4}>
                           <Box
@@ -376,7 +409,6 @@ export const WhatsAppChat = ({
                         </Stack>
                       )}
 
-                      {/* Документы */}
                       {!["text", "audio", "image", "video"].includes(
                         msg.type,
                       ) && (
@@ -464,7 +496,6 @@ export const WhatsAppChat = ({
             </ActionIcon>
           </Group>
         ) : (
-          // Блок если чат закрыт
           <Box p="sm" bg="gray.1" style={{ borderTop: "1px solid #eee" }}>
             <Text size="sm" c="dimmed" ta="center" fs="italic">
               Suhbat yakunlangan. Xabar yozish va shikoyat qoldirish imkonsiz.
@@ -509,7 +540,9 @@ export const WhatsAppChat = ({
         <ComplaintModal
           opened={modalOpened}
           onClose={closeModal}
-          selectedMessages={messages.filter((m) => selectedIds.includes(m.id))}
+          selectedMessages={messages.filter((m: IMessage) =>
+            selectedIds.includes(m.id),
+          )}
           onSubmit={handleComplaintSubmit}
           isLoading={isSavingFeedback}
         />

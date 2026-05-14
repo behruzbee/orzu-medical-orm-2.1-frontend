@@ -6,9 +6,9 @@ import { PatientProfilePage } from "@/pages/patient-profile";
 import { BroadcastPage } from "@/pages/broadcast";
 import { LoginPage } from "@/pages/auth";
 import { NotFoundPage } from "@/pages/404/page";
-import { ComingSoonPage } from "@/pages/coming-soon";
 import { DocsPage } from "@/pages/docs";
 import { ImportPatientsPage } from "@/pages/import-patients";
+import { FeedbacksPage } from "@/pages/feedbacks";
 
 export const router = createBrowserRouter([
   {
@@ -37,7 +37,7 @@ export const router = createBrowserRouter([
       },
       {
         path: APP_PATHS.FEEDBACKS.FEEDBACKS_PATH,
-        element: <ComingSoonPage />,
+        element: <FeedbacksPage />,
       },
     ],
   },

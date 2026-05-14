@@ -45,14 +45,6 @@ export const useColumnsPatientTable = () => {
       ),
     },
     {
-      accessorKey: "departureDate",
-      header: "Ketish sanasi",
-      cell: ({ getValue }) => {
-        const date = getValue<string>();
-        return date ? dayjs(date).format("DD.MM.YYYY") : "-";
-      },
-    },
-    {
       accessorKey: "arrivalDate",
       header: "Kelish sanasi",
       cell: ({ getValue }) => {
@@ -60,6 +52,36 @@ export const useColumnsPatientTable = () => {
         return date ? dayjs(date).format("DD.MM.YYYY") : "-";
       },
     },
+    {
+      accessorKey: "departureDate",
+      header: "Ketish sanasi",
+      cell: ({ getValue }) => {
+        const date = getValue<string>();
+        return date ? dayjs(date).format("DD.MM.YYYY") : "-";
+      },
+    },
+    // --- НОВАЯ КОЛОНКА ---
+    {
+      id: "daysStayed",
+      header: "Kunlar soni", // Количество дней
+      accessorFn: (row) => {
+        // Проверяем, есть ли обе даты
+        if (row.arrivalDate && row.departureDate) {
+          // Вычисляем разницу в днях
+          return dayjs(row.departureDate).diff(dayjs(row.arrivalDate), 'day');
+        }
+        return null;
+      },
+      cell: ({ getValue }) => {
+        const days = getValue<number | null>();
+        return (
+          <Text size="sm" fw={500}>
+            {days !== null ? `${days} kun` : "-"}
+          </Text>
+        );
+      },
+    },
+    // ---------------------
     {
       accessorKey: "status",
       header: "Holati",

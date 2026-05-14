@@ -12,46 +12,45 @@ import {
 } from "@mantine/core";
 import { IconDeviceFloppy, IconPhoneCall, IconLock } from "@tabler/icons-react";
 import { useAddCallStatusMutation } from "@/entities/patient/api";
-import { RequestStatus, type IPatient } from "@/entities/patient";
+import { RequestStatus, type IPatientRequest } from "@/entities/patient"; 
 
 interface Props {
-  patient: IPatient;
+  patient: IPatientRequest; 
 }
 
 const EDITABLE_STATUSES = [RequestStatus.NEW, RequestStatus.CONTACTED];
 
-export const CallResultForm = ({ patient }: Props) => {
+export const CallResultForm = ({ patient: request }: Props) => {
   const [status, setStatus] = useState<RequestStatus | null>(null);
   const [note, setNote] = useState("");
 
   const { mutate, isPending } = useAddCallStatusMutation();
 
-  const isLocked = !EDITABLE_STATUSES.includes(patient.status);
+  const isLocked = !EDITABLE_STATUSES.includes(request.status);
 
   useEffect(() => {
     if (isLocked) {
-      setStatus(patient.status);
-
-      if (patient.callHistory && patient.callHistory.length > 0) {
-        const lastHistoryItem = [...patient.callHistory].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )[0];
-
-        setNote(lastHistoryItem.note || "");
+      setStatus(request.status);
+      
+      if (request.callStatus?.note) {
+        setNote(request.callStatus.note);
+      } else if (request.feedback?.comment) {
+        setNote(request.feedback.comment);
+      } else {
+        setNote("");
       }
     } else {
       setStatus(null);
       setNote("");
     }
-  }, [patient, isLocked]);
+  }, [request, isLocked]);
 
   const handleSubmit = () => {
     if (!status || isLocked) return;
 
     mutate(
       {
-        id: patient.id,
+        id: request.id,
         payload: {
           status: status,
           note: note,
@@ -85,12 +84,22 @@ export const CallResultForm = ({ patient }: Props) => {
 
       <Radio.Group
         value={status || ""}
-        onChange={(val) => !isLocked && setStatus(val as RequestStatus)} // Блокируем изменение
+        onChange={(val) => !isLocked && setStatus(val as RequestStatus)}
         label={isLocked ? "Tanlangan holat:" : "Natija qanday bo'ldi?"}
         withAsterisk={!isLocked}
         mb="md"
       >
         <Stack gap="sm" mt="xs">
+          <Radio
+            value={RequestStatus.ALL_OK}
+            label="✅ Hammasi ijobiy (OK)"
+            color="green"
+            disabled={isLocked && status !== RequestStatus.ALL_OK}
+            style={{
+              opacity: isLocked && status !== RequestStatus.ALL_OK ? 0.5 : 1,
+            }}
+          />
+
           <Radio
             value={RequestStatus.NO_ANSWER}
             label="📵 Ko'tarmadi (No Answer)"
@@ -123,7 +132,18 @@ export const CallResultForm = ({ patient }: Props) => {
             }}
           />
 
-          {/* Если статус "Shikoyat" или "Feedback", можно добавить для отображения */}
+          {/* 🔥 НОВЫЙ СТАТУС: НЕТ WHATSAPP 🔥 */}
+          <Radio
+            value={RequestStatus.HAS_NOT_WHATSAPP}
+            label="💬 WhatsApp tarmog'ida yo'q"
+            color="violet"
+            disabled={isLocked && status !== RequestStatus.HAS_NOT_WHATSAPP}
+            style={{
+              opacity:
+                isLocked && status !== RequestStatus.HAS_NOT_WHATSAPP ? 0.5 : 1,
+            }}
+          />
+
           {(status === RequestStatus.FEEDBACK_POSITIVE ||
             status === RequestStatus.FEEDBACK_NEGATIVE) && (
             <Radio

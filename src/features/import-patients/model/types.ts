@@ -27,6 +27,7 @@ export interface PreviewStats {
     INVALID_PHONE: number;
     MISSING_DATA: number;
     OTHER: number;
+    INVALID_DATES: number;
   };
 }
 

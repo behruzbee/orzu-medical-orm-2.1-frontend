@@ -53,7 +53,7 @@ export const requestsApi = {
     id: string, // Это теперь requestId
     payload: AddCallStatusPayload
   ): Promise<any> => {
-    const response = await api.patch(`/requests/${id}/call-status`, payload);
+    const response = await api.post(`/requests/${id}/call-status`, payload);
     return response.data;
   },
 
@@ -61,7 +61,7 @@ export const requestsApi = {
     id: string, // Это теперь requestId
     payload: AddFeedbackPayload
   ): Promise<any> => {
-    const response = await api.patch(`/requests/${id}/feedback`, payload);
+    const response = await api.post(`/requests/${id}/feedback`, payload);
     return response.data;
   },
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { LoadingOverlay } from "@mantine/core"; // 🔥 Импортируем лоадер из Mantine
+import { LoadingOverlay } from "@mantine/core";
 import {
   useCancelImport,
   useCommitImport,
@@ -21,7 +21,6 @@ export const ImportFlow = () => {
   const { data: previewData, isLoading: isPreviewLoading } =
     usePreviewData(sessionId);
 
-  // 1. Сохранение сессии
   useEffect(() => {
     if (sessionId) {
       localStorage.setItem("import_session_id", sessionId);
@@ -30,7 +29,6 @@ export const ImportFlow = () => {
     }
   }, [sessionId]);
 
-  // 2. Защита от перезагрузки страницы (F5 или закрытие вкладки)
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
       if (
@@ -46,7 +44,6 @@ export const ImportFlow = () => {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [uploadPreview.isPending, commitImport.isPending, cancelImport.isPending]);
 
-  // 🔥 ОБЩИЙ СТАТУС ЗАГРУЗКИ (если хоть один запрос идет, блокируем экран)
   const isProcessing =
     uploadPreview.isPending || commitImport.isPending || cancelImport.isPending;
 
@@ -56,7 +53,6 @@ export const ImportFlow = () => {
     }
     uploadPreview.mutate(file, {
       onSuccess: (data) => setSessionId(data.sessionId),
-      // Ошибки теперь обрабатываются глобально через notifications в хуке!
     });
   };
 
@@ -138,7 +134,6 @@ export const ImportFlow = () => {
           ) : (
             previewData && (
               <>
-                {/* 📊 STATISTIKA PANELLARI */}
                 <div
                   style={{
                     display: "flex",
@@ -219,6 +214,13 @@ export const ImportFlow = () => {
                           <li>
                             Ism yoki telefon raqami yo'q:{" "}
                             {previewData.stats.categories.MISSING_DATA} ta
+                          </li>
+                        )}
+                        {/* 🔥 ДОБАВЛЕНО ВЫВОД НОВОЙ ОШИБКИ */}
+                        {previewData.stats.categories.INVALID_DATES > 0 && (
+                          <li style={{ color: "red", fontWeight: "bold" }}>
+                            Sanalar xato (manfiy yoki 15 kundan ortiq):{" "}
+                            {previewData.stats.categories.INVALID_DATES} ta
                           </li>
                         )}
                       </ul>

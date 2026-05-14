@@ -1,5 +1,5 @@
 import { api } from "@/shared/api/api";
-import type { IMessage } from "@/entities/chat";
+import type { IMessage } from "@/entities/chat"; // Убедитесь, что путь правильный
 
 export const whatsappApi = {
   getHistory: async (phone: string): Promise<IMessage[]> => {
@@ -10,7 +10,8 @@ export const whatsappApi = {
     return response.data;
   },
 
-  sendMessage: async (payload: { phone: string; text: string }) => {
+  // 👇 Добавили requestId в payload
+  sendMessage: async (payload: { phone: string; text: string; requestId: string }) => {
     return api.post("/whatsapp/send", payload);
   },
 };

@@ -25,9 +25,11 @@ export const useWhatsappSendMessage = () => {
       queryClient.invalidateQueries({
         queryKey: whatsappKeys.history(variables.phone),
       });
+
       queryClient.invalidateQueries({
-        queryKey: requestKeys.detail(variables.phone),
+        queryKey: requestKeys.detail(variables.requestId),
       });
+
       notifications.show({
         title: "Yuborildi 📨",
         message: "Xabar muvaffaqiyatli yuborildi",

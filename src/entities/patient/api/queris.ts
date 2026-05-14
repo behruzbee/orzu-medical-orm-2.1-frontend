@@ -69,7 +69,7 @@ export const useAddCallStatusMutation = () => {
       id,
       payload,
     }: {
-      id: string; // requestId
+      id: string; 
       payload: AddCallStatusPayload;
     }) => requestsApi.addCallStatus(id, payload),
 
