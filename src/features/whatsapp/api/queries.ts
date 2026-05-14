@@ -1,6 +1,7 @@
+import { requestKeys } from "@/entities/patient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications";
 import { whatsappApi } from "./apis";
-import { patientKeys } from "@/entities/patient/api";
 
 export const whatsappKeys = {
   history: (phone: string) => ["whatsapp", "history", phone] as const,
@@ -25,7 +26,21 @@ export const useWhatsappSendMessage = () => {
         queryKey: whatsappKeys.history(variables.phone),
       });
       queryClient.invalidateQueries({
-        queryKey: patientKeys.detail(variables.phone),
+        queryKey: requestKeys.detail(variables.phone),
+      });
+      notifications.show({
+        title: "Yuborildi 📨",
+        message: "Xabar muvaffaqiyatli yuborildi",
+        color: "green",
+      });
+    },
+    onError: (error: any) => {
+      notifications.show({
+        title: "Xatolik 🚨",
+        message:
+          error.response?.data?.message ||
+          "Failed to send WhatsApp message (Client Error)",
+        color: "red",
       });
     },
   });

@@ -64,11 +64,12 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 const CATEGORIES = [
-  { id: "doctors", label: "Shifokorlar (Doctors)" },
-  { id: "nurses", label: "Hamshiralar (Nurses)" },
-  { id: "cleanliness", label: "Tozalik (Cleanliness)" },
-  { id: "food", label: "Oshxona (Food & Kitchen)" },
-  { id: "overall", label: "Umumiy baho (Clinic Overall)" },
+  { id: "doctors", label: "Shifokorlar" },
+  { id: "nurses", label: "Hamshiralar" },
+  { id: "cleanliness", label: "Tozalik" },
+  { id: "food", label: "Oshxona" },
+  { id: "reception", label: "Registratura xodimlari" },
+  { id: "clinic", label: "Klinika to'grisida" },
 ];
 
 const DEFAULT_RATINGS = CATEGORIES.reduce(

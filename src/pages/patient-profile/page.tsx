@@ -16,12 +16,12 @@ import { CallResultForm } from "@/widgets/call-form";
 import { WhatsAppChat } from "@/widgets/whatsapp-chat";
 
 // Entity
-import { usePatient } from "@/entities/patient/api";
+import { useRequest } from "@/entities/patient/api";
 import { PatientFinishAlert } from "@/widgets/patient-fnish-alert";
 
 export const PatientProfilePage = () => {
   const { id } = useParams<{ id: string }>();
-  const { data: patient, isLoading, isError } = usePatient(id || "");
+  const { data: patient, isLoading, isError } = useRequest(id || "");
 
   if (isLoading)
     return <LoadingOverlay visible zIndex={1000} overlayProps={{ blur: 2 }} />;

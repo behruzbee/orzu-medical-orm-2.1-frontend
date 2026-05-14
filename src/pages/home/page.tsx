@@ -5,8 +5,9 @@ import { PatientTable } from "@/widgets/patient-table";
 import { StatsBoard } from "@/widgets/stats-board/ui/stats-board";
 import { useFilterStore } from "@/features/filter-patients/store/filter-store";
 import type { PaginationState } from "@tanstack/react-table";
-import type { PatientStatus } from "@/entities/patient";
-import { usePatients, usePatientStats } from "@/entities/patient/api";
+
+import type { RequestStatus } from "@/entities/patient";
+import { useRequests, useRequestStats } from "@/entities/patient";
 
 export const HomePage = () => {
   const {
@@ -28,24 +29,31 @@ export const HomePage = () => {
       ? selectedCountries[0]
       : selectedCode || undefined;
 
-  const dateFrom = dateRange[0] ? new Date(dateRange[0]).toISOString() : undefined;
-  const dateTo = dateRange[1] ? new Date(dateRange[1]).toISOString() : undefined;
+  const dateFrom = dateRange[0]
+    ? new Date(dateRange[0]).toISOString()
+    : undefined;
+  const dateTo = dateRange[1]
+    ? new Date(dateRange[1]).toISOString()
+    : undefined;
 
   const queryParams = {
     page: pagination.pageIndex + 1,
     limit: pagination.pageSize,
     search: search || undefined,
-    status: status ? (status as PatientStatus) : undefined,
+    // 2. Используем RequestStatus
+    status: status ? (status as RequestStatus) : undefined,
     branch: selectedBranches.length > 0 ? selectedBranches[0] : undefined,
     phoneCode: phoneFilter,
     dateFrom,
     dateTo,
   };
 
-  const { data, isLoading, isPlaceholderData } = usePatients(queryParams);
-  const { data: stats, isLoading: isStatsLoading } = usePatientStats();
+  // 3. Используем новые хуки для заявок
+  const { data, isLoading, isPlaceholderData } = useRequests(queryParams);
+  const { data: stats, isLoading: isStatsLoading } = useRequestStats();
 
-  const patients = data?.data || [];
+  // 4. Теперь это список заявок (PatientRequest), а не просто пациентов
+  const requests = data?.data || [];
   const totalCount = data?.meta?.total || 0;
 
   return (
@@ -61,7 +69,7 @@ export const HomePage = () => {
       <StatsBoard stats={stats} isLoading={isStatsLoading} />
 
       <PatientTable
-        data={patients}
+        data={requests}
         total={totalCount}
         pagination={pagination}
         setPagination={setPagination}

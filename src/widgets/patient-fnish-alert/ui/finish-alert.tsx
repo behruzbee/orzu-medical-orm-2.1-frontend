@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { Alert, Group, RingProgress, Box, Text, Button } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
-import { PatientStatus } from "@/entities/patient";
+import { RequestStatus } from "@/entities/patient";
 import { RevertStatusButton } from "@/features/patient/revert-status/ui/revert-button"; // 👇 Импорт фичи
 
 interface Props {
   patientId: string;
-  status: PatientStatus;
+  status: RequestStatus;
 }
 
 export const PatientFinishAlert = ({ patientId, status }: Props) => {
@@ -15,7 +15,7 @@ export const PatientFinishAlert = ({ patientId, status }: Props) => {
   const [timer, setTimer] = useState(5);
   const [isCancelled, setIsCancelled] = useState(false);
 
-  const isFinished = ![PatientStatus.NEW, PatientStatus.CONTACTED].includes(
+  const isFinished = ![RequestStatus.NEW, RequestStatus.CONTACTED].includes(
     status
   );
 

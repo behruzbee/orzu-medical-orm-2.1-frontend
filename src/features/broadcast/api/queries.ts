@@ -7,15 +7,15 @@ export const useBroadcastMutation = () => {
     mutationFn: (payload: any) => api.post('/whatsapp/broadcast', payload),
     onSuccess: (data) => {
       notifications.show({
-        title: "Rassilka boshlandi",
+        title: "Rassilka boshlandi 🚀",
         message: `${data.data.targetCount} ta bemorga xabar yuborilmoqda...`,
         color: "green",
       });
     },
-    onError: (err: any) => {
+    onError: (error: any) => {
       notifications.show({
-        title: "Xatolik",
-        message: err.response?.data?.message || "Rassilka yuborishda xatolik",
+        title: "Xatolik 🚨",
+        message: error.response?.data?.message || "Broadcast failed to start (Client/Network Error)",
         color: "red",
       });
     },

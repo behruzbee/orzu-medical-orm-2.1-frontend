@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { PatientStatus } from "@/entities/patient"; // Убедитесь, что импорт правильный
+import { RequestStatus } from "@/entities/patient"; // Убедитесь, что импорт правильный
 
 interface BroadcastState {
   // Сообщение
@@ -9,13 +9,13 @@ interface BroadcastState {
   // Фильтры
   branch: string | null;
   phoneCode: string | null;
-  status: PatientStatus | null;
+  status: RequestStatus | null;
   dateRange: [Date | null, Date | null];
 
   // Действия для фильтров
   setBranch: (branch: string | null) => void;
   setPhoneCode: (code: string | null) => void;
-  setStatus: (status: PatientStatus | null) => void;
+  setStatus: (status: RequestStatus | null) => void;
   setDateRange: (range: [Date | null, Date | null]) => void;
 
   // Действия для текста

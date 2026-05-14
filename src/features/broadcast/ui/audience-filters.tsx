@@ -1,7 +1,7 @@
 import { useBroadcastStore } from "@/entities/broadcast";
 import { Paper, Stack, Select, Text, Group, Divider } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
-import { PatientStatus } from "@/entities/patient";
+import { RequestStatus } from "@/entities/patient";
 import { PHONE_CODES_DATA } from "@/features/constants/filter-data";
 
 export const AudienceFilters = () => {
@@ -50,16 +50,16 @@ export const AudienceFilters = () => {
           label="Bemor statusi"
           placeholder="Statusni tanlang"
           data={[
-            { value: PatientStatus.NEW, label: "🔵 Yangi" },
-            { value: PatientStatus.CONTACTED, label: "✅ Bog'landi" },
-            { value: PatientStatus.NO_ANSWER, label: "📵 Ko'tarmadi" },
-            { value: PatientStatus.UNREACHABLE, label: "🔌 O'chirilgan" },
-            { value: PatientStatus.WRONG_NUMBER, label: "⚠️ Xato raqami" },
-            { value: PatientStatus.FEEDBACK_POSITIVE, label: "😊 Ijobiy" },
-            { value: PatientStatus.FEEDBACK_NEGATIVE, label: "😡 Shikoyat" },
+            { value: RequestStatus.NEW, label: "🔵 Yangi" },
+            { value: RequestStatus.CONTACTED, label: "✅ Bog'landi" },
+            { value: RequestStatus.NO_ANSWER, label: "📵 Ko'tarmadi" },
+            { value: RequestStatus.UNREACHABLE, label: "🔌 O'chirilgan" },
+            { value: RequestStatus.WRONG_NUMBER, label: "⚠️ Xato raqami" },
+            { value: RequestStatus.FEEDBACK_POSITIVE, label: "😊 Ijobiy" },
+            { value: RequestStatus.FEEDBACK_NEGATIVE, label: "😡 Shikoyat" },
           ]}
           value={status}
-          onChange={(v) => setStatus(v as PatientStatus)}
+          onChange={(v) => setStatus(v as RequestStatus)}
           clearable
         />
 

@@ -1,4 +1,4 @@
-import { PatientStatus, type IPatient } from "@/entities/patient";
+import { RequestStatus, type IPatient } from "@/entities/patient";
 import {
   Paper,
   Avatar,
@@ -25,23 +25,23 @@ interface Props {
 
 // Маппинг цветов для статусов
 const STATUS_COLORS: Record<string, string> = {
-  [PatientStatus.NEW]: "blue",
-  [PatientStatus.CONTACTED]: "cyan",
-  [PatientStatus.NO_ANSWER]: "yellow",
-  [PatientStatus.UNREACHABLE]: "orange",
-  [PatientStatus.WRONG_NUMBER]: "gray",
-  [PatientStatus.FEEDBACK_POSITIVE]: "green",
-  [PatientStatus.FEEDBACK_NEGATIVE]: "red",
+  [RequestStatus.NEW]: "blue",
+  [RequestStatus.CONTACTED]: "cyan",
+  [RequestStatus.NO_ANSWER]: "yellow",
+  [RequestStatus.UNREACHABLE]: "orange",
+  [RequestStatus.WRONG_NUMBER]: "gray",
+  [RequestStatus.FEEDBACK_POSITIVE]: "green",
+  [RequestStatus.FEEDBACK_NEGATIVE]: "red",
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  [PatientStatus.NEW]: "Yangi",
-  [PatientStatus.CONTACTED]: "Bog'landi",
-  [PatientStatus.NO_ANSWER]: "Ko'tarmadi",
-  [PatientStatus.UNREACHABLE]: "O'chirilgan",
-  [PatientStatus.WRONG_NUMBER]: "Xato raqam",
-  [PatientStatus.FEEDBACK_POSITIVE]: "Ijobiy fikr",
-  [PatientStatus.FEEDBACK_NEGATIVE]: "Shikoyat",
+  [RequestStatus.NEW]: "Yangi",
+  [RequestStatus.CONTACTED]: "Bog'landi",
+  [RequestStatus.NO_ANSWER]: "Ko'tarmadi",
+  [RequestStatus.UNREACHABLE]: "O'chirilgan",
+  [RequestStatus.WRONG_NUMBER]: "Xato raqam",
+  [RequestStatus.FEEDBACK_POSITIVE]: "Ijobiy fikr",
+  [RequestStatus.FEEDBACK_NEGATIVE]: "Shikoyat",
 };
 
 export const PatientCard = ({ patient }: Props) => {

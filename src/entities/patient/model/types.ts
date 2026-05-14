@@ -1,11 +1,17 @@
-export enum PatientStatus {
-  NEW = "new", // Yangi / Новый
-  CONTACTED = "contacted", // Bog'landi / Связались
-  NO_ANSWER = "no_answer", // Ko'tarmadi / Не поднял
-  UNREACHABLE = "unreachable", // O'chirilgan / Недоступен
-  WRONG_NUMBER = "wrong_number", // Noto'g'ri raqam / Ошибка
-  FEEDBACK_POSITIVE = "feedback_positive", // Ijobiy / Хороший отзыв
-  FEEDBACK_NEGATIVE = "feedback_negative", // Shikoyat / Жалоба
+// 1. Обновленный Enum статусов из бэкенда
+export enum RequestStatus {
+  NEW = "new",
+  CONTACTED = "contacted",
+  ALL_OK = "all_ok",
+  NO_ANSWER = "no_answer",
+  UNREACHABLE = "unreachable",
+  WRONG_NUMBER = "wrong_number",
+  HAS_NOT_WHATSAPP = "has_not_whatsapp",
+  HAS_NOT_PHONE_NUMBER = "no_phone",
+  OTHER_PROBLEM = "other",
+  FEEDBACK_POSITIVE = "feedback_pos",
+  FEEDBACK_NEGATIVE = "feedback_neg",
+  FEEDBACK_NOT_RELATED = "feedback_not_related",
 }
 
 export interface IDashboardStats {
@@ -26,50 +32,62 @@ export interface IEvidenceMessage {
   duration?: string;
   source: EvidenceSource;
   sender: "operator" | "patient";
-  originalTimestamp: string;
+  originalTimestamp?: string;
 }
 
+// 2. Обновленный интерфейс обратной связи
 export interface IFeedback {
   id: string;
   ratings: Record<string, number>;
   comment?: string;
   operatorId: string;
+  requestId: string; // Заменено с patientId
   evidenceMessages: IEvidenceMessage[];
   createdAt: string;
 }
 
-export interface ICallStatusLog {
+// 3. Обновленный статус звонка (теперь 1 к 1 для заявки)
+export interface ICallStatus {
   id: string;
-  status: PatientStatus;
+  status: RequestStatus;
   note?: string;
   operatorId: string;
+  requestId: string;
   createdAt: string;
 }
 
+// 4. Сущность Пациента (только личные данные)
 export interface IPatient {
   id: string;
   name: string;
   phone: string;
-  branch: string;
+  avatarColor: string;
+  createdAt: string;
+}
 
+// 5. НОВАЯ Сущность Заявки (PatientRequest)
+export interface IPatientRequest {
+  id: string;
+  status: RequestStatus;
+  branch: string;
   departureDate: string;
   arrivalDate: string;
-
-  status: PatientStatus;
-  avatarColor: string;
-
-  callHistory?: ICallStatusLog[];
-  feedbacks?: IFeedback[];
+  
+  patientId: string;
+  patient: IPatient; // Вложенная сущность пациента
+  
+  callStatus?: ICallStatus; // Теперь объект, а не массив
+  feedback?: IFeedback;     // Теперь объект, а не массив
 
   createdAt: string;
   updatedAt: string;
 }
 
-export interface PatientsQueryParams {
+export interface RequestsQueryParams {
   page?: number;
   limit?: number;
   search?: string;
-  status?: PatientStatus;
+  status?: RequestStatus;
   branch?: string;
   phoneCode?: string;
   dateFrom?: string;
@@ -83,7 +101,8 @@ export interface PaginationMeta {
   totalPages: number;
 }
 
-export interface PatientsResponse {
-  data: IPatient[];
+// 6. Ответ API теперь возвращает заявки
+export interface RequestsResponse {
+  data: IPatientRequest[];
   meta: PaginationMeta;
 }

@@ -1,32 +1,37 @@
 import { Group, Avatar, Text } from "@mantine/core";
 import { type ColumnDef } from "@tanstack/react-table";
 import dayjs from "dayjs";
-import type { IPatient } from "@/entities/patient";
+// 1. Импортируем новый тип заявок (убедитесь, что путь к types правильный)
+import type { IPatientRequest } from "@/entities/patient/model/types"; 
 import { StatusBadge } from "../ui/status-badge";
 import { TableActions } from "../ui/table-action";
 
 export const useColumnsPatientTable = () => {
-  const columns: ColumnDef<IPatient>[] = [
+  // 2. Меняем тип на IPatientRequest
+  const columns: ColumnDef<IPatientRequest>[] = [
     {
-      accessorKey: "name",
-      header: "Bemor ismi", // ФИО
+      // 3. Используем accessorFn для доступа к вложенным данным
+      id: "name",
+      accessorFn: (row) => row.patient?.name,
+      header: "Bemor ismi",
       cell: ({ row }) => (
         <Group gap="sm" wrap="nowrap">
-          <Avatar color={row.original.avatarColor} radius="xl" size="sm">
-            {row.original.name.charAt(0)}
+          <Avatar color={row.original.patient?.avatarColor} radius="xl" size="sm">
+            {row.original.patient?.name?.charAt(0) || "?"}
           </Avatar>
           <Text size="sm" fw={500}>
-            {row.original.name}
+            {row.original.patient?.name || "Noma'lum"}
           </Text>
         </Group>
       ),
     },
     {
-      accessorKey: "phone",
+      id: "phone",
+      accessorFn: (row) => row.patient?.phone,
       header: "Telefon raqami",
       cell: ({ getValue }) => (
         <Text size="sm" style={{ whiteSpace: "nowrap" }}>
-          {getValue<string>()}
+          {getValue<string>() || "-"}
         </Text>
       ),
     },
@@ -65,7 +70,7 @@ export const useColumnsPatientTable = () => {
       header: "Amallar",
       cell: ({ row }) => (
         <TableActions
-          patientId={row.original.id}
+          requestId={row.original.id} 
           status={row.original.status}
         />
       ),

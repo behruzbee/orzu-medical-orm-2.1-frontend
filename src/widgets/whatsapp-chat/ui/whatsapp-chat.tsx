@@ -33,7 +33,7 @@ import {
 import { useDisclosure } from "@mantine/hooks";
 import EmojiPicker from "emoji-picker-react";
 
-import { PatientStatus } from "@/entities/patient";
+import { RequestStatus } from "@/entities/patient";
 import { ComplaintModal } from "@/widgets/complaint-form-modal";
 
 // 👇 Импорт API Хуков
@@ -105,8 +105,8 @@ export const WhatsAppChat = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [emojiOpened, setEmojiOpened] = useState(false);
 
-  const isLocked = ![PatientStatus.NEW, PatientStatus.CONTACTED].includes(
-    patientStatus as PatientStatus,
+  const isLocked = ![RequestStatus.NEW, RequestStatus.CONTACTED].includes(
+    patientStatus as RequestStatus,
   );
 
   useEffect(() => {

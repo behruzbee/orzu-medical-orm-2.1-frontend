@@ -14,7 +14,7 @@ import {
   COUNTRIES_DATA,
   PHONE_CODES_DATA,
 } from "@/features/constants/filter-data";
-import { PatientStatus } from "@/entities/patient";
+import { RequestStatus } from "@/entities/patient";
 
 interface Props {
   opened: boolean;
@@ -130,19 +130,19 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
               label="Bemor statusi"
               placeholder="Statusni tanlang"
               data={[
-                { value: PatientStatus.NEW, label: "🔵 Yangi" },
-                { value: PatientStatus.CONTACTED, label: "✅ Bog'landi" },
-                { value: PatientStatus.NO_ANSWER, label: "📵 Ko'tarmadi" },
-                { value: PatientStatus.UNREACHABLE, label: "🔌 O'chirilgan" },
-                { value: PatientStatus.WRONG_NUMBER, label: "⚠️ Xato raqami" },
-                { value: PatientStatus.FEEDBACK_POSITIVE, label: "😊 Ijobiy" },
+                { value: RequestStatus.NEW, label: "🔵 Yangi" },
+                { value: RequestStatus.CONTACTED, label: "✅ Bog'landi" },
+                { value: RequestStatus.NO_ANSWER, label: "📵 Ko'tarmadi" },
+                { value: RequestStatus.UNREACHABLE, label: "🔌 O'chirilgan" },
+                { value: RequestStatus.WRONG_NUMBER, label: "⚠️ Xato raqami" },
+                { value: RequestStatus.FEEDBACK_POSITIVE, label: "😊 Ijobiy" },
                 {
-                  value: PatientStatus.FEEDBACK_NEGATIVE,
+                  value: RequestStatus.FEEDBACK_NEGATIVE,
                   label: "😡 Shikoyat",
                 },
               ]}
               value={filters.status}
-              onChange={(val) => filters.setStatus(val as PatientStatus)}
+              onChange={(val) => filters.setStatus(val as RequestStatus)}
               clearable
               checkIconPosition="right"
             />

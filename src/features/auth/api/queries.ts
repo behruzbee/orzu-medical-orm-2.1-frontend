@@ -1,18 +1,31 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { notifications } from "@mantine/notifications"; // Импорт уведомлений
 import { authApi } from "./apis";
 import { setAuthToken } from "@/shared/api/api";
 import type { LoginRequest, AuthResponse } from "../model/types";
 import { useEffect, useState } from "react";
 
 export const useLoginMutation = () => {
-  return useMutation<AuthResponse, Error, LoginRequest>({
+  return useMutation<AuthResponse, any, LoginRequest>({
     mutationKey: ["auth", "login"],
     mutationFn: (data: LoginRequest) => authApi.login(data),
     onSuccess: (data) => {
       setAuthToken(data.accessToken);
+      notifications.show({
+        title: "Muvaffaqiyatli! 🎉",
+        message: "Tizimga muvaffaqiyatli kirdingiz.",
+        color: "green",
+      });
     },
     onError: (error) => {
       console.error("Login failed:", error);
+      notifications.show({
+        title: "Xatolik 🚨",
+        message:
+          error.response?.data?.message ||
+          "Authentication failed (Client/Network Error)",
+        color: "red",
+      });
     },
   });
 };

@@ -1,7 +1,7 @@
 import { Button, Modal, Text, Group } from "@mantine/core";
 import { IconHistory } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
-import { useRevertPatientStatusMutation } from "@/entities/patient/api";
+import { useRevertRequestStatusMutation } from "@/entities/patient/api";
 
 interface Props {
   patientId: string;
@@ -10,7 +10,7 @@ interface Props {
 
 export const RevertStatusButton = ({ patientId, onSuccess }: Props) => {
   const [opened, { open, close }] = useDisclosure(false);
-  const { mutate, isPending } = useRevertPatientStatusMutation();
+  const { mutate, isPending } = useRevertRequestStatusMutation();
 
   const handleRevert = () => {
     mutate(patientId, {

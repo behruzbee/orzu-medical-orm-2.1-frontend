@@ -12,16 +12,16 @@ import {
 } from "@mantine/core";
 import { IconDeviceFloppy, IconPhoneCall, IconLock } from "@tabler/icons-react";
 import { useAddCallStatusMutation } from "@/entities/patient/api";
-import { PatientStatus, type IPatient } from "@/entities/patient";
+import { RequestStatus, type IPatient } from "@/entities/patient";
 
 interface Props {
   patient: IPatient;
 }
 
-const EDITABLE_STATUSES = [PatientStatus.NEW, PatientStatus.CONTACTED];
+const EDITABLE_STATUSES = [RequestStatus.NEW, RequestStatus.CONTACTED];
 
 export const CallResultForm = ({ patient }: Props) => {
-  const [status, setStatus] = useState<PatientStatus | null>(null);
+  const [status, setStatus] = useState<RequestStatus | null>(null);
   const [note, setNote] = useState("");
 
   const { mutate, isPending } = useAddCallStatusMutation();
@@ -85,56 +85,56 @@ export const CallResultForm = ({ patient }: Props) => {
 
       <Radio.Group
         value={status || ""}
-        onChange={(val) => !isLocked && setStatus(val as PatientStatus)} // Блокируем изменение
+        onChange={(val) => !isLocked && setStatus(val as RequestStatus)} // Блокируем изменение
         label={isLocked ? "Tanlangan holat:" : "Natija qanday bo'ldi?"}
         withAsterisk={!isLocked}
         mb="md"
       >
         <Stack gap="sm" mt="xs">
           <Radio
-            value={PatientStatus.NO_ANSWER}
+            value={RequestStatus.NO_ANSWER}
             label="📵 Ko'tarmadi (No Answer)"
             color="yellow"
-            disabled={isLocked && status !== PatientStatus.NO_ANSWER}
+            disabled={isLocked && status !== RequestStatus.NO_ANSWER}
             style={{
-              opacity: isLocked && status !== PatientStatus.NO_ANSWER ? 0.5 : 1,
+              opacity: isLocked && status !== RequestStatus.NO_ANSWER ? 0.5 : 1,
             }}
           />
 
           <Radio
-            value={PatientStatus.UNREACHABLE}
+            value={RequestStatus.UNREACHABLE}
             label="🔌 O'chirilgan / Bog'lanib bo'lmaydi"
             color="orange"
-            disabled={isLocked && status !== PatientStatus.UNREACHABLE}
+            disabled={isLocked && status !== RequestStatus.UNREACHABLE}
             style={{
               opacity:
-                isLocked && status !== PatientStatus.UNREACHABLE ? 0.5 : 1,
+                isLocked && status !== RequestStatus.UNREACHABLE ? 0.5 : 1,
             }}
           />
 
           <Radio
-            value={PatientStatus.WRONG_NUMBER}
+            value={RequestStatus.WRONG_NUMBER}
             label="⚠️ Noto'g'ri raqam"
             color="gray"
-            disabled={isLocked && status !== PatientStatus.WRONG_NUMBER}
+            disabled={isLocked && status !== RequestStatus.WRONG_NUMBER}
             style={{
               opacity:
-                isLocked && status !== PatientStatus.WRONG_NUMBER ? 0.5 : 1,
+                isLocked && status !== RequestStatus.WRONG_NUMBER ? 0.5 : 1,
             }}
           />
 
           {/* Если статус "Shikoyat" или "Feedback", можно добавить для отображения */}
-          {(status === PatientStatus.FEEDBACK_POSITIVE ||
-            status === PatientStatus.FEEDBACK_NEGATIVE) && (
+          {(status === RequestStatus.FEEDBACK_POSITIVE ||
+            status === RequestStatus.FEEDBACK_NEGATIVE) && (
             <Radio
               value={status}
               label={
-                status === PatientStatus.FEEDBACK_POSITIVE
+                status === RequestStatus.FEEDBACK_POSITIVE
                   ? "😊 Ijobiy fikr"
                   : "😡 Shikoyat"
               }
               color={
-                status === PatientStatus.FEEDBACK_POSITIVE ? "green" : "red"
+                status === RequestStatus.FEEDBACK_POSITIVE ? "green" : "red"
               }
               checked
               readOnly
@@ -159,18 +159,18 @@ export const CallResultForm = ({ patient }: Props) => {
         <Button
           fullWidth
           leftSection={
-            status === PatientStatus.CONTACTED ? (
+            status === RequestStatus.CONTACTED ? (
               <IconPhoneCall size={18} />
             ) : (
               <IconDeviceFloppy size={18} />
             )
           }
-          color={status === PatientStatus.CONTACTED ? "teal" : "brand"}
+          color={status === RequestStatus.CONTACTED ? "teal" : "brand"}
           onClick={handleSubmit}
           loading={isPending}
           disabled={!status}
         >
-          {status === PatientStatus.CONTACTED
+          {status === RequestStatus.CONTACTED
             ? "Suhbatni boshlash / Saqlash"
             : "Natijani saqlash"}
         </Button>
