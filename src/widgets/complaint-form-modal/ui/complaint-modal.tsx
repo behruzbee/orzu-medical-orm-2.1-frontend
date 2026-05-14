@@ -39,6 +39,7 @@ import type { IMessage } from "@/entities/chat";
 
 // --- ТИПЫ ---
 interface ComplaintPayload {
+  type: "complaint" | "suggestion"; // 👈 ДОБАВЛЕНО ПОЛЕ TYPE
   ratings: Record<string, number>;
   evidenceMessages: any[];
   sendToTrello?: boolean;
@@ -94,15 +95,12 @@ export const ComplaintModal = ({
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // --- MANUAL INPUT STATE ---
   const [manualText, setManualText] = useState(DEFAULT_TEXT);
   const [manualEvidence, setManualEvidence] = useState<IMessage[]>([]);
   const [sendToTrello, setSendToTrello] = useState(false);
 
-  // --- DRAG AND DROP STATE ---
   const [isDragging, setIsDragging] = useState(false);
 
-  // Audio Recording State
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -122,7 +120,6 @@ export const ComplaintModal = ({
     }
   }, [opened]);
 
-  // --- ЛОГИКА DRAG AND DROP ---
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -132,7 +129,6 @@ export const ComplaintModal = ({
   const handleDragLeave = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    // Agar kursor oynaning ichidagi boshqa elementga o'tgan bo'lsa, yopmaslik uchun tekshiruv
     if (e.currentTarget.contains(e.relatedTarget as Node)) return;
     setIsDragging(false);
   };
@@ -150,7 +146,6 @@ export const ComplaintModal = ({
     }
   };
 
-  // --- ЛОГИКА АУДИО ПЛЕЕРА ---
   const stopPlaying = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -172,7 +167,6 @@ export const ComplaintModal = ({
     setPlayingAudioId(id);
   };
 
-  // --- ЛОГИКА ЗАПИСИ ГОЛОСА ---
   const startRecording = async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -235,7 +229,6 @@ export const ComplaintModal = ({
     return `${m}:${s < 10 ? "0" : ""}${s}`;
   };
 
-  // --- ЛОГИКА ФАЙЛОВ И ТЕКСТА ---
   const handleFileUpload = async (file: File | null) => {
     if (!file) return;
     try {
@@ -272,7 +265,6 @@ export const ComplaintModal = ({
 
   const addManualEvidence = (item: Partial<IMessage>) => {
     const newItem: IMessage = {
-      // Unikal ID yaratish (birdaniga bir nechta fayl tushganda xato bermasligi uchun)
       id: `manual-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       sender: "operator",
       timestamp: new Date().toLocaleTimeString([], {
@@ -294,6 +286,7 @@ export const ComplaintModal = ({
     setManualEvidence((prev) => prev.filter((i) => i.id !== id));
   };
 
+  // Проверка: Если ВСЕ оценки = 5, значит это Предложение (Taklif/Suggestion)
   const isAllOk = CATEGORIES.every((cat) => ratings[cat.id] === 5);
 
   const handleSubmit = () => {
@@ -320,10 +313,11 @@ export const ComplaintModal = ({
     }
 
     onSubmit({
+      type: isAllOk ? "suggestion" : "complaint", // 👈 ОТПРАВЛЯЕМ ТИП НА БЭКЕНД
       ratings: ratings,
       evidenceMessages: combinedEvidence,
       createdAt: new Date().toISOString(),
-      sendToTrello: isAllOk ? sendToTrello : undefined, // 👈 ДОБАВЛЕНО
+      sendToTrello: isAllOk ? sendToTrello : undefined,
     });
   };
 
@@ -492,7 +486,7 @@ export const ComplaintModal = ({
       closeOnClickOutside={false}
       styles={{ content: { position: "relative" } }}
     >
-      {/* DRAG AND DROP KONTENYERI */}
+      {/* ... Остальной JSX код без изменений ... */}
       <Box
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -735,7 +729,7 @@ export const ComplaintModal = ({
               size="md"
               onClick={handleSubmit}
               disabled={!isFormValid || totalEvidenceCount === 0 || isLoading}
-              loading={isLoading} // 👈 Крутилка загрузки
+              loading={isLoading}
             >
               Saqlash ({totalEvidenceCount} dalil)
             </Button>
