@@ -1,4 +1,4 @@
-import { RequestStatus, type IPatientRequest } from "@/entities/patient"; // 👈 Импортируем правильный тип Заявки
+import { RequestStatus, type IEvidenceMessage, type IPatientRequest } from "@/entities/patient";
 import {
   Paper,
   Avatar,
@@ -9,6 +9,9 @@ import {
   ThemeIcon,
   Button,
   Divider,
+  Accordion,
+  ScrollArea,
+  Image,
 } from "@mantine/core";
 import {
   IconPhone,
@@ -16,16 +19,39 @@ import {
   IconBrandWhatsapp,
   IconPlaneDeparture,
   IconPlaneArrival,
-  IconMessageReport, // 👈 Иконка для жалобы
-  IconMessageStar,   // 👈 Иконка для положительного отзыва
+  IconMessageReport,
+  IconMessageStar,
+  IconHistory,
+  IconPhoto,
+  IconMicrophone,
+  IconVideo,
+  IconFile,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
+
+// 1. Добавляем типы для Evidence, чтобы TS понимал структуру
+export enum EvidenceType {
+  TEXT = "text",
+  AUDIO = "audio",
+  VIDEO = "video",
+  IMAGE = "image",
+  DOCUMENT = "document",
+}
+
+
+// Расширяем (или предполагаем, что у вас в IPatientRequest уже так)
+// interface IPatientRequest {
+//   ...
+//   feedback?: {
+//     comment?: string;
+//     evidenceMessages?: IEvidenceMessage[];
+//   }
+// }
 
 interface Props {
   patient: IPatientRequest;
 }
 
-// Маппинг цветов для статусов
 const STATUS_COLORS: Record<string, string> = {
   [RequestStatus.NEW]: "blue",
   [RequestStatus.CONTACTED]: "cyan",
@@ -50,12 +76,90 @@ const STATUS_LABELS: Record<string, string> = {
   [RequestStatus.FEEDBACK_NEGATIVE]: "Shikoyat",
 };
 
-export const PatientCard = ({ patient: request }: Props) => {
-  // Вытаскиваем вложенный объект с личными данными человека
-  const person = request.patient;
+// Вспомогательный компонент для рендера содержимого сообщения
+const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
+  switch (msg.type) {
+    case EvidenceType.TEXT:
+      return <Text size="sm">{msg.text}</Text>;
+    case EvidenceType.IMAGE:
+      return (
+        <Stack gap="xs">
+          {msg.mediaUrl ? (
+            <Image
+              src={msg.mediaUrl}
+              radius="md"
+              alt="evidence"
+              fit="contain"
+              mah={200}
+            />
+          ) : (
+            <Group gap="xs" c="dimmed">
+              <IconPhoto size={20} />{" "}
+              <Text size="sm">Rasm (Fayl topilmadi)</Text>
+            </Group>
+          )}
+          {msg.text && <Text size="sm">{msg.text}</Text>}
+        </Stack>
+      );
+    case EvidenceType.AUDIO:
+      return (
+        <Stack gap="xs">
+          {msg.mediaUrl ? (
+            <audio
+              controls
+              src={msg.mediaUrl}
+              style={{ width: "100%", height: "36px" }}
+            />
+          ) : (
+            <Group gap="xs" c="dimmed">
+              <IconMicrophone size={20} /> <Text size="sm">Audio xabar</Text>
+            </Group>
+          )}
+          {msg.text && (
+            <Text size="sm" c="dimmed" fs="italic">
+              {msg.text}
+            </Text>
+          )}
+        </Stack>
+      );
+    case EvidenceType.VIDEO:
+      return (
+        <Group gap="xs" c="blue">
+          <IconVideo size={20} />
+          <Text
+            size="sm"
+            component="a"
+            href={msg.mediaUrl}
+            target="_blank"
+            style={{ textDecoration: "underline" }}
+          >
+            Videoni ko'rish
+          </Text>
+        </Group>
+      );
+    case EvidenceType.DOCUMENT:
+    default:
+      return (
+        <Group gap="xs" c="blue">
+          <IconFile size={20} />
+          <Text
+            size="sm"
+            component="a"
+            href={msg.mediaUrl}
+            target="_blank"
+            style={{ textDecoration: "underline" }}
+          >
+            Hujjatni yuklab olish
+          </Text>
+        </Group>
+      );
+  }
+};
 
-  // Безопасно парсим телефон
+export const PatientCard = ({ patient: request }: Props) => {
+  const person = request.patient;
   const cleanPhone = person?.phone ? person.phone.replace(/[^0-9+]/g, "") : "";
+  const evidenceMessages = request.feedback?.evidenceMessages || [];
 
   return (
     <Paper withBorder p="md" radius="md" shadow="sm">
@@ -139,6 +243,7 @@ export const PatientCard = ({ patient: request }: Props) => {
           </Group>
         )}
 
+        {/* ОСНОВНОЙ ФИДБЕК */}
         {request.feedback && (
           <>
             <Divider my="xs" variant="dashed" />
@@ -162,14 +267,82 @@ export const PatientCard = ({ patient: request }: Props) => {
               <div style={{ flex: 1 }}>
                 <Text size="xs" c="dimmed">
                   {request.status === RequestStatus.FEEDBACK_NEGATIVE
-                    ? "Shikoyat matni"
-                    : "Fikr / Taklif matni"}
+                    ? "Shikoyat xulosasi"
+                    : "Fikr / Taklif xulosasi"}
                 </Text>
                 <Text size="sm" style={{ wordBreak: "break-word" }}>
                   {request.feedback.comment || "Izoh qoldirilmagan"}
                 </Text>
               </div>
             </Group>
+
+            {/* ИСТОРИЯ ДОКАЗАТЕЛЬСТВ / ЖАЛОБ (EVIDENCE MESSAGES) */}
+            {evidenceMessages.length > 0 && (
+              <Accordion variant="separated" radius="md" mt="xs">
+                <Accordion.Item value="evidence">
+                  <Accordion.Control
+                    icon={
+                      <IconHistory
+                        size={18}
+                        color="var(--mantine-color-blue-6)"
+                      />
+                    }
+                  >
+                    <Text size="sm" fw={500}>
+                      Dalillar tarixi ({evidenceMessages.length})
+                    </Text>
+                  </Accordion.Control>
+                  <Accordion.Panel>
+                    <ScrollArea h={300} offsetScrollbars type="auto">
+                      <Stack gap="md" pr="sm">
+                        {evidenceMessages.map((msg, index) => {
+                          const isOperator = msg.sender === "operator";
+                          const timestamp = msg.originalTimestamp;
+
+                          return (
+                            <Paper
+                              key={msg.id || index}
+                              p="xs"
+                              radius="md"
+                              bg={isOperator ? "blue.0" : "gray.1"}
+                              style={{
+                                alignSelf: isOperator
+                                  ? "flex-end"
+                                  : "flex-start",
+                                maxWidth: "90%",
+                                borderBottomRightRadius: isOperator
+                                  ? 4
+                                  : undefined,
+                                borderBottomLeftRadius: !isOperator
+                                  ? 4
+                                  : undefined,
+                              }}
+                            >
+                              <Group justify="space-between" mb={4} gap="xl">
+                                <Text
+                                  size="xs"
+                                  fw={600}
+                                  c={isOperator ? "blue.7" : "gray.7"}
+                                >
+                                  {isOperator ? "Operator" : "Bemor"}
+                                </Text>
+                                {timestamp && (
+                                  <Text size="xs" c="dimmed">
+                                    {dayjs(timestamp).format("DD.MM HH:mm")}
+                                  </Text>
+                                )}
+                              </Group>
+
+                              <EvidenceContent msg={msg} />
+                            </Paper>
+                          );
+                        })}
+                      </Stack>
+                    </ScrollArea>
+                  </Accordion.Panel>
+                </Accordion.Item>
+              </Accordion>
+            )}
           </>
         )}
       </Stack>
