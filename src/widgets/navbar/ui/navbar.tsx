@@ -5,7 +5,8 @@ import {
   IconBrandWhatsapp,
   IconSwitchHorizontal,
   IconMail,
-  IconDownload
+  IconDownload,
+  IconAlertCircle // <-- Добавили иконку для ошибок
 } from "@tabler/icons-react";
 import { Code, Group, Image } from "@mantine/core";
 import { useLocation, Link } from "react-router-dom";
@@ -38,6 +39,12 @@ const data = [
     link: APP_PATHS.IMPORT_PATIENTS.IMPORT_PATIENTS_PATH,
     label: "Raqamlarni yuklash",
     icon: IconDownload,
+  },
+  // <-- Добавили ссылку на новую страницу ошибок
+  {
+    link: APP_PATHS.IMPORT_ERRORS.IMPORT_ERRORS_PATH, 
+    label: "Import xatoliklari",
+    icon: IconAlertCircle,
   }
 ];
 
