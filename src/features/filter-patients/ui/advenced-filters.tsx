@@ -132,17 +132,26 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
               data={[
                 { value: RequestStatus.NEW, label: "🔵 Yangi" },
                 { value: RequestStatus.CONTACTED, label: "✅ Bog'landi" },
+                { value: RequestStatus.ALL_OK, label: "👌 Hammasi ijobiy" },
                 { value: RequestStatus.NO_ANSWER, label: "📵 Ko'tarmadi" },
                 { value: RequestStatus.UNREACHABLE, label: "🔌 O'chirilgan" },
                 { value: RequestStatus.WRONG_NUMBER, label: "⚠️ Xato raqami" },
+                {
+                  value: RequestStatus.HAS_NOT_WHATSAPP,
+                  label: "📴 WhatsApp yo'q",
+                },
                 { value: RequestStatus.FEEDBACK_POSITIVE, label: "😊 Ijobiy" },
                 {
                   value: RequestStatus.FEEDBACK_NEGATIVE,
                   label: "😡 Shikoyat",
                 },
+                {
+                  value: RequestStatus.FEEDBACK_NOT_RELATED,
+                  label: "🤷 Boshqa (Klinikaga xos emas)",
+                },
               ]}
               value={filters.status}
-              onChange={(val) => filters.setStatus(val as RequestStatus)}
+              onChange={(val) => filters.setStatus(val as RequestStatus)} 
               clearable
               checkIconPosition="right"
             />

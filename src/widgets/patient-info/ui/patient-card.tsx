@@ -62,6 +62,7 @@ const STATUS_COLORS: Record<string, string> = {
   [RequestStatus.HAS_NOT_WHATSAPP]: "violet",
   [RequestStatus.FEEDBACK_POSITIVE]: "green",
   [RequestStatus.FEEDBACK_NEGATIVE]: "red",
+  [RequestStatus.FEEDBACK_NOT_RELATED]: "dark", // Добавлен новый статус
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -74,6 +75,7 @@ const STATUS_LABELS: Record<string, string> = {
   [RequestStatus.HAS_NOT_WHATSAPP]: "WhatsApp yo'q",
   [RequestStatus.FEEDBACK_POSITIVE]: "Ijobiy fikr",
   [RequestStatus.FEEDBACK_NEGATIVE]: "Shikoyat",
+  [RequestStatus.FEEDBACK_NOT_RELATED]: "Klinikaga xos emas", // Добавлен новый статус
 };
 
 // Вспомогательный компонент для рендера содержимого сообщения
