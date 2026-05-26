@@ -29,7 +29,6 @@ import {
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 
-// 1. Добавляем типы для Evidence, чтобы TS понимал структуру
 export enum EvidenceType {
   TEXT = "text",
   AUDIO = "audio",
@@ -37,16 +36,6 @@ export enum EvidenceType {
   IMAGE = "image",
   DOCUMENT = "document",
 }
-
-
-// Расширяем (или предполагаем, что у вас в IPatientRequest уже так)
-// interface IPatientRequest {
-//   ...
-//   feedback?: {
-//     comment?: string;
-//     evidenceMessages?: IEvidenceMessage[];
-//   }
-// }
 
 interface Props {
   patient: IPatientRequest;
@@ -60,9 +49,10 @@ const STATUS_COLORS: Record<string, string> = {
   [RequestStatus.UNREACHABLE]: "orange",
   [RequestStatus.WRONG_NUMBER]: "gray",
   [RequestStatus.HAS_NOT_WHATSAPP]: "violet",
+  [RequestStatus.EMPLOYEE]: "indigo", // 🔥 ДОБАВЛЕНО
   [RequestStatus.FEEDBACK_POSITIVE]: "green",
   [RequestStatus.FEEDBACK_NEGATIVE]: "red",
-  [RequestStatus.FEEDBACK_NOT_RELATED]: "dark", // Добавлен новый статус
+  [RequestStatus.FEEDBACK_NOT_RELATED]: "dark",
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -73,12 +63,12 @@ const STATUS_LABELS: Record<string, string> = {
   [RequestStatus.UNREACHABLE]: "O'chirilgan",
   [RequestStatus.WRONG_NUMBER]: "Xato raqam",
   [RequestStatus.HAS_NOT_WHATSAPP]: "WhatsApp yo'q",
+  [RequestStatus.EMPLOYEE]: "Xodim raqami", // 🔥 ДОБАВЛЕНО
   [RequestStatus.FEEDBACK_POSITIVE]: "Ijobiy fikr",
   [RequestStatus.FEEDBACK_NEGATIVE]: "Shikoyat",
-  [RequestStatus.FEEDBACK_NOT_RELATED]: "Klinikaga xos emas", // Добавлен новый статус
+  [RequestStatus.FEEDBACK_NOT_RELATED]: "Klinikaga xos emas",
 };
 
-// Вспомогательный компонент для рендера содержимого сообщения
 const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
   switch (msg.type) {
     case EvidenceType.TEXT:
@@ -245,7 +235,6 @@ export const PatientCard = ({ patient: request }: Props) => {
           </Group>
         )}
 
-        {/* ОСНОВНОЙ ФИДБЕК */}
         {request.feedback && (
           <>
             <Divider my="xs" variant="dashed" />
@@ -278,7 +267,6 @@ export const PatientCard = ({ patient: request }: Props) => {
               </div>
             </Group>
 
-            {/* ИСТОРИЯ ДОКАЗАТЕЛЬСТВ / ЖАЛОБ (EVIDENCE MESSAGES) */}
             {evidenceMessages.length > 0 && (
               <Accordion variant="separated" radius="md" mt="xs">
                 <Accordion.Item value="evidence">

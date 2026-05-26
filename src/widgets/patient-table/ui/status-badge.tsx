@@ -9,6 +9,7 @@ const STATUS_CONFIG: Record<string, { label: string; color: string }> = {
   [RequestStatus.UNREACHABLE]: { label: "O'chirilgan", color: "orange" },
   [RequestStatus.WRONG_NUMBER]: { label: "Xato raqam", color: "gray" },
   [RequestStatus.HAS_NOT_WHATSAPP]: { label: "WhatsApp yo'q", color: "violet" },
+  [RequestStatus.EMPLOYEE]: { label: "Xodim raqami", color: "indigo" },
   [RequestStatus.FEEDBACK_POSITIVE]: { label: "Ijobiy fikr", color: "green" },
   [RequestStatus.FEEDBACK_NEGATIVE]: { label: "Shikoyat", color: "red" },
   [RequestStatus.FEEDBACK_NOT_RELATED]: {

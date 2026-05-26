@@ -30,7 +30,7 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
 
   const handleCountryChange = (val: string | null) => {
     if (val) {
-      filters.setCountries([val]); // Сохраняем как массив из 1 элемента
+      filters.setCountries([val]);
     } else {
       filters.setCountries([]);
     }
@@ -52,12 +52,10 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
     >
       <Stack justify="space-between" h="calc(100vh - 60px)">
         <Stack gap="lg" p="md" style={{ overflowY: "auto" }}>
-          {/* 1. Geografiya */}
           <Stack gap="xs">
             <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
               Geografiya
             </Text>
-            {/* 🔥 ЗАМЕНИЛИ MULTISELECT НА SELECT */}
             <Select
               label="Yashash mamlakati"
               placeholder="Mamlakatni tanlang"
@@ -72,7 +70,6 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
 
           <Divider />
 
-          {/* 2. Telefon Kodi */}
           <Stack gap="xs">
             <Text size="xs" c="dimmed" tt="uppercase" fw={700}>
               Telefon kodi
@@ -140,6 +137,7 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
                   value: RequestStatus.HAS_NOT_WHATSAPP,
                   label: "📴 WhatsApp yo'q",
                 },
+                { value: RequestStatus.EMPLOYEE, label: "👔 Xodim raqami" },
                 { value: RequestStatus.FEEDBACK_POSITIVE, label: "😊 Ijobiy" },
                 {
                   value: RequestStatus.FEEDBACK_NEGATIVE,
@@ -151,7 +149,7 @@ export const AdvancedFilters = ({ opened, onClose }: Props) => {
                 },
               ]}
               value={filters.status}
-              onChange={(val) => filters.setStatus(val as RequestStatus)} 
+              onChange={(val) => filters.setStatus(val as RequestStatus)}
               clearable
               checkIconPosition="right"
             />

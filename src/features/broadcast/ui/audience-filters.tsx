@@ -16,7 +16,6 @@ export const AudienceFilters = () => {
     setDateRange,
   } = useBroadcastStore();
 
-  // ✅ Преобразуем данные из store в массив объектов Date перед передачей в Mantine
   const parsedDateRange: [Date | null, Date | null] = [
     dateRange?.[0] ? new Date(dateRange[0]) : null,
     dateRange?.[1] ? new Date(dateRange[1]) : null,
@@ -56,10 +55,8 @@ export const AudienceFilters = () => {
             { value: RequestStatus.NO_ANSWER, label: "📵 Ko'tarmadi" },
             { value: RequestStatus.UNREACHABLE, label: "🔌 O'chirilgan" },
             { value: RequestStatus.WRONG_NUMBER, label: "⚠️ Xato raqami" },
-            {
-              value: RequestStatus.HAS_NOT_WHATSAPP,
-              label: "📴 WhatsApp yo'q",
-            },
+            { value: RequestStatus.HAS_NOT_WHATSAPP, label: "📴 WhatsApp yo'q" },
+            { value: RequestStatus.EMPLOYEE, label: "👔 Xodim raqami" },
             { value: RequestStatus.FEEDBACK_POSITIVE, label: "😊 Ijobiy" },
             { value: RequestStatus.FEEDBACK_NEGATIVE, label: "😡 Shikoyat" },
             {
