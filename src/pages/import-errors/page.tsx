@@ -21,7 +21,7 @@ import {
 export const ImportErrorsPage = () => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
-    pageSize: 20,
+    pageSize: 10,
   });
 
   const [search, setSearch] = useState("");

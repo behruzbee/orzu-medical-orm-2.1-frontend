@@ -19,7 +19,6 @@ import {
   Badge,
   Overlay,
   Center,
-  Checkbox,
 } from "@mantine/core";
 import {
   IconAlertTriangle,
@@ -37,9 +36,8 @@ import {
 } from "@tabler/icons-react";
 import type { IMessage } from "@/entities/chat";
 
-// --- ТИПЫ ---
 interface ComplaintPayload {
-  type: "complaint" | "suggestion"; // 👈 ДОБАВЛЕНО ПОЛЕ TYPE
+  type: "complaint" | "suggestion";
   ratings: Record<string, number>;
   evidenceMessages: any[];
   sendToTrello?: boolean;
@@ -54,7 +52,6 @@ interface Props {
   isLoading?: boolean;
 }
 
-// Утилита для конвертации в Base64
 const fileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -78,10 +75,8 @@ const DEFAULT_RATINGS = CATEGORIES.reduce(
     acc[cat.id] = 5;
     return acc;
   },
-  {} as Record<string, number>,
+  {} as Record<string, number>
 );
-
-const DEFAULT_TEXT = "Bemor bilan bog'lanildi va natijadan mamnun.";
 
 export const ComplaintModal = ({
   opened,
@@ -90,14 +85,12 @@ export const ComplaintModal = ({
   onSubmit,
   isLoading = false,
 }: Props) => {
-  const [ratings, setRatings] =
-    useState<Record<string, number>>(DEFAULT_RATINGS);
+  const [ratings, setRatings] = useState<Record<string, number>>(DEFAULT_RATINGS);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const [manualText, setManualText] = useState(DEFAULT_TEXT);
+  const [manualText, setManualText] = useState("");
   const [manualEvidence, setManualEvidence] = useState<IMessage[]>([]);
-  const [sendToTrello, setSendToTrello] = useState(false);
 
   const [isDragging, setIsDragging] = useState(false);
 
@@ -110,7 +103,7 @@ export const ComplaintModal = ({
     if (opened) {
       setRatings(DEFAULT_RATINGS);
       setManualEvidence([]);
-      setManualText(DEFAULT_TEXT);
+      setManualText("");
       setRecordingTime(0);
       setIsRecording(false);
       setIsDragging(false);
@@ -188,7 +181,7 @@ export const ComplaintModal = ({
           `voice_note_${Date.now()}.webm`,
           {
             type: mimeType,
-          },
+          }
         );
         const base64 = await fileToBase64(audioFile);
 
@@ -250,7 +243,7 @@ export const ComplaintModal = ({
         text: file.name,
       });
     } catch (e) {
-      console.error("File upload error", e);
+      console.error("Fayl yuklashda xatolik", e);
     }
   };
 
@@ -286,10 +279,12 @@ export const ComplaintModal = ({
     setManualEvidence((prev) => prev.filter((i) => i.id !== id));
   };
 
-  // Проверка: Если ВСЕ оценки = 5, значит это Предложение (Taklif/Suggestion)
   const isAllOk = CATEGORIES.every((cat) => ratings[cat.id] === 5);
+  const isFormValid = CATEGORIES.every((cat) => (ratings[cat.id] || 0) > 0);
+  
+  const totalEvidenceCount = selectedMessages.length + manualEvidence.length + (manualText.trim() ? 1 : 0);
 
-  const handleSubmit = () => {
+  const handleSubmit = (submissionType: "suggestion" | "complaint") => {
     stopPlaying();
 
     const combinedEvidence = [
@@ -313,11 +308,11 @@ export const ComplaintModal = ({
     }
 
     onSubmit({
-      type: isAllOk ? "suggestion" : "complaint", // 👈 ОТПРАВЛЯЕМ ТИП НА БЭКЕНД
+      type: submissionType,
       ratings: ratings,
       evidenceMessages: combinedEvidence,
       createdAt: new Date().toISOString(),
-      sendToTrello: isAllOk ? sendToTrello : undefined,
+      sendToTrello: submissionType === "suggestion" ? true : undefined,
     });
   };
 
@@ -462,12 +457,6 @@ export const ComplaintModal = ({
     );
   };
 
-  const isFormValid = CATEGORIES.every((cat) => (ratings[cat.id] || 0) > 0);
-  const totalEvidenceCount =
-    selectedMessages.length +
-    manualEvidence.length +
-    (manualText.trim() ? 1 : 0);
-
   return (
     <Modal
       opened={opened}
@@ -486,7 +475,6 @@ export const ComplaintModal = ({
       closeOnClickOutside={false}
       styles={{ content: { position: "relative" } }}
     >
-      {/* ... Остальной JSX код без изменений ... */}
       <Box
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -698,7 +686,8 @@ export const ComplaintModal = ({
                     size="md"
                     value={currentRating}
                     onChange={(value) =>
-                      setRatings((p) => ({ ...p, [cat.id]: value }))
+                      // 🔥 ОБНОВЛЕНИЕ: Ограничиваем минимальное значение до 2 звезд
+                      setRatings((p) => ({ ...p, [cat.id]: Math.max(2, value) }))
                     }
                   />
                 </Group>
@@ -706,33 +695,31 @@ export const ComplaintModal = ({
             })}
           </Stack>
 
-          {isAllOk && (
-            <Box bg="blue.0" p="sm" style={{ borderRadius: 8 }}>
-              <Checkbox
-                label="Trelloga 'Taklif' sifatida yuborish"
-                description="Bemorning ijobiy fikrini Trelloga qo'shish uchun belgilang"
-                checked={sendToTrello}
-                onChange={(event) =>
-                  setSendToTrello(event.currentTarget.checked)
-                }
-                color="blue"
-              />
-            </Box>
-          )}
-
-          <Group grow mt="md">
+          <Group grow mt="md" align="flex-end">
             <Button variant="light" color="gray" onClick={onClose}>
               Bekor qilish
             </Button>
-            <Button
-              color="red.7"
-              size="md"
-              onClick={handleSubmit}
-              disabled={!isFormValid || totalEvidenceCount === 0 || isLoading}
-              loading={isLoading}
-            >
-              Saqlash ({totalEvidenceCount} dalil)
-            </Button>
+            <Stack gap="xs" style={{ flex: 2 }}>
+              <Group grow>
+                <Button
+                  color="green.7"
+                  onClick={() => handleSubmit("suggestion")}
+                  disabled={!isAllOk || !isFormValid || totalEvidenceCount === 0 || isLoading}
+                  loading={isLoading}
+                >
+                  Taklif sifatida
+                </Button>
+                <Button
+                  color="red.7"
+                  onClick={() => handleSubmit("complaint")}
+                  // 🔥 ОБНОВЛЕНИЕ: Блокируем кнопку Жалоба, если все категории равны 5 (isAllOk === true)
+                  disabled={isAllOk || !isFormValid || totalEvidenceCount === 0 || isLoading}
+                  loading={isLoading}
+                >
+                  Shikoyat sifatida
+                </Button>
+              </Group>
+            </Stack>
           </Group>
         </Stack>
       </Box>

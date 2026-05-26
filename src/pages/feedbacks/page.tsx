@@ -4,8 +4,6 @@ import {
   Title,
   Tabs,
   Paper,
-  Group,
-  Pagination,
   LoadingOverlay,
   Text,
   Center,
@@ -97,21 +95,6 @@ export const FeedbacksPage = () => {
                 <Center h={300}>
                   <Text c="dimmed">Ushbu bo'limda hozircha ma'lumot yo'q</Text>
                 </Center>
-              )}
-
-              {/* 3. Если PatientTable не рендерит свою пагинацию, оставляем внешнюю */}
-              {data?.meta && data.meta.totalPages > 1 && (
-                <Group justify="center" mt="xl">
-                  <Pagination
-                    total={data.meta.totalPages}
-                    value={pagination.pageIndex + 1}
-                    onChange={(p) =>
-                      // Обновляем pageIndex (отнимаем 1, так как Mantine Pagination начинается с 1)
-                      setPagination((prev) => ({ ...prev, pageIndex: p - 1 }))
-                    }
-                    color="brand"
-                  />
-                </Group>
               )}
             </>
           )}

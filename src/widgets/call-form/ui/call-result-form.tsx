@@ -132,7 +132,6 @@ export const CallResultForm = ({ patient: request }: Props) => {
             }}
           />
 
-          {/* 🔥 НОВЫЙ СТАТУС: НЕТ WHATSAPP 🔥 */}
           <Radio
             value={RequestStatus.HAS_NOT_WHATSAPP}
             label="💬 WhatsApp tarmog'ida yo'q"
@@ -141,6 +140,17 @@ export const CallResultForm = ({ patient: request }: Props) => {
             style={{
               opacity:
                 isLocked && status !== RequestStatus.HAS_NOT_WHATSAPP ? 0.5 : 1,
+            }}
+          />
+
+          <Radio
+            value={RequestStatus.EMPLOYEE}
+            label="👔 Xodim raqami"
+            color="blue"
+            disabled={isLocked && status !== RequestStatus.EMPLOYEE}
+            style={{
+              opacity:
+                isLocked && status !== RequestStatus.EMPLOYEE ? 0.5 : 1,
             }}
           />
 
