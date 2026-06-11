@@ -160,3 +160,36 @@ export const useDeleteRequestMutation = () => {
     },
   });
 };
+
+export const usePatientProfile = (patientId: string) => {
+  return useQuery({
+    queryKey: ["requests", "profile", patientId],
+    queryFn: () => requestsApi.getProfile(patientId),
+    enabled: !!patientId,
+  });
+};
+
+export const useDeletePatientMutation = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (patientId: string) => requestsApi.deletePatient(patientId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: requestKeys.all });
+      queryClient.invalidateQueries({ queryKey: requestKeys.stats() });
+
+      notifications.show({
+        title: "Bemor o'chirildi",
+        message: "Bemor va uning barcha arizalari muvaffaqiyatli o'chirildi",
+        color: "gray",
+      });
+    },
+    onError: () => {
+      notifications.show({
+        title: "Xatolik",
+        message: "Bemorni o'chirishda xatolik yuz berdi",
+        color: "red",
+      });
+    },
+  });
+};

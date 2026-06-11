@@ -74,4 +74,13 @@ export const requestsApi = {
     const response = await api.patch(`/requests/${id}/revert-status`);
     return response.data; // Обновлено: бэкенд возвращает объект { message, status }
   },
+
+  getProfile: async (patientId: string): Promise<any> => {
+    const response = await api.get(`/requests/profile/${patientId}`);
+    return response.data;
+  },
+
+  deletePatient: async (patientId: string): Promise<void> => {
+    await api.delete(`/requests/profile/${patientId}`);
+  },
 };
