@@ -16,6 +16,7 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import { PatientCard } from "@/widgets/patient-info";
 import { CallResultForm } from "@/widgets/call-form";
 import { WhatsAppChat } from "@/widgets/whatsapp-chat";
+import { PatientDoctorMessageForm } from "@/features/doctor-message";
 
 import { 
   useRequest, 
@@ -150,6 +151,10 @@ export const PatientProfilePage = () => {
           <Stack gap="md" pb="xl">
             <PatientCard patient={request} />
             <CallResultForm patient={request} />
+            <PatientDoctorMessageForm
+              requestId={request.id}
+              patientName={person.name || "Noma'lum"}
+            />
           </Stack>
         </Grid.Col>
 

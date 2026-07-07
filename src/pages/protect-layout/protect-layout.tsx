@@ -3,6 +3,7 @@ import { Flex, Box, LoadingOverlay } from "@mantine/core";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useMe } from "@/features/auth/api/queries";
 import { APP_PATHS } from "@/shared/constants/app-paths"; // Путь к логину
+import { DoctorMessageAlert } from "@/widgets/doctor-message-alert";
 
 export const ProtectLayout = () => {
   const location = useLocation();
@@ -35,6 +36,7 @@ export const ProtectLayout = () => {
   return (
     <Flex h="100vh" w="100vw" style={{ overflow: "hidden" }}>
       <Navbar />
+      <DoctorMessageAlert user={user} />
 
       <Flex
         flex={1}
