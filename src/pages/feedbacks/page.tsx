@@ -37,7 +37,7 @@ export const FeedbacksPage = () => {
   });
 
   return (
-    <Stack h="100%" gap="md">
+    <Stack gap="md" pb="xl">
       <Title order={2}>Shikoyat va Takliflar</Title>
 
       <FeedbackDashboard />
