@@ -1,7 +1,9 @@
+import { useState } from "react";
 import {
   Alert,
   Badge,
   Box,
+  Button,
   Group,
   Paper,
   SimpleGrid,
@@ -11,14 +13,17 @@ import {
   ThemeIcon,
   Title,
 } from "@mantine/core";
+import { DatePickerInput } from "@mantine/dates";
 import {
   IconAlertTriangle,
   IconBulb,
   IconChartHistogram,
   IconMessageReport,
   IconRepeat,
+  IconCalendar,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import dayjs from "dayjs";
 import {
   Area,
   AreaChart,
@@ -49,13 +54,31 @@ const CATEGORY_LABELS: Record<string, string> = {
 
 const PIE_COLORS = ["#fa5252", "#20c997"];
 
+const getLastDaysRange = (days: number): [Date, Date] => {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - (days - 1));
+  return [start, end];
+};
+
 export const FeedbackDashboard = () => {
+  const [dateRange, setDateRange] = useState<[Date | null, Date | null]>(
+    getLastDaysRange(14),
+  );
+  const [appliedRange, setAppliedRange] = useState<[Date, Date]>(
+    getLastDaysRange(14),
+  );
+
+  const dateFrom = dayjs(appliedRange[0]).format("YYYY-MM-DD");
+  const dateTo = dayjs(appliedRange[1]).format("YYYY-MM-DD");
+
   const { data, isLoading, isError, isFetching } = useQuery({
-    queryKey: ["feedback-analytics"],
-    queryFn: feedbackApi.getAnalytics,
+    queryKey: ["feedback-analytics", dateFrom, dateTo],
+    queryFn: () => feedbackApi.getAnalytics({ dateFrom, dateTo }),
     refetchInterval: 10_000,
     refetchIntervalInBackground: true,
     staleTime: 5_000,
+    placeholderData: keepPreviousData,
   });
 
   if (isLoading) {
@@ -80,21 +103,21 @@ export const FeedbackDashboard = () => {
     {
       label: "Jami murojaatlar",
       value: data.summary.total,
-      hint: `Bugun +${data.summary.today}`,
+      hint: `${data.period.days} kunlik tanlangan davr`,
       color: "#1971c2",
       icon: IconChartHistogram,
     },
     {
       label: "Shikoyatlar",
       value: data.summary.complaints,
-      hint: "Nazorat talab qiladi",
+      hint: `${data.summary.total ? Math.round((data.summary.complaints / data.summary.total) * 100) : 0}% murojaatlardan`,
       color: "#e03131",
       icon: IconMessageReport,
     },
     {
       label: "Takliflar",
       value: data.summary.suggestions,
-      hint: "Yaxshilash g'oyalari",
+      hint: `${data.summary.total ? Math.round((data.summary.suggestions / data.summary.total) * 100) : 0}% murojaatlardan`,
       color: "#099268",
       icon: IconBulb,
     },
@@ -124,7 +147,8 @@ export const FeedbackDashboard = () => {
               Murojaatlar analitikasi
             </Title>
             <Text size="sm" c="dimmed">
-              So'nggi 14 kun dinamikasi va takroriy sabablar
+              {dayjs(data.period.dateFrom).format("DD.MM.YYYY")} —{" "}
+              {dayjs(data.period.dateTo).format("DD.MM.YYYY")} davri bo'yicha
             </Text>
           </Box>
           <Badge
@@ -136,6 +160,46 @@ export const FeedbackDashboard = () => {
             {isFetching ? "Yangilanmoqda" : "Jonli"} · 10 sek
           </Badge>
         </Group>
+
+        <Paper p="md" radius="lg" className={classes.filterBar}>
+          <Group justify="space-between" align="flex-end" wrap="wrap">
+            <DatePickerInput
+              type="range"
+              label="Hisobot davri / Период"
+              placeholder="Davrni tanlang"
+              leftSection={<IconCalendar size={17} />}
+              value={dateRange}
+              onChange={(value) => {
+                const nextRange = value as [Date | null, Date | null];
+                setDateRange(nextRange);
+                if (nextRange[0] && nextRange[1]) {
+                  setAppliedRange([nextRange[0], nextRange[1]]);
+                }
+              }}
+              valueFormat="DD.MM.YYYY"
+              maxDate={new Date()}
+              w={{ base: "100%", sm: 310 }}
+            />
+
+            <Group gap="xs">
+              {[7, 14, 30].map((days) => (
+                <Button
+                  key={days}
+                  size="sm"
+                  variant={data.period.days === days ? "filled" : "light"}
+                  color="teal"
+                  onClick={() => {
+                    const range = getLastDaysRange(days);
+                    setDateRange(range);
+                    setAppliedRange(range);
+                  }}
+                >
+                  {days} kun
+                </Button>
+              ))}
+            </Group>
+          </Group>
+        </Paper>
 
         <SimpleGrid cols={{ base: 1, xs: 2, lg: 4 }} spacing="md">
           {metrics.map((metric) => (

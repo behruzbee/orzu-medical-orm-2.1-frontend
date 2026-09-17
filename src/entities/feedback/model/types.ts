@@ -33,5 +33,10 @@ export interface FeedbackAnalytics {
     count: number;
     repeated: number;
   }>;
+  period: {
+    dateFrom: string;
+    dateTo: string;
+    days: number;
+  };
   generatedAt: string;
 }

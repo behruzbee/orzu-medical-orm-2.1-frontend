@@ -6,8 +6,13 @@ import type {
 } from "../model/types";
 
 export const feedbackApi = {
-  getAnalytics: async (): Promise<FeedbackAnalytics> => {
-    const response = await api.get<FeedbackAnalytics>("/feedbacks/analytics");
+  getAnalytics: async (params?: {
+    dateFrom?: string;
+    dateTo?: string;
+  }): Promise<FeedbackAnalytics> => {
+    const response = await api.get<FeedbackAnalytics>("/feedbacks/analytics", {
+      params,
+    });
     return response.data;
   },
 
