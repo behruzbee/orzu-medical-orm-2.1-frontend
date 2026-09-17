@@ -6,7 +6,8 @@ import {
   IconSwitchHorizontal,
   IconMail,
   IconDownload,
-  IconAlertCircle // <-- Добавили иконку для ошибок
+  IconAlertCircle, // <-- Добавили иконку для ошибок
+  IconChartBar,
 } from "@tabler/icons-react";
 import { Code, Group, Image } from "@mantine/core";
 import { useLocation, Link } from "react-router-dom";
@@ -31,6 +32,11 @@ const data = [
     icon: IconMail,
   },
   {
+    link: APP_PATHS.ANALYTICS.ANALYTICS_PATH,
+    label: "BI Analitika",
+    icon: IconChartBar,
+  },
+  {
     link: APP_PATHS.BROADCAST.BROADCAST_PATH,
     label: "Xabarnoma jo'natish",
     icon: IconBrandWhatsapp,
@@ -42,10 +48,10 @@ const data = [
   },
   // <-- Добавили ссылку на новую страницу ошибок
   {
-    link: APP_PATHS.IMPORT_ERRORS.IMPORT_ERRORS_PATH, 
+    link: APP_PATHS.IMPORT_ERRORS.IMPORT_ERRORS_PATH,
     label: "Import xatoliklari",
     icon: IconAlertCircle,
-  }
+  },
 ];
 
 export function Navbar() {

@@ -9,8 +9,9 @@ import { NotFoundPage } from "@/pages/404/page";
 import { DocsPage } from "@/pages/docs";
 import { ImportPatientsPage } from "@/pages/import-patients";
 import { FeedbacksPage } from "@/pages/feedbacks";
+import { AnalyticsPage } from "@/pages/analytics";
 // Импортируем новую страницу
-import { ImportErrorsPage } from "@/pages/import-errors"; 
+import { ImportErrorsPage } from "@/pages/import-errors";
 
 export const router = createBrowserRouter([
   {
@@ -40,6 +41,10 @@ export const router = createBrowserRouter([
       {
         path: APP_PATHS.FEEDBACKS.FEEDBACKS_PATH,
         element: <FeedbacksPage />,
+      },
+      {
+        path: APP_PATHS.ANALYTICS.ANALYTICS_PATH,
+        element: <AnalyticsPage />,
       },
       {
         path: APP_PATHS.IMPORT_ERRORS.IMPORT_ERRORS_PATH,
