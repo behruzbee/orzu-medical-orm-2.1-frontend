@@ -1,22 +1,22 @@
 export enum RequestStatus {
-  NEW = 'new',
-  CONTACTED = 'contacted',
-  ALL_OK = 'all_ok',
-  
-  NO_ANSWER = 'no_answer',
-  UNREACHABLE = 'unreachable',
-  WRONG_NUMBER = 'wrong_number',
-  HAS_NOT_WHATSAPP = 'has_not_whatsapp',
-  
-  DUPLICATE = 'duplicate',
-  HAS_NOT_PHONE_NUMBER = 'no_phone',
-  OTHER_PROBLEM = 'other',
-  
-  EMPLOYEE = 'employee',               
-  
-  FEEDBACK_POSITIVE = 'feedback_pos',
-  FEEDBACK_NEGATIVE = 'feedback_neg',
-  FEEDBACK_NOT_RELATED = 'feedback_not_related',
+  NEW = "new",
+  CONTACTED = "contacted",
+  ALL_OK = "all_ok",
+
+  NO_ANSWER = "no_answer",
+  UNREACHABLE = "unreachable",
+  WRONG_NUMBER = "wrong_number",
+  HAS_NOT_WHATSAPP = "has_not_whatsapp",
+
+  DUPLICATE = "duplicate",
+  HAS_NOT_PHONE_NUMBER = "no_phone",
+  OTHER_PROBLEM = "other",
+
+  EMPLOYEE = "employee",
+
+  FEEDBACK_POSITIVE = "feedback_pos",
+  FEEDBACK_NEGATIVE = "feedback_neg",
+  FEEDBACK_NOT_RELATED = "feedback_not_related",
 }
 
 export interface IDashboardStats {
@@ -45,6 +45,10 @@ export interface IFeedback {
   id: string;
   ratings: Record<string, number>;
   comment?: string;
+  type: "complaint" | "suggestion";
+  category: string;
+  subcategory: string;
+  occurrenceNumber: number;
   operatorId: string;
   requestId: string; // Заменено с patientId
   evidenceMessages: IEvidenceMessage[];
@@ -77,12 +81,12 @@ export interface IPatientRequest {
   branch: string;
   departureDate: string;
   arrivalDate: string;
-  
+
   patientId: string;
   patient: IPatient; // Вложенная сущность пациента
-  
+
   callStatus?: ICallStatus; // Теперь объект, а не массив
-  feedback?: IFeedback;     // Теперь объект, а не массив
+  feedback?: IFeedback; // Теперь объект, а не массив
 
   createdAt: string;
   updatedAt: string;

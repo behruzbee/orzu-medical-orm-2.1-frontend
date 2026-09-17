@@ -1,0 +1,117 @@
+.shell {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border: 1px solid rgba(27, 61, 47, 0.12);
+  border-radius: 22px;
+  background:
+    radial-gradient(
+      circle at 92% -20%,
+      rgba(32, 201, 151, 0.2),
+      transparent 35%
+    ),
+    linear-gradient(145deg, #f8fbf9 0%, #ffffff 56%, #f3f8f6 100%);
+  box-shadow: 0 18px 50px rgba(24, 55, 43, 0.08);
+}
+
+.shell::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background: linear-gradient(
+    105deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.7) 48%,
+    transparent 61%
+  );
+  transform: translateX(-100%);
+  animation: sheen 8s ease-in-out infinite;
+}
+
+.liveDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #12b886;
+  box-shadow: 0 0 0 0 rgba(18, 184, 134, 0.45);
+  animation: pulse 1.8s infinite;
+}
+
+.metric {
+  position: relative;
+  overflow: hidden;
+  min-height: 112px;
+  border: 1px solid rgba(27, 61, 47, 0.09);
+  background: rgba(255, 255, 255, 0.82);
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
+}
+
+.metric:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(24, 55, 43, 0.11);
+}
+
+.metric::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 0 0 0 72px;
+  content: "";
+  background: var(--metric-color);
+  opacity: 0.09;
+}
+
+.metricValue {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+}
+
+.chartCard {
+  border: 1px solid rgba(27, 61, 47, 0.09);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.wideChart {
+  grid-column: auto;
+}
+
+@media (min-width: 75em) {
+  .wideChart {
+    grid-column: span 2;
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(18, 184, 134, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 9px rgba(18, 184, 134, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(18, 184, 134, 0);
+  }
+}
+
+@keyframes sheen {
+  0%,
+  70% {
+    transform: translateX(-100%);
+  }
+  92%,
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell::after,
+  .liveDot {
+    animation: none;
+  }
+}

@@ -25,10 +25,12 @@ export interface EvidencePayload {
 }
 
 export interface AddFeedbackPayload {
-  type: "complaint" | "suggestion"; // Добавлено на основе параметров бэкенда
+  type: "complaint" | "suggestion";
+  category: string;
+  subcategory: string;
   ratings: Record<string, number>;
   comment?: string;
-  sendToTrello?: boolean; 
+  sendToTrello?: boolean;
   evidence: EvidencePayload[];
 }
 
@@ -51,7 +53,7 @@ export const requestsApi = {
 
   addCallStatus: async (
     id: string, // Это теперь requestId
-    payload: AddCallStatusPayload
+    payload: AddCallStatusPayload,
   ): Promise<any> => {
     const response = await api.post(`/requests/${id}/call-status`, payload);
     return response.data;
@@ -59,7 +61,7 @@ export const requestsApi = {
 
   addFeedback: async (
     id: string, // Это теперь requestId
-    payload: AddFeedbackPayload
+    payload: AddFeedbackPayload,
   ): Promise<any> => {
     const response = await api.post(`/requests/${id}/feedback`, payload);
     return response.data;
@@ -70,7 +72,9 @@ export const requestsApi = {
     return response.data;
   },
 
-  revertStatus: async (id: string): Promise<{ message: string; status: string }> => {
+  revertStatus: async (
+    id: string,
+  ): Promise<{ message: string; status: string }> => {
     const response = await api.patch(`/requests/${id}/revert-status`);
     return response.data; // Обновлено: бэкенд возвращает объект { message, status }
   },

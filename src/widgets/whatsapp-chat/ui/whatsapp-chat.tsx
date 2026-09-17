@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import {
   Paper,
   Stack,
@@ -75,8 +75,9 @@ interface EvidenceItem {
 
 // Строго типизированные данные для отправки жалобы/предложения
 interface ComplaintSubmitData {
-  type?: "complaint" | "suggestion";
-  category?: string;
+  type: "complaint" | "suggestion";
+  category: string;
+  subcategory: string;
   ratings: Record<string, number>;
   sendToTrello?: boolean;
   evidenceMessages: EvidenceItem[];
@@ -142,8 +143,7 @@ export const WhatsAppChat = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [emojiOpened, setEmojiOpened] = useState(false);
 
-  // @ts-ignore
-  const messages: IMessage[] = Array.isArray(data) ? data : data?.data || [];
+  const messages: IMessage[] = useMemo(() => data ?? [], [data]);
 
   const isLocked = ![RequestStatus.NEW, RequestStatus.CONTACTED].includes(
     patientStatus,
@@ -191,8 +191,9 @@ export const WhatsAppChat = ({
 
   const handleComplaintSubmit = (data: ComplaintSubmitData) => {
     const payload = {
-      type: data.type || "complaint",
-      category: data.category || "OTHER",
+      type: data.type,
+      category: data.category,
+      subcategory: data.subcategory,
       ratings: data.ratings,
       comment: "Shikoyat / Taklif (CRM Interface)",
       sendToTrello: data.sendToTrello,

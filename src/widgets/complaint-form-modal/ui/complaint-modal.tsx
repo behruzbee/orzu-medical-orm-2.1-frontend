@@ -19,6 +19,9 @@ import {
   Badge,
   Overlay,
   Center,
+  Select,
+  Alert,
+  Loader,
 } from "@mantine/core";
 import {
   IconAlertTriangle,
@@ -33,13 +36,20 @@ import {
   IconVideo,
   IconFileText,
   IconUpload,
+  IconPlus,
 } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import type { IMessage } from "@/entities/chat";
+import { feedbackApi, type FeedbackType } from "@/entities/feedback";
+
+type ComplaintEvidence = IMessage & { source?: "whatsapp" | "manual" };
 
 interface ComplaintPayload {
   type: "complaint" | "suggestion";
+  category: string;
+  subcategory: string;
   ratings: Record<string, number>;
-  evidenceMessages: any[];
+  evidenceMessages: ComplaintEvidence[];
   sendToTrello?: boolean;
   createdAt: string;
 }
@@ -75,7 +85,7 @@ const DEFAULT_RATINGS = CATEGORIES.reduce(
     acc[cat.id] = 5;
     return acc;
   },
-  {} as Record<string, number>
+  {} as Record<string, number>,
 );
 
 export const ComplaintModal = ({
@@ -85,19 +95,25 @@ export const ComplaintModal = ({
   onSubmit,
   isLoading = false,
 }: Props) => {
-  const [ratings, setRatings] = useState<Record<string, number>>(DEFAULT_RATINGS);
+  const [ratings, setRatings] =
+    useState<Record<string, number>>(DEFAULT_RATINGS);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const [manualText, setManualText] = useState("");
-  const [manualEvidence, setManualEvidence] = useState<IMessage[]>([]);
+  const [manualEvidence, setManualEvidence] = useState<ComplaintEvidence[]>([]);
+  const [feedbackType, setFeedbackType] = useState<FeedbackType | null>(null);
+  const [category, setCategory] = useState<string | null>(null);
+  const [subcategory, setSubcategory] = useState<string | null>(null);
+  const [customSubcategory, setCustomSubcategory] = useState("");
+  const [isCustomSubcategory, setIsCustomSubcategory] = useState(false);
 
   const [isDragging, setIsDragging] = useState(false);
 
   const [isRecording, setIsRecording] = useState(false);
   const [recordingTime, setRecordingTime] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const timerRef = useRef<any>(null);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     if (opened) {
@@ -107,11 +123,28 @@ export const ComplaintModal = ({
       setRecordingTime(0);
       setIsRecording(false);
       setIsDragging(false);
+      setFeedbackType(null);
+      setCategory(null);
+      setSubcategory(null);
+      setCustomSubcategory("");
+      setIsCustomSubcategory(false);
     } else {
-      stopPlaying();
-      stopRecording();
+      audioRef.current?.pause();
+      setPlayingAudioId(null);
+      if (mediaRecorderRef.current?.state === "recording") {
+        mediaRecorderRef.current.stop();
+      }
+      if (timerRef.current) clearInterval(timerRef.current);
     }
   }, [opened]);
+
+  const { data: subcategories = [], isFetching: isLoadingSubcategories } =
+    useQuery({
+      queryKey: ["feedback-subcategories", feedbackType, category],
+      queryFn: () => feedbackApi.getSubcategories(feedbackType!, category!),
+      enabled: opened && Boolean(feedbackType && category),
+      staleTime: 30_000,
+    });
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -181,7 +214,7 @@ export const ComplaintModal = ({
           `voice_note_${Date.now()}.webm`,
           {
             type: mimeType,
-          }
+          },
         );
         const base64 = await fileToBase64(audioFile);
 
@@ -256,8 +289,8 @@ export const ComplaintModal = ({
     setManualText("");
   };
 
-  const addManualEvidence = (item: Partial<IMessage>) => {
-    const newItem: IMessage = {
+  const addManualEvidence = (item: Partial<ComplaintEvidence>) => {
+    const newItem: ComplaintEvidence = {
       id: `manual-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`,
       sender: "operator",
       timestamp: new Date().toLocaleTimeString([], {
@@ -266,10 +299,9 @@ export const ComplaintModal = ({
       }),
       status: "read",
       type: "text",
-      // @ts-ignore
       source: "manual",
       ...item,
-    } as IMessage;
+    };
 
     setManualEvidence((prev) => [...prev, newItem]);
   };
@@ -279,20 +311,31 @@ export const ComplaintModal = ({
     setManualEvidence((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const isAllOk = CATEGORIES.every((cat) => ratings[cat.id] === 5);
   const isFormValid = CATEGORIES.every((cat) => (ratings[cat.id] || 0) > 0);
-  
-  const totalEvidenceCount = selectedMessages.length + manualEvidence.length + (manualText.trim() ? 1 : 0);
 
-  const handleSubmit = (submissionType: "suggestion" | "complaint") => {
+  const totalEvidenceCount =
+    selectedMessages.length +
+    manualEvidence.length +
+    (manualText.trim() ? 1 : 0);
+
+  const selectedSubcategory = isCustomSubcategory
+    ? customSubcategory.trim()
+    : subcategory;
+
+  const handleSubmit = () => {
+    if (!feedbackType || !category || !selectedSubcategory) return;
     stopPlaying();
 
-    const combinedEvidence = [
-      ...selectedMessages.map((m) => ({ ...m, source: "whatsapp" })),
-      ...manualEvidence.map((m) => ({ ...m, source: "manual" })),
+    const combinedEvidence: ComplaintEvidence[] = [
+      ...selectedMessages.map(
+        (message): ComplaintEvidence => ({ ...message, source: "whatsapp" }),
+      ),
+      ...manualEvidence.map(
+        (message): ComplaintEvidence => ({ ...message, source: "manual" }),
+      ),
     ];
 
-    if (combinedEvidence.length === 0 && manualText.trim()) {
+    if (manualText.trim()) {
       combinedEvidence.push({
         id: `manual-auto-${Date.now()}`,
         sender: "operator",
@@ -304,15 +347,17 @@ export const ComplaintModal = ({
         type: "text",
         source: "manual",
         text: manualText,
-      } as any);
+      });
     }
 
     onSubmit({
-      type: submissionType,
+      type: feedbackType,
+      category,
+      subcategory: selectedSubcategory,
       ratings: ratings,
       evidenceMessages: combinedEvidence,
       createdAt: new Date().toISOString(),
-      sendToTrello: submissionType === "suggestion" ? true : undefined,
+      sendToTrello: true,
     });
   };
 
@@ -687,7 +732,10 @@ export const ComplaintModal = ({
                     value={currentRating}
                     onChange={(value) =>
                       // 🔥 ОБНОВЛЕНИЕ: Ограничиваем минимальное значение до 2 звезд
-                      setRatings((p) => ({ ...p, [cat.id]: Math.max(2, value) }))
+                      setRatings((p) => ({
+                        ...p,
+                        [cat.id]: Math.max(2, value),
+                      }))
                     }
                   />
                 </Group>
@@ -695,31 +743,127 @@ export const ComplaintModal = ({
             })}
           </Stack>
 
+          <Divider
+            label="Murojaatni tasniflang / Классификация"
+            labelPosition="center"
+          />
+
+          <Paper withBorder p="md" radius="md" bg="gray.0">
+            <Stack gap="sm">
+              <Select
+                required
+                clearable
+                label="Murojaat turi / Тип обращения"
+                placeholder="Turini tanlang"
+                data={[
+                  { value: "complaint", label: "Shikoyat / Жалоба" },
+                  { value: "suggestion", label: "Taklif / Предложение" },
+                ]}
+                value={feedbackType}
+                onChange={(value) => {
+                  setFeedbackType(value as FeedbackType | null);
+                  setSubcategory(null);
+                  setCustomSubcategory("");
+                  setIsCustomSubcategory(false);
+                }}
+              />
+
+              <Select
+                required
+                clearable
+                searchable
+                label="Kategoriya / Категория"
+                placeholder="Kategoriyani tanlang"
+                data={CATEGORIES.map((item) => ({
+                  value: item.id,
+                  label: item.label,
+                }))}
+                value={category}
+                onChange={(value) => {
+                  setCategory(value);
+                  setSubcategory(null);
+                  setCustomSubcategory("");
+                  setIsCustomSubcategory(false);
+                }}
+              />
+
+              <Select
+                required
+                clearable
+                searchable
+                disabled={!feedbackType || !category}
+                label="Ichki kategoriya / Подкатегория"
+                description="Takroriy murojaatlar aynan shu qiymat bo'yicha hisoblanadi"
+                placeholder={
+                  !feedbackType || !category
+                    ? "Avval tur va kategoriyani tanlang"
+                    : "Bo'sh — qiymatni tanlang"
+                }
+                nothingFoundMessage="Mos variant topilmadi"
+                data={[
+                  ...subcategories.map((item) => ({
+                    value: item.name,
+                    label: item.name,
+                  })),
+                  { value: "__custom__", label: "+ Yangi variant qo'shish" },
+                ]}
+                value={isCustomSubcategory ? "__custom__" : subcategory}
+                onChange={(value) => {
+                  const isCustom = value === "__custom__";
+                  setIsCustomSubcategory(isCustom);
+                  setSubcategory(isCustom ? null : value);
+                  if (!isCustom) setCustomSubcategory("");
+                }}
+                rightSection={
+                  isLoadingSubcategories ? <Loader size="xs" /> : undefined
+                }
+              />
+
+              {isCustomSubcategory && (
+                <TextInput
+                  required
+                  autoFocus
+                  maxLength={160}
+                  label="Yangi podkategoriya / Новая подкатегория"
+                  placeholder="Masalan: smesitel ishlamaydi"
+                  leftSection={<IconPlus size={16} />}
+                  value={customSubcategory}
+                  onChange={(event) =>
+                    setCustomSubcategory(event.currentTarget.value)
+                  }
+                />
+              )}
+
+              {selectedSubcategory && (
+                <Alert color="teal" variant="light" py="xs">
+                  Ushbu sabab oldin uchragan bo'lsa, tizim uni avtomatik
+                  ravishda takroriy deb belgilaydi va Trello kartasida sonini
+                  ko'rsatadi.
+                </Alert>
+              )}
+            </Stack>
+          </Paper>
+
           <Group grow mt="md" align="flex-end">
             <Button variant="light" color="gray" onClick={onClose}>
               Bekor qilish
             </Button>
-            <Stack gap="xs" style={{ flex: 2 }}>
-              <Group grow>
-                <Button
-                  color="green.7"
-                  onClick={() => handleSubmit("suggestion")}
-                  disabled={!isAllOk || !isFormValid || totalEvidenceCount === 0 || isLoading}
-                  loading={isLoading}
-                >
-                  Taklif sifatida
-                </Button>
-                <Button
-                  color="red.7"
-                  onClick={() => handleSubmit("complaint")}
-                  // 🔥 ОБНОВЛЕНИЕ: Блокируем кнопку Жалоба, если все категории равны 5 (isAllOk === true)
-                  disabled={isAllOk || !isFormValid || totalEvidenceCount === 0 || isLoading}
-                  loading={isLoading}
-                >
-                  Shikoyat sifatida
-                </Button>
-              </Group>
-            </Stack>
+            <Button
+              style={{ flex: 2 }}
+              color={feedbackType === "suggestion" ? "green.7" : "red.7"}
+              onClick={handleSubmit}
+              disabled={
+                !feedbackType ||
+                !category ||
+                !selectedSubcategory ||
+                !isFormValid ||
+                totalEvidenceCount === 0 ||
+                isLoading
+              }
+              loading={isLoading}
+            >
+              Saqlash va Trello'ga yuborish
+            </Button>
           </Group>
         </Stack>
       </Box>

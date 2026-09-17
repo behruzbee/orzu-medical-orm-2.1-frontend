@@ -14,6 +14,7 @@ import { useQuery } from "@tanstack/react-query";
 import { RequestStatus } from "@/entities/patient/model/types";
 import { PatientTable } from "@/widgets/patient-table";
 import { requestsApi } from "@/entities/patient/api/apis";
+import { FeedbackDashboard } from "@/widgets/feedback-dashboard";
 
 export const FeedbacksPage = () => {
   const [activeTab, setActiveTab] = useState<RequestStatus>(
@@ -38,6 +39,8 @@ export const FeedbacksPage = () => {
   return (
     <Stack h="100%" gap="md">
       <Title order={2}>Shikoyat va Takliflar</Title>
+
+      <FeedbackDashboard />
 
       <Tabs
         value={activeTab}
