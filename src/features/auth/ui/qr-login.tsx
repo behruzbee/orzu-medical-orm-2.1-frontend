@@ -18,8 +18,10 @@ import {
 import { useQrStream, useLoginMutation } from "../api/queries";
 import { useNavigate } from "react-router-dom";
 import { APP_PATHS } from "@/shared/constants/app-paths";
+import { useTranslation } from "@/shared/i18n";
 
 export const QrLogin = () => {
+  const { tr } = useTranslation();
   const navigate = useNavigate();
 
   const { qrCode, error: streamError } = useQrStream();
@@ -27,7 +29,9 @@ export const QrLogin = () => {
 
   // Проверяем, является ли ошибка сигналом о том, что сессия уже есть
   // Текст ошибки должен совпадать с тем, что мы написали в useQrStream (queries.ts)
-  const isSessionActive = streamError?.includes("faol sessiya");
+  const isSessionActive =
+    streamError?.includes("faol sessiya") ||
+    streamError?.includes("активная сессия");
 
   const handleCheckLogin = () => {
     mutate(
@@ -36,7 +40,7 @@ export const QrLogin = () => {
         onSuccess: () => {
           navigate(APP_PATHS.HOME.HOME_PATH);
         },
-      }
+      },
     );
   };
 
@@ -47,11 +51,11 @@ export const QrLogin = () => {
           variant="light"
           color="red"
           icon={<IconAlertCircle size={16} />}
-          title="Xatolik"
+          title={tr("Xatolik", "Ошибка")}
         >
           {streamError ||
             (loginError as any)?.response?.data?.message ||
-            "Xatolik"}
+            tr("Xatolik", "Ошибка")}
         </Alert>
       ) : null}
 
@@ -74,12 +78,18 @@ export const QrLogin = () => {
               <IconPlugConnected size={32} />
             </ThemeIcon>
             <Text size="sm" fw={600} c="green">
-              WhatsApp allaqachon ulangan!
+              {tr("WhatsApp allaqachon ulangan!", "WhatsApp уже подключён!")}
             </Text>
             <Text size="xs" c="dimmed" ta="center">
-              QR kodni skanerlash shart emas.
+              {tr(
+                "QR kodni skanerlash shart emas.",
+                "Сканировать QR-код не требуется.",
+              )}
               <br />
-              Tizimga kirish tugmasini bosing.
+              {tr(
+                "Tizimga kirish tugmasini bosing.",
+                "Нажмите кнопку входа в систему.",
+              )}
             </Text>
           </Stack>
         ) : qrCode ? (
@@ -89,7 +99,7 @@ export const QrLogin = () => {
           <Stack align="center" gap="xs">
             <Loader color="teal" size="sm" />
             <Text size="xs" c="dimmed">
-              QR kod yuklanmoqda...
+              {tr("QR kod yuklanmoqda...", "QR-код загружается...")}
             </Text>
           </Stack>
         )}
@@ -100,7 +110,7 @@ export const QrLogin = () => {
           <IconBrandWhatsapp size={14} />
         </ThemeIcon>
         <Text size="sm" fw={600} c="dark">
-          WhatsApp orqali tezkor kirish
+          {tr("WhatsApp orqali tezkor kirish", "Быстрый вход через WhatsApp")}
         </Text>
       </Group>
 
@@ -113,7 +123,7 @@ export const QrLogin = () => {
           (!qrCode && !isSessionActive && !streamError) || isSessionActive
         }
       >
-        "Men QR kodni skanerladim"
+        {tr("Men QR kodni skanerladim", "Я отсканировал QR-код")}
       </Button>
 
       {/* Инструкцию показываем только если нужно сканировать */}
@@ -123,20 +133,32 @@ export const QrLogin = () => {
           color="blue"
           radius="md"
           icon={<IconInfoCircle size={16} />}
-          title="Qanday skanerlanadi:"
+          title={tr("Qanday skanerlanadi:", "Как отсканировать:")}
           styles={{
             root: { width: "100%" },
             label: { fontSize: 13, fontWeight: 600 },
             message: { fontSize: 12, lineHeight: 1.4 },
           }}
         >
-          1. Telefoningizda WhatsAppni oching
+          {tr(
+            "1. Telefoningizda WhatsAppni oching",
+            "1. Откройте WhatsApp на телефоне",
+          )}
           <br />
-          2. Menyu yoki Sozlamalarni bosing
+          {tr(
+            "2. Menyu yoki Sozlamalarni bosing",
+            "2. Откройте меню или настройки",
+          )}
           <br />
-          3. <b>Bog'langan qurilmalar (Linked Devices)</b> ni tanlang
+          {tr(
+            "3. Bog'langan qurilmalarni tanlang",
+            "3. Выберите «Связанные устройства»",
+          )}
           <br />
-          4. Kamerani ushbu ekranga yo'naltiring
+          {tr(
+            "4. Kamerani ushbu ekranga yo'naltiring",
+            "4. Наведите камеру на этот экран",
+          )}
         </Alert>
       )}
     </Stack>

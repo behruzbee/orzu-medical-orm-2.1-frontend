@@ -4,13 +4,15 @@ import { createColumnHelper } from "@tanstack/react-table";
 import dayjs from "dayjs";
 import type { IReport } from "@/entities/report/model/types";
 import { ReportActions } from "../ui/report-actions";
+import { useTranslation } from "@/shared/i18n";
 
 const columnHelper = createColumnHelper<IReport>();
 
 export const useReportColumns = () => {
+  const { tr } = useTranslation();
   return [
     columnHelper.accessor("name", {
-      header: "Hisobot nomi",
+      header: tr("Hisobot nomi", "Название отчёта"),
       cell: ({ row }) => (
         <Group gap="xs" wrap="nowrap">
           <ThemeIcon color="green.1" c="green.8" size="lg" radius="md">
@@ -23,7 +25,7 @@ export const useReportColumns = () => {
       ),
     }),
     columnHelper.accessor("startDate", {
-      header: "Davr",
+      header: tr("Davr", "Период"),
       cell: ({ row }) => (
         <Text size="sm" c="dimmed" style={{ whiteSpace: "nowrap" }}>
           {dayjs(row.original.startDate).format("DD.MM.YYYY")} -{" "}
@@ -32,14 +34,14 @@ export const useReportColumns = () => {
       ),
     }),
     columnHelper.accessor("createdAt", {
-      header: "Yaratilgan vaqt",
+      header: tr("Yaratilgan vaqt", "Дата создания"),
       cell: ({ getValue }) => (
         <Text size="sm">{dayjs(getValue()).format("DD.MM.YYYY HH:mm")}</Text>
       ),
     }),
     columnHelper.display({
       id: "operator",
-      header: "Operator",
+      header: tr("Operator", "Оператор"),
       cell: () => (
         <Group gap="xs">
           <Avatar radius="xl" size="sm" color="blue">
@@ -52,33 +54,33 @@ export const useReportColumns = () => {
       ),
     }),
     columnHelper.accessor("status", {
-      header: "Holati",
+      header: tr("Holati", "Статус"),
       cell: ({ getValue }) => {
         const status = getValue();
         if (status === "ready") {
           return (
             <Badge color="green" variant="light" radius="sm">
-              Tayyor
+              {tr("Tayyor", "Готов")}
             </Badge>
           );
         }
         if (status === "processing") {
           return (
             <Badge color="blue" variant="light" radius="sm">
-              Jarayonda
+              {tr("Jarayonda", "В процессе")}
             </Badge>
           );
         }
         return (
           <Badge color="red" variant="light" radius="sm">
-            Xatolik
+            {tr("Xatolik", "Ошибка")}
           </Badge>
         );
       },
     }),
     columnHelper.display({
       id: "actions",
-      header: "Amallar",
+      header: tr("Amallar", "Действия"),
       cell: ({ row }) => (
         <ReportActions
           reportId={row.original.id}

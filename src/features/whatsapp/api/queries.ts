@@ -2,6 +2,7 @@ import { requestKeys } from "@/entities/patient";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { notifications } from "@mantine/notifications";
 import { whatsappApi } from "./apis";
+import { useTranslation } from "@/shared/i18n";
 
 export const whatsappKeys = {
   history: (phone: string) => ["whatsapp", "history", phone] as const,
@@ -17,6 +18,7 @@ export const useWhatsappHistory = (phone: string) => {
 };
 
 export const useWhatsappSendMessage = () => {
+  const { tr } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -31,17 +33,23 @@ export const useWhatsappSendMessage = () => {
       });
 
       notifications.show({
-        title: "Yuborildi 📨",
-        message: "Xabar muvaffaqiyatli yuborildi",
+        title: tr("Yuborildi 📨", "Отправлено 📨"),
+        message: tr(
+          "Xabar muvaffaqiyatli yuborildi",
+          "Сообщение успешно отправлено",
+        ),
         color: "green",
       });
     },
     onError: (error: any) => {
       notifications.show({
-        title: "Xatolik 🚨",
+        title: tr("Xatolik 🚨", "Ошибка 🚨"),
         message:
           error.response?.data?.message ||
-          "Failed to send WhatsApp message (Client Error)",
+          tr(
+            "WhatsApp xabarini yuborib bo'lmadi",
+            "Не удалось отправить сообщение WhatsApp",
+          ),
         color: "red",
       });
     },

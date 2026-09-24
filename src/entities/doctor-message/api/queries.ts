@@ -1,9 +1,7 @@
 import { notifications } from "@mantine/notifications";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-  doctorMessagesApi,
-  type CreateDoctorMessagePayload,
-} from "./apis";
+import { doctorMessagesApi, type CreateDoctorMessagePayload } from "./apis";
+import { useTranslation } from "@/shared/i18n";
 
 export const doctorMessageKeys = {
   all: ["doctor-messages"] as const,
@@ -21,6 +19,7 @@ export const usePendingDoctorMessages = (enabled = true) => {
 };
 
 export const useSendDoctorMessageMutation = () => {
+  const { tr } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -35,16 +34,23 @@ export const useSendDoctorMessageMutation = () => {
       queryClient.invalidateQueries({ queryKey: doctorMessageKeys.all });
 
       notifications.show({
-        title: "Xabar yuborildi",
-        message: "Shifokor kabinetida ogohlantirish ochiladi.",
+        title: tr("Xabar yuborildi", "Сообщение отправлено"),
+        message: tr(
+          "Shifokor kabinetida ogohlantirish ochiladi.",
+          "В кабинете врача появится уведомление.",
+        ),
         color: "green",
       });
     },
     onError: (error: any) => {
       notifications.show({
-        title: "Xatolik",
+        title: tr("Xatolik", "Ошибка"),
         message:
-          error?.response?.data?.message || "Shifokorga xabar yuborilmadi",
+          error?.response?.data?.message ||
+          tr(
+            "Shifokorga xabar yuborilmadi",
+            "Не удалось отправить сообщение врачу",
+          ),
         color: "red",
       });
     },
@@ -52,6 +58,7 @@ export const useSendDoctorMessageMutation = () => {
 };
 
 export const useMarkDoctorMessageDoneMutation = () => {
+  const { tr } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -62,15 +69,17 @@ export const useMarkDoctorMessageDoneMutation = () => {
       });
 
       notifications.show({
-        title: "Bajarildi",
-        message: "Shifokor xabari yopildi.",
+        title: tr("Bajarildi", "Выполнено"),
+        message: tr("Shifokor xabari yopildi.", "Сообщение врачу закрыто."),
         color: "green",
       });
     },
     onError: (error: any) => {
       notifications.show({
-        title: "Xatolik",
-        message: error?.response?.data?.message || "Xabarni yopib bo'lmadi",
+        title: tr("Xatolik", "Ошибка"),
+        message:
+          error?.response?.data?.message ||
+          tr("Xabarni yopib bo'lmadi", "Не удалось закрыть сообщение"),
         color: "red",
       });
     },

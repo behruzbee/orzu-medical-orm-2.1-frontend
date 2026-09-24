@@ -41,6 +41,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import type { IMessage } from "@/entities/chat";
 import { feedbackApi, type FeedbackType } from "@/entities/feedback";
+import { useTranslation } from "@/shared/i18n";
 
 type ComplaintEvidence = IMessage & { source?: "whatsapp" | "manual" };
 
@@ -72,12 +73,12 @@ const fileToBase64 = (file: File): Promise<string> => {
 };
 
 const CATEGORIES = [
-  { id: "doctors", label: "Shifokorlar" },
-  { id: "nurses", label: "Hamshiralar" },
-  { id: "cleanliness", label: "Tozalik" },
-  { id: "food", label: "Oshxona" },
-  { id: "reception", label: "Registratura xodimlari" },
-  { id: "clinic", label: "Klinika to'grisida" },
+  { id: "doctors", uz: "Shifokorlar", ru: "Врачи" },
+  { id: "nurses", uz: "Hamshiralar", ru: "Медсёстры" },
+  { id: "cleanliness", uz: "Tozalik", ru: "Чистота" },
+  { id: "food", uz: "Oshxona", ru: "Питание" },
+  { id: "reception", uz: "Registratura xodimlari", ru: "Регистратура" },
+  { id: "clinic", uz: "Klinika to'g'risida", ru: "О клинике" },
 ];
 
 const DEFAULT_RATINGS = CATEGORIES.reduce(
@@ -95,6 +96,7 @@ export const ComplaintModal = ({
   onSubmit,
   isLoading = false,
 }: Props) => {
+  const { tr } = useTranslation();
   const [ratings, setRatings] =
     useState<Record<string, number>>(DEFAULT_RATINGS);
   const [playingAudioId, setPlayingAudioId] = useState<string | null>(null);
@@ -222,7 +224,7 @@ export const ComplaintModal = ({
           type: "audio",
           mediaUrl: base64,
           duration: formatTime(recordingTime),
-          text: "Operator ovozli izohi",
+          text: tr("Operator ovozli izohi", "Голосовая заметка оператора"),
         });
 
         setRecordingTime(0);
@@ -237,7 +239,7 @@ export const ComplaintModal = ({
       }, 1000);
     } catch (err) {
       console.error("Mic error:", err);
-      alert("Mikrofonga ruxsat berilmadi!");
+      alert(tr("Mikrofonga ruxsat berilmadi!", "Нет доступа к микрофону!"));
     }
   };
 
@@ -387,10 +389,12 @@ export const ComplaintModal = ({
               </ActionIcon>
               <Stack gap={0}>
                 <Text size="sm" fw={500} style={{ lineHeight: 1 }}>
-                  Ovozli xabar
+                  {tr("Ovozli xabar", "Голосовое сообщение")}
                 </Text>
                 <Text size="xs" c="dimmed">
-                  {isPlaying ? "Eshittirilmoqda..." : msg.duration || "0:00"}
+                  {isPlaying
+                    ? tr("Eshittirilmoqda...", "Воспроизводится...")
+                    : msg.duration || "0:00"}
                 </Text>
               </Stack>
             </Group>
@@ -403,7 +407,7 @@ export const ComplaintModal = ({
                   <IconPhoto size={12} />
                 </ThemeIcon>
                 <Text size="sm" fw={500}>
-                  Rasm
+                  {tr("Rasm", "Изображение")}
                 </Text>
               </Group>
               {msg.mediaUrl && (
@@ -428,7 +432,7 @@ export const ComplaintModal = ({
                   <IconVideo size={12} />
                 </ThemeIcon>
                 <Text size="sm" fw={500}>
-                  Video
+                  {tr("Video", "Видео")}
                 </Text>
               </Group>
               {msg.mediaUrl && (
@@ -459,7 +463,7 @@ export const ComplaintModal = ({
                     <IconFileText size={12} />
                   </ThemeIcon>
                   <Text size="sm" fw={500}>
-                    Fayl
+                    {tr("Fayl", "Файл")}
                   </Text>
                 </Group>
                 <Paper withBorder p="xs" bg="white" radius="sm">
@@ -470,7 +474,7 @@ export const ComplaintModal = ({
                       lineClamp={2}
                       style={{ wordBreak: "break-all" }}
                     >
-                      {msg.text || "Fayl nomi yo'q"}
+                      {msg.text || tr("Fayl nomi yo'q", "Файл без названия")}
                     </Text>
                   </Group>
                 </Paper>
@@ -510,7 +514,7 @@ export const ComplaintModal = ({
         <Group gap="xs">
           <IconAlertTriangle size={20} color="red" />
           <Text fw={700} size="lg">
-            Ma'lumotni rasmiylashtirish
+            {tr("Ma'lumotni rasmiylashtirish", "Оформление обращения")}
           </Text>
         </Group>
       }
@@ -543,10 +547,13 @@ export const ComplaintModal = ({
                   <IconUpload size={34} />
                 </ThemeIcon>
                 <Text fw={600} size="lg">
-                  Fayllarni shu yerga tashlang
+                  {tr("Fayllarni shu yerga tashlang", "Перетащите файлы сюда")}
                 </Text>
                 <Text size="sm" c="dimmed">
-                  Rasm, video yoki hujjat
+                  {tr(
+                    "Rasm, video yoki hujjat",
+                    "Изображение, видео или документ",
+                  )}
                 </Text>
               </Stack>
             </Center>
@@ -557,20 +564,24 @@ export const ComplaintModal = ({
           <Tabs defaultValue="list" variant="outline">
             <Tabs.List mb="xs">
               <Tabs.Tab value="list" leftSection={<IconCheck size={14} />}>
-                Tanlangan ({selectedMessages.length})
+                {tr("Tanlangan", "Выбрано")} ({selectedMessages.length})
               </Tabs.Tab>
               <Tabs.Tab
                 value="manual"
                 leftSection={<IconDeviceFloppy size={14} />}
               >
-                Qo'shimcha dalillar ({manualEvidence.length})
+                {tr("Qo'shimcha dalillar", "Дополнительные материалы")} (
+                {manualEvidence.length})
               </Tabs.Tab>
             </Tabs.List>
 
             <Tabs.Panel value="list">
               {selectedMessages.length === 0 ? (
                 <Text c="dimmed" fs="italic" size="sm" py="md" ta="center">
-                  Chatdan hech narsa tanlanmagan
+                  {tr(
+                    "Chatdan hech narsa tanlanmagan",
+                    "В чате ничего не выбрано",
+                  )}
                 </Text>
               ) : (
                 <ScrollArea.Autosize mah={250} type="auto" offsetScrollbars>
@@ -593,8 +604,8 @@ export const ComplaintModal = ({
                             c={msg.sender === "patient" ? "blue.7" : "green.7"}
                           >
                             {msg.sender === "patient"
-                              ? "Bemor (WhatsApp)"
-                              : "Operator"}
+                              ? tr("Bemor (WhatsApp)", "Пациент (WhatsApp)")
+                              : tr("Operator", "Оператор")}
                           </Text>
                           <Text size="xs" c="dimmed">
                             {msg.timestamp}
@@ -614,7 +625,10 @@ export const ComplaintModal = ({
                   <Stack gap="xs">
                     <Group gap="xs">
                       <TextInput
-                        placeholder="Izoh yozing..."
+                        placeholder={tr(
+                          "Izoh yozing...",
+                          "Введите комментарий...",
+                        )}
                         style={{ flex: 1 }}
                         size="xs"
                         value={manualText}
@@ -629,12 +643,15 @@ export const ComplaintModal = ({
                         onClick={handleAddTextNote}
                         disabled={!manualText}
                       >
-                        Qo'shish
+                        {tr("Qo'shish", "Добавить")}
                       </Button>
                     </Group>
 
                     <Divider
-                      label="Yoki fayl yuklang (Drag & Drop ishlaydi)"
+                      label={tr(
+                        "Yoki fayl yuklang (Drag & Drop ishlaydi)",
+                        "Или загрузите файл (можно перетащить)",
+                      )}
                       labelPosition="center"
                       my={5}
                     />
@@ -648,7 +665,10 @@ export const ComplaintModal = ({
                             size="xs"
                             leftSection={<IconPaperclip size={14} />}
                           >
-                            Fayl yuklash (Foto/Video/Hujjat)
+                            {tr(
+                              "Fayl yuklash (Foto/Video/Hujjat)",
+                              "Загрузить файл (фото/видео/документ)",
+                            )}
                           </Button>
                         )}
                       </FileButton>
@@ -661,7 +681,8 @@ export const ComplaintModal = ({
                           leftSection={<IconPlayerPause size={14} />}
                           className="blink"
                         >
-                          To'xtatish ({formatTime(recordingTime)})
+                          {tr("To'xtatish", "Остановить")} (
+                          {formatTime(recordingTime)})
                         </Button>
                       ) : (
                         <Button
@@ -671,7 +692,7 @@ export const ComplaintModal = ({
                           onClick={startRecording}
                           leftSection={<IconMicrophone size={14} />}
                         >
-                          Ovoz yozish
+                          {tr("Ovoz yozish", "Записать голос")}
                         </Button>
                       )}
                     </Group>
@@ -682,7 +703,10 @@ export const ComplaintModal = ({
                   <Stack gap="xs">
                     {manualEvidence.length === 0 && (
                       <Text size="xs" c="dimmed" ta="center">
-                        Hozircha qo'shimcha dalillar yo'q
+                        {tr(
+                          "Hozircha qo'shimcha dalillar yo'q",
+                          "Дополнительных материалов пока нет",
+                        )}
                       </Text>
                     )}
                     {manualEvidence.map((msg) => (
@@ -697,7 +721,7 @@ export const ComplaintModal = ({
                       >
                         <Group justify="space-between" mb={2}>
                           <Badge size="xs" color="orange" variant="light">
-                            Manual
+                            {tr("Qo'lda", "Вручную")}
                           </Badge>
                           <Text size="xs" c="dimmed">
                             {msg.timestamp}
@@ -712,7 +736,10 @@ export const ComplaintModal = ({
             </Tabs.Panel>
           </Tabs>
 
-          <Divider label="Xizmat sifatini baholang" labelPosition="center" />
+          <Divider
+            label={tr("Xizmat sifatini baholang", "Оцените качество услуг")}
+            labelPosition="center"
+          />
 
           <Stack gap="xs">
             {CATEGORIES.map((cat) => {
@@ -725,7 +752,7 @@ export const ComplaintModal = ({
                   style={{ borderBottom: "1px solid #eee" }}
                 >
                   <Text size="sm" fw={500}>
-                    {cat.label}
+                    {tr(cat.uz, cat.ru)}
                   </Text>
                   <Rating
                     size="md"
@@ -744,7 +771,7 @@ export const ComplaintModal = ({
           </Stack>
 
           <Divider
-            label="Murojaatni tasniflang / Классификация"
+            label={tr("Murojaatni tasniflang", "Классификация обращения")}
             labelPosition="center"
           />
 
@@ -753,11 +780,11 @@ export const ComplaintModal = ({
               <Select
                 required
                 clearable
-                label="Murojaat turi / Тип обращения"
-                placeholder="Turini tanlang"
+                label={tr("Murojaat turi", "Тип обращения")}
+                placeholder={tr("Turini tanlang", "Выберите тип")}
                 data={[
-                  { value: "complaint", label: "Shikoyat / Жалоба" },
-                  { value: "suggestion", label: "Taklif / Предложение" },
+                  { value: "complaint", label: tr("Shikoyat", "Жалоба") },
+                  { value: "suggestion", label: tr("Taklif", "Предложение") },
                 ]}
                 value={feedbackType}
                 onChange={(value) => {
@@ -772,11 +799,11 @@ export const ComplaintModal = ({
                 required
                 clearable
                 searchable
-                label="Kategoriya / Категория"
-                placeholder="Kategoriyani tanlang"
+                label={tr("Kategoriya", "Категория")}
+                placeholder={tr("Kategoriyani tanlang", "Выберите категорию")}
                 data={CATEGORIES.map((item) => ({
                   value: item.id,
-                  label: item.label,
+                  label: tr(item.uz, item.ru),
                 }))}
                 value={category}
                 onChange={(value) => {
@@ -792,20 +819,35 @@ export const ComplaintModal = ({
                 clearable
                 searchable
                 disabled={!feedbackType || !category}
-                label="Ichki kategoriya / Подкатегория"
-                description="Takroriy murojaatlar aynan shu qiymat bo'yicha hisoblanadi"
+                label={tr("Ichki kategoriya", "Подкатегория")}
+                description={tr(
+                  "Takroriy murojaatlar aynan shu qiymat bo'yicha hisoblanadi",
+                  "Повторные обращения определяются по этому значению",
+                )}
                 placeholder={
                   !feedbackType || !category
-                    ? "Avval tur va kategoriyani tanlang"
-                    : "Bo'sh — qiymatni tanlang"
+                    ? tr(
+                        "Avval tur va kategoriyani tanlang",
+                        "Сначала выберите тип и категорию",
+                      )
+                    : tr("Bo'sh — qiymatni tanlang", "Выберите значение")
                 }
-                nothingFoundMessage="Mos variant topilmadi"
+                nothingFoundMessage={tr(
+                  "Mos variant topilmadi",
+                  "Подходящий вариант не найден",
+                )}
                 data={[
                   ...subcategories.map((item) => ({
                     value: item.name,
                     label: item.name,
                   })),
-                  { value: "__custom__", label: "+ Yangi variant qo'shish" },
+                  {
+                    value: "__custom__",
+                    label: tr(
+                      "+ Yangi variant qo'shish",
+                      "+ Добавить новый вариант",
+                    ),
+                  },
                 ]}
                 value={isCustomSubcategory ? "__custom__" : subcategory}
                 onChange={(value) => {
@@ -824,8 +866,11 @@ export const ComplaintModal = ({
                   required
                   autoFocus
                   maxLength={160}
-                  label="Yangi podkategoriya / Новая подкатегория"
-                  placeholder="Masalan: smesitel ishlamaydi"
+                  label={tr("Yangi podkategoriya", "Новая подкатегория")}
+                  placeholder={tr(
+                    "Masalan: smesitel ishlamaydi",
+                    "Например: не работает смеситель",
+                  )}
                   leftSection={<IconPlus size={16} />}
                   value={customSubcategory}
                   onChange={(event) =>
@@ -836,9 +881,10 @@ export const ComplaintModal = ({
 
               {selectedSubcategory && (
                 <Alert color="teal" variant="light" py="xs">
-                  Ushbu sabab oldin uchragan bo'lsa, tizim uni avtomatik
-                  ravishda takroriy deb belgilaydi va Trello kartasida sonini
-                  ko'rsatadi.
+                  {tr(
+                    "Ushbu sabab oldin uchragan bo'lsa, tizim uni avtomatik ravishda takroriy deb belgilaydi va Trello kartasida sonini ko'rsatadi.",
+                    "Если такая причина уже встречалась, система автоматически отметит обращение как повторное и покажет количество в карточке Trello.",
+                  )}
                 </Alert>
               )}
             </Stack>
@@ -846,7 +892,7 @@ export const ComplaintModal = ({
 
           <Group grow mt="md" align="flex-end">
             <Button variant="light" color="gray" onClick={onClose}>
-              Bekor qilish
+              {tr("Bekor qilish", "Отмена")}
             </Button>
             <Button
               style={{ flex: 2 }}
@@ -862,7 +908,10 @@ export const ComplaintModal = ({
               }
               loading={isLoading}
             >
-              Saqlash va Trello'ga yuborish
+              {tr(
+                "Saqlash va Trello'ga yuborish",
+                "Сохранить и отправить в Trello",
+              )}
             </Button>
           </Group>
         </Stack>

@@ -14,8 +14,10 @@ import { IconPhone, IconCheck, IconAlertCircle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { APP_PATHS } from "@/shared/constants/app-paths";
 import { useLoginMutation } from "../api/queries"; // Импорт нашего хука
+import { useTranslation } from "@/shared/i18n";
 
 export const PhoneLogin = () => {
+  const { tr } = useTranslation();
   const navigate = useNavigate();
 
   // Подключаем мутацию
@@ -46,7 +48,7 @@ export const PhoneLogin = () => {
           // Токен уже сохранен в queries.ts, делаем редирект
           navigate(APP_PATHS.HOME.HOME_PATH);
         },
-      }
+      },
     );
   };
 
@@ -55,7 +57,8 @@ export const PhoneLogin = () => {
       {error && (
         <Alert variant="light" color="red" icon={<IconAlertCircle size={16} />}>
           {/* @ts-ignore - axios error structure */}
-          {error?.response?.data?.message || "Xatolik yuz berdi"}
+          {error?.response?.data?.message ||
+            tr("Xatolik yuz berdi", "Произошла ошибка")}
         </Alert>
       )}
 
@@ -63,7 +66,7 @@ export const PhoneLogin = () => {
         <>
           <Box>
             <Text size="sm" fw={500} mb={4}>
-              Telefon raqamingiz
+              {tr("Telefon raqamingiz", "Ваш номер телефона")}
             </Text>
             <InputBase<any>
               size="md"
@@ -83,23 +86,26 @@ export const PhoneLogin = () => {
             radius="md"
             disabled={phone.length < 17}
           >
-            Davom etish
+            {tr("Davom etish", "Продолжить")}
           </Button>
         </>
       ) : (
         <>
           <Alert
             variant="light"
-            title="PIN Kod"
+            title={tr("PIN Kod", "PIN-код")}
             icon={<IconCheck size={16} />}
             color="blue"
           >
-            Iltimos, shaxsiy <b>5 xonali</b> PIN kodingizni kiriting.
+            {tr(
+              "Iltimos, shaxsiy 5 xonali PIN kodingizni kiriting.",
+              "Введите ваш личный 5-значный PIN-код.",
+            )}
           </Alert>
 
           <Stack gap="xs" align="center">
             <Text size="sm" fw={500}>
-              PIN kod
+              {tr("PIN kod", "PIN-код")}
             </Text>
             <PinInput
               size="xl"
@@ -121,7 +127,7 @@ export const PhoneLogin = () => {
             radius="md"
             disabled={pin.length < 5}
           >
-            Kirish
+            {tr("Kirish", "Войти")}
           </Button>
 
           <Center>
@@ -135,7 +141,7 @@ export const PhoneLogin = () => {
               }}
               disabled={isPending}
             >
-              Raqamni o'zgartirish
+              {tr("Raqamni o'zgartirish", "Изменить номер")}
             </Button>
           </Center>
         </>

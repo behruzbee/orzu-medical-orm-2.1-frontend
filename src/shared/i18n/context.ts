@@ -7,6 +7,7 @@ export interface LanguageContextValue {
   language: Language;
   setLanguage: (language: Language) => void;
   t: (key: TranslationKey, values?: Record<string, string | number>) => string;
+  tr: (uzbek: string, russian: string) => string;
 }
 
 export const LanguageContext = createContext<LanguageContextValue | null>(null);

@@ -8,8 +8,10 @@ import {
 } from "../api";
 import { FileDropzone } from "@/shared/ui/file-dropzone";
 import { PreviewTable } from "./preview-table";
+import { useTranslation } from "@/shared/i18n";
 
 export const ImportFlow = () => {
+  const { tr } = useTranslation();
   const uploadPreview = useUploadPreview();
   const commitImport = useCommitImport();
   const cancelImport = useCancelImport();
@@ -49,7 +51,12 @@ export const ImportFlow = () => {
 
   const handleFileSelect = (file: File) => {
     if (!file.name.endsWith(".xlsx") && !file.name.endsWith(".xls")) {
-      return alert("Faqat Excel fayllari (.xlsx, .xls) qabul qilinadi");
+      return alert(
+        tr(
+          "Faqat Excel fayllari (.xlsx, .xls) qabul qilinadi",
+          "Принимаются только файлы Excel (.xlsx, .xls)",
+        ),
+      );
     }
     uploadPreview.mutate(file, {
       onSuccess: (data) => setSessionId(data.sessionId),
@@ -84,7 +91,10 @@ export const ImportFlow = () => {
           onFileSelect={handleFileSelect}
           isLoading={uploadPreview.isPending}
           accept=".xlsx, .xls"
-          label="Bemorlarning Excel faylini bu yerga tashlang yoki tanlash uchun bosing"
+          label={tr(
+            "Bemorlarning Excel faylini bu yerga tashlang yoki tanlash uchun bosing",
+            "Перетащите сюда Excel-файл пациентов или нажмите для выбора",
+          )}
         />
       ) : (
         <div style={{ marginTop: "20px" }}>
@@ -96,7 +106,9 @@ export const ImportFlow = () => {
               marginBottom: "15px",
             }}
           >
-            <h3>Ma'lumotlarni oldindan ko'rish</h3>
+            <h3>
+              {tr("Ma'lumotlarni oldindan ko'rish", "Предпросмотр данных")}
+            </h3>
             <div style={{ display: "flex", gap: "10px" }}>
               <button
                 onClick={handleCancel}
@@ -110,7 +122,7 @@ export const ImportFlow = () => {
                   cursor: "pointer",
                 }}
               >
-                Bekor qilish
+                {tr("Bekor qilish", "Отмена")}
               </button>
               <button
                 onClick={handleCommit}
@@ -124,13 +136,13 @@ export const ImportFlow = () => {
                   cursor: "pointer",
                 }}
               >
-                Bazaga saqlash
+                {tr("Bazaga saqlash", "Сохранить в базу")}
               </button>
             </div>
           </div>
 
           {isPreviewLoading ? (
-            <p>Jadval yuklanmoqda...</p>
+            <p>{tr("Jadval yuklanmoqda...", "Таблица загружается...")}</p>
           ) : (
             previewData && (
               <>
@@ -150,7 +162,8 @@ export const ImportFlow = () => {
                       border: "1px solid #ddd",
                     }}
                   >
-                    <strong>Jami:</strong> {previewData.stats.total} ta
+                    <strong>{tr("Jami:", "Всего:")}</strong>{" "}
+                    {previewData.stats.total}
                   </div>
                   <div
                     style={{
@@ -161,8 +174,10 @@ export const ImportFlow = () => {
                       color: "#2e7d32",
                     }}
                   >
-                    <strong>Importga tayyor:</strong> {previewData.stats.valid}{" "}
-                    ta
+                    <strong>
+                      {tr("Importga tayyor:", "Готово к импорту:")}
+                    </strong>{" "}
+                    {previewData.stats.valid}
                   </div>
                   <div
                     style={{
@@ -173,8 +188,13 @@ export const ImportFlow = () => {
                       color: "#c62828",
                     }}
                   >
-                    <strong>Xatolik mavjud (loglarga):</strong>{" "}
-                    {previewData.stats.errors} ta
+                    <strong>
+                      {tr(
+                        "Xatolik mavjud (loglarga):",
+                        "С ошибками (в журнал):",
+                      )}
+                    </strong>{" "}
+                    {previewData.stats.errors}
                   </div>
 
                   {previewData.stats.errors > 0 && (
@@ -188,39 +208,57 @@ export const ImportFlow = () => {
                         flexBasis: "100%",
                       }}
                     >
-                      <strong>Xatolar tafsiloti:</strong>
+                      <strong>
+                        {tr("Xatolar tafsiloti:", "Подробности ошибок:")}
+                      </strong>
                       <ul style={{ margin: "5px 0 0 20px", padding: 0 }}>
                         {previewData.stats.categories.ACTIVE_REQUEST_EXISTS >
                           0 && (
                           <li>
-                            Bemorning faol arizasi mavjud:{" "}
-                            {previewData.stats.categories.ACTIVE_REQUEST_EXISTS}{" "}
-                            ta
+                            {tr(
+                              "Bemorning faol arizasi mavjud:",
+                              "У пациента есть активная заявка:",
+                            )}{" "}
+                            {
+                              previewData.stats.categories.ACTIVE_REQUEST_EXISTS
+                            }{" "}
                           </li>
                         )}
                         {previewData.stats.categories.DUPLICATE_FILE > 0 && (
                           <li>
-                            Fayl ichida takrorlanganlar:{" "}
-                            {previewData.stats.categories.DUPLICATE_FILE} ta
+                            {tr(
+                              "Fayl ichida takrorlanganlar:",
+                              "Дубликаты внутри файла:",
+                            )}{" "}
+                            {previewData.stats.categories.DUPLICATE_FILE}
                           </li>
                         )}
                         {previewData.stats.categories.INVALID_PHONE > 0 && (
                           <li>
-                            Noto'g'ri telefon raqami kiritilgan:{" "}
-                            {previewData.stats.categories.INVALID_PHONE} ta
+                            {tr(
+                              "Noto'g'ri telefon raqami kiritilgan:",
+                              "Неверные номера телефонов:",
+                            )}{" "}
+                            {previewData.stats.categories.INVALID_PHONE}
                           </li>
                         )}
                         {previewData.stats.categories.MISSING_DATA > 0 && (
                           <li>
-                            Ism yoki telefon raqami yo'q:{" "}
-                            {previewData.stats.categories.MISSING_DATA} ta
+                            {tr(
+                              "Ism yoki telefon raqami yo'q:",
+                              "Отсутствует имя или телефон:",
+                            )}{" "}
+                            {previewData.stats.categories.MISSING_DATA}
                           </li>
                         )}
                         {/* 🔥 ДОБАВЛЕНО ВЫВОД НОВОЙ ОШИБКИ */}
                         {previewData.stats.categories.INVALID_DATES > 0 && (
                           <li style={{ color: "red", fontWeight: "bold" }}>
-                            Sanalar xato (manfiy yoki 15 kundan ortiq):{" "}
-                            {previewData.stats.categories.INVALID_DATES} ta
+                            {tr(
+                              "Sanalar xato (manfiy yoki 15 kundan ortiq):",
+                              "Некорректные даты (отрицательный период или более 15 дней):",
+                            )}{" "}
+                            {previewData.stats.categories.INVALID_DATES}
                           </li>
                         )}
                       </ul>

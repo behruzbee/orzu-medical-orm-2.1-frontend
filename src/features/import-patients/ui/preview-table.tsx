@@ -1,5 +1,6 @@
 import { Table, Badge, Text } from "@mantine/core";
 import type { PreviewRow } from "../model/types";
+import { useTranslation } from "@/shared/i18n";
 
 interface PreviewTableProps {
   rows: PreviewRow[];
@@ -11,6 +12,7 @@ const formatDate = (date?: string | null) => {
 };
 
 export const PreviewTable = ({ rows }: PreviewTableProps) => {
+  const { tr } = useTranslation();
   return (
     <Table.ScrollContainer minWidth={900}>
       <Table
@@ -21,22 +23,19 @@ export const PreviewTable = ({ rows }: PreviewTableProps) => {
       >
         <Table.Thead bg="gray.0">
           <Table.Tr>
-            <Table.Th>Qator</Table.Th>
-            <Table.Th>Bemor ismi</Table.Th>
-            <Table.Th>Telefon</Table.Th>
-            <Table.Th>Filial</Table.Th>
-            <Table.Th>Kelgan sana</Table.Th>
-            <Table.Th>Ketgan sana</Table.Th>
-            <Table.Th>Holati</Table.Th>
+            <Table.Th>{tr("Qator", "Строка")}</Table.Th>
+            <Table.Th>{tr("Bemor ismi", "Имя пациента")}</Table.Th>
+            <Table.Th>{tr("Telefon", "Телефон")}</Table.Th>
+            <Table.Th>{tr("Filial", "Филиал")}</Table.Th>
+            <Table.Th>{tr("Kelgan sana", "Дата прибытия")}</Table.Th>
+            <Table.Th>{tr("Ketgan sana", "Дата отъезда")}</Table.Th>
+            <Table.Th>{tr("Holati", "Статус")}</Table.Th>
           </Table.Tr>
         </Table.Thead>
 
         <Table.Tbody>
           {rows.map((row) => (
-            <Table.Tr
-              key={row.id}
-              bg={row.hasErrors ? "red.0" : undefined}
-            >
+            <Table.Tr key={row.id} bg={row.hasErrors ? "red.0" : undefined}>
               <Table.Td fw={500}>{row.lineNumber}</Table.Td>
               <Table.Td>{row.name || "-"}</Table.Td>
               <Table.Td>{row.phone || "-"}</Table.Td>
@@ -50,7 +49,7 @@ export const PreviewTable = ({ rows }: PreviewTableProps) => {
                   </Text>
                 ) : (
                   <Badge color="green" variant="light" size="md">
-                    Xatosiz
+                    {tr("Xatosiz", "Без ошибок")}
                   </Badge>
                 )}
               </Table.Td>

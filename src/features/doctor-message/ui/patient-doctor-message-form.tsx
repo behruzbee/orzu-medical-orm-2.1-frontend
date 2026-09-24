@@ -10,16 +10,15 @@ import {
 } from "@mantine/core";
 import { IconSend, IconStethoscope } from "@tabler/icons-react";
 import { useSendDoctorMessageMutation } from "@/entities/doctor-message";
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
   requestId: string;
   patientName: string;
 }
 
-export const PatientDoctorMessageForm = ({
-  requestId,
-  patientName,
-}: Props) => {
+export const PatientDoctorMessageForm = ({ requestId, patientName }: Props) => {
+  const { tr } = useTranslation();
   const [message, setMessage] = useState("");
   const sendMessageMutation = useSendDoctorMessageMutation();
 
@@ -35,7 +34,7 @@ export const PatientDoctorMessageForm = ({
       },
       {
         onSuccess: () => setMessage(""),
-      }
+      },
     );
   };
 
@@ -48,7 +47,7 @@ export const PatientDoctorMessageForm = ({
           </ThemeIcon>
           <div>
             <Text size="sm" fw={700}>
-              Shifokorga xabar
+              {tr("Shifokorga xabar", "Сообщение врачу")}
             </Text>
             <Text size="xs" c="dimmed">
               {patientName}
@@ -62,7 +61,10 @@ export const PatientDoctorMessageForm = ({
           maxRows={8}
           value={message}
           onChange={(event) => setMessage(event.currentTarget.value)}
-          placeholder="Masalan: bemorga klizma buyurilgan, lekin kerak emas. Iltimos, tayinlovni tekshiring."
+          placeholder={tr(
+            "Masalan: bemorga klizma buyurilgan, lekin kerak emas. Iltimos, tayinlovni tekshiring.",
+            "Например: пациенту назначена клизма, но она не нужна. Проверьте назначение.",
+          )}
         />
 
         <Button
@@ -72,7 +74,7 @@ export const PatientDoctorMessageForm = ({
           loading={sendMessageMutation.isPending}
           color="red"
         >
-          Vrachga yuborish
+          {tr("Shifokorga yuborish", "Отправить врачу")}
         </Button>
       </Stack>
     </Paper>

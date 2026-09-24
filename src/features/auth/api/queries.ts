@@ -4,26 +4,31 @@ import { authApi } from "./apis";
 import { setAuthToken } from "@/shared/api/api";
 import type { LoginRequest, AuthResponse } from "../model/types";
 import { useEffect, useState } from "react";
+import { useTranslation } from "@/shared/i18n";
 
 export const useLoginMutation = () => {
+  const { tr } = useTranslation();
   return useMutation<AuthResponse, any, LoginRequest>({
     mutationKey: ["auth", "login"],
     mutationFn: (data: LoginRequest) => authApi.login(data),
     onSuccess: (data) => {
       setAuthToken(data.accessToken);
       notifications.show({
-        title: "Muvaffaqiyatli! 🎉",
-        message: "Tizimga muvaffaqiyatli kirdingiz.",
+        title: tr("Muvaffaqiyatli! 🎉", "Успешно! 🎉"),
+        message: tr(
+          "Tizimga muvaffaqiyatli kirdingiz.",
+          "Вы успешно вошли в систему.",
+        ),
         color: "green",
       });
     },
     onError: (error) => {
       console.error("Login failed:", error);
       notifications.show({
-        title: "Xatolik 🚨",
+        title: tr("Xatolik 🚨", "Ошибка 🚨"),
         message:
           error.response?.data?.message ||
-          "Authentication failed (Client/Network Error)",
+          tr("Tizimga kirib bo'lmadi", "Не удалось войти в систему"),
         color: "red",
       });
     },
@@ -31,6 +36,7 @@ export const useLoginMutation = () => {
 };
 
 export const useQrStream = () => {
+  const { tr } = useTranslation();
   const [qrCode, setQrCode] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
 
@@ -52,14 +58,19 @@ export const useQrStream = () => {
 
     eventSource.onerror = (e) => {
       console.error("SSE Error:", e);
-      setError("Tizimda faol sessiya mavjud yoki ulanishda xatolik.");
+      setError(
+        tr(
+          "Tizimda faol sessiya mavjud yoki ulanishda xatolik.",
+          "В системе уже есть активная сессия или произошла ошибка подключения.",
+        ),
+      );
       eventSource.close();
     };
 
     return () => {
       eventSource.close();
     };
-  }, []);
+  }, [tr]);
 
   return { qrCode, error };
 };

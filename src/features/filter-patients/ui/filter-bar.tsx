@@ -3,6 +3,7 @@ import { IconSearch, IconFilter, IconX } from "@tabler/icons-react";
 import { useDisclosure } from "@mantine/hooks";
 import { AdvancedFilters } from "./advenced-filters";
 import { useFilterStore } from "../store/filter-store"; // 👈 Импортируем стор
+import { useTranslation } from "@/shared/i18n";
 
 const BRANCHES = [
   "ОРЗУМЕД ЗАНГИОТА",
@@ -15,6 +16,7 @@ const BRANCHES = [
 ];
 
 export const FilterBar = () => {
+  const { tr } = useTranslation();
   const [opened, { open, close }] = useDisclosure(false);
 
   const { search, setSearch, selectedBranches, setBranches, getActiveCount } =
@@ -38,7 +40,10 @@ export const FilterBar = () => {
       <Group justify="space-between" align="flex-end" wrap="nowrap">
         <Group grow style={{ flex: 1 }}>
           <TextInput
-            placeholder="Bemor ismi yoki telefon raqami bo'yicha qidirish"
+            placeholder={tr(
+              "Bemor ismi yoki telefon raqami bo'yicha qidirish",
+              "Поиск по имени или номеру телефона",
+            )}
             leftSection={<IconSearch size={16} />}
             radius="md"
             value={search} // 👈 Связываем Value
@@ -52,7 +57,7 @@ export const FilterBar = () => {
             }
           />
           <Select
-            placeholder="Barcha filiallar"
+            placeholder={tr("Barcha filiallar", "Все филиалы")}
             data={BRANCHES}
             radius="md"
             value={currentBranch}
@@ -70,7 +75,8 @@ export const FilterBar = () => {
           color="blue"
           px="xl"
         >
-          Filterlash {activeFilters > 0 && `(${activeFilters})`}
+          {tr("Filtrlash", "Фильтры")}{" "}
+          {activeFilters > 0 && `(${activeFilters})`}
         </Button>
       </Group>
 

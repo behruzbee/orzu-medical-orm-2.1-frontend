@@ -28,6 +28,7 @@ import {
 } from "@/entities/doctor-message";
 import type { User } from "@/entities/user";
 import { useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
   user: User;
@@ -37,6 +38,7 @@ const isDoctorCabinet = (user: User) =>
   user.role === "doctor" || user.role === "admin";
 
 export const DoctorMessageAlert = ({ user }: Props) => {
+  const { tr } = useTranslation();
   const enabled = isDoctorCabinet(user);
   const queryClient = useQueryClient();
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -83,10 +85,10 @@ export const DoctorMessageAlert = ({ user }: Props) => {
         if (data.type === "created") {
           setActiveId(data.message.id);
           notifications.show({
-            title: "Shifokorga yangi xabar",
+            title: tr("Shifokorga yangi xabar", "Новое сообщение врачу"),
             message:
               data.message.request?.patient?.name ||
-              "Bemor bo'yicha yangi xabar",
+              tr("Bemor bo'yicha yangi xabar", "Новое сообщение о пациенте"),
             color: "red",
             autoClose: 5000,
           });
@@ -103,18 +105,21 @@ export const DoctorMessageAlert = ({ user }: Props) => {
     return () => {
       stream.close();
     };
-  }, [enabled, queryClient]);
+  }, [enabled, queryClient, tr]);
 
   useEffect(() => {
     if (!enabled || !activeMessage) return;
 
     const originalTitle = document.title;
-    document.title = `(${pendingMessages.length}) Shifokor xabari`;
+    document.title = `(${pendingMessages.length}) ${tr("Shifokor xabari", "Сообщение врачу")}`;
 
     const interval = window.setInterval(() => {
       notifications.show({
-        title: "Shifokor xabari kutilmoqda",
-        message: "Xabarni ko'rib, bajarilgandan keyin “Сделано” ni bosing.",
+        title: tr("Shifokor xabari kutilmoqda", "Ожидает сообщение врачу"),
+        message: tr(
+          "Xabarni ko'rib, bajarilgandan keyin «Bajarildi» ni bosing.",
+          "Просмотрите сообщение и после выполнения нажмите «Выполнено».",
+        ),
         color: "red",
         autoClose: 4500,
       });
@@ -124,7 +129,7 @@ export const DoctorMessageAlert = ({ user }: Props) => {
       window.clearInterval(interval);
       document.title = originalTitle;
     };
-  }, [activeMessage, enabled, pendingMessages.length]);
+  }, [activeMessage, enabled, pendingMessages.length, tr]);
 
   if (!enabled || !activeMessage) {
     return null;
@@ -137,7 +142,7 @@ export const DoctorMessageAlert = ({ user }: Props) => {
     markDoneMutation.mutate(activeMessage.id, {
       onSuccess: () => {
         const nextMessage = pendingMessages.find(
-          (message) => message.id !== activeMessage.id
+          (message) => message.id !== activeMessage.id,
         );
         setActiveId(nextMessage?.id || null);
       },
@@ -155,7 +160,9 @@ export const DoctorMessageAlert = ({ user }: Props) => {
           <ThemeIcon color="red" variant="light" size="md">
             <IconBellRinging size={18} />
           </ThemeIcon>
-          <Text fw={700}>Shifokor uchun xabar</Text>
+          <Text fw={700}>
+            {tr("Shifokor uchun xabar", "Сообщение для врача")}
+          </Text>
           <Badge color="red" variant="light">
             {pendingMessages.length}
           </Badge>
@@ -171,10 +178,10 @@ export const DoctorMessageAlert = ({ user }: Props) => {
         <Group align="flex-start" justify="space-between" wrap="nowrap">
           <div>
             <Text size="xs" c="dimmed">
-              Bemor
+              {tr("Bemor", "Пациент")}
             </Text>
             <Text fw={700} size="lg">
-              {patient?.name || "Noma'lum bemor"}
+              {patient?.name || tr("Noma'lum bemor", "Неизвестный пациент")}
             </Text>
             <Text size="sm" c="dimmed">
               {patient?.phone || "-"} · {activeMessage.request?.branch || "-"}
@@ -191,7 +198,7 @@ export const DoctorMessageAlert = ({ user }: Props) => {
         <Group gap="xs" c="red">
           <IconStethoscope size={18} />
           <Text size="sm" fw={700}>
-            Tuzatish kerak
+            {tr("Tuzatish kerak", "Требуется исправление")}
           </Text>
         </Group>
 
@@ -209,7 +216,7 @@ export const DoctorMessageAlert = ({ user }: Props) => {
             variant="light"
             leftSection={<IconExternalLink size={16} />}
           >
-            Bemor kartasini ochish
+            {tr("Bemor kartasini ochish", "Открыть карточку пациента")}
           </Button>
 
           <Button
@@ -218,7 +225,7 @@ export const DoctorMessageAlert = ({ user }: Props) => {
             onClick={handleDone}
             loading={markDoneMutation.isPending}
           >
-            Сделано
+            {tr("Bajarildi", "Выполнено")}
           </Button>
         </Group>
       </Stack>

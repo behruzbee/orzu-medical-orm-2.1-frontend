@@ -4,6 +4,7 @@ import { IconInfoCircle } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { RequestStatus } from "@/entities/patient";
 import { RevertStatusButton } from "@/features/patient/revert-status/ui/revert-button"; // 👇 Импорт фичи
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
   patientId: string;
@@ -11,12 +12,13 @@ interface Props {
 }
 
 export const PatientFinishAlert = ({ patientId, status }: Props) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [timer, setTimer] = useState(5);
   const [isCancelled, setIsCancelled] = useState(false);
 
   const isFinished = ![RequestStatus.NEW, RequestStatus.CONTACTED].includes(
-    status
+    status,
   );
 
   useEffect(() => {
@@ -41,15 +43,12 @@ export const PatientFinishAlert = ({ patientId, status }: Props) => {
       <Alert
         variant="light"
         color="orange"
-        title="Arxiv holati"
+        title={t("archive.title")}
         icon={<IconInfoCircle />}
         mb="md"
       >
         <Group justify="space-between">
-          <Text size="sm">
-            Ushbu bemor bilan ish yakunlangan. O'zgartirish kiritish uchun
-            statusni qaytaring.
-          </Text>
+          <Text size="sm">{t("archive.description")}</Text>
           <RevertStatusButton
             patientId={patientId}
             onSuccess={() => setIsCancelled(false)}
@@ -63,7 +62,7 @@ export const PatientFinishAlert = ({ patientId, status }: Props) => {
     <Alert
       variant="light"
       color="blue"
-      title="Ish yakunlangan"
+      title={t("archive.finished")}
       icon={<IconInfoCircle />}
       radius="md"
       mb="md"
@@ -83,9 +82,9 @@ export const PatientFinishAlert = ({ patientId, status }: Props) => {
           />
           <Box>
             <Text size="sm" fw={500}>
-              Bemor statusi arxivga o'tkazilgan.
+              {t("archive.status")}
             </Text>
-            <Text size="xs">Avtomatik ravishda bosh sahifaga qaytish...</Text>
+            <Text size="xs">{t("archive.redirect")}</Text>
           </Box>
         </Group>
 
@@ -96,7 +95,7 @@ export const PatientFinishAlert = ({ patientId, status }: Props) => {
             size="xs"
             onClick={() => setIsCancelled(true)}
           >
-            Qolish (Bekor qilish)
+            {t("archive.stay")}
           </Button>
         </Group>
       </Group>

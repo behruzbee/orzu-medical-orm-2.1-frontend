@@ -1,4 +1,8 @@
-import { RequestStatus, type IEvidenceMessage, type IPatientRequest } from "@/entities/patient";
+import {
+  RequestStatus,
+  type IEvidenceMessage,
+  type IPatientRequest,
+} from "@/entities/patient";
 import {
   Paper,
   Avatar,
@@ -28,6 +32,7 @@ import {
   IconFile,
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
+import { useTranslation, type TranslationKey } from "@/shared/i18n";
 
 export enum EvidenceType {
   TEXT = "text",
@@ -55,21 +60,22 @@ const STATUS_COLORS: Record<string, string> = {
   [RequestStatus.FEEDBACK_NOT_RELATED]: "dark",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  [RequestStatus.NEW]: "Yangi",
-  [RequestStatus.CONTACTED]: "Bog'landi",
-  [RequestStatus.ALL_OK]: "Hammasi ijobiy",
-  [RequestStatus.NO_ANSWER]: "Ko'tarmadi",
-  [RequestStatus.UNREACHABLE]: "O'chirilgan",
-  [RequestStatus.WRONG_NUMBER]: "Xato raqam",
-  [RequestStatus.HAS_NOT_WHATSAPP]: "WhatsApp yo'q",
-  [RequestStatus.EMPLOYEE]: "Xodim raqami", // 🔥 ДОБАВЛЕНО
-  [RequestStatus.FEEDBACK_POSITIVE]: "Ijobiy fikr",
-  [RequestStatus.FEEDBACK_NEGATIVE]: "Shikoyat",
-  [RequestStatus.FEEDBACK_NOT_RELATED]: "Klinikaga xos emas",
+const STATUS_KEYS: Record<string, TranslationKey> = {
+  [RequestStatus.NEW]: "status.new",
+  [RequestStatus.CONTACTED]: "status.contacted",
+  [RequestStatus.ALL_OK]: "status.all_ok",
+  [RequestStatus.NO_ANSWER]: "status.no_answer",
+  [RequestStatus.UNREACHABLE]: "status.unreachable",
+  [RequestStatus.WRONG_NUMBER]: "status.wrong_number",
+  [RequestStatus.HAS_NOT_WHATSAPP]: "status.has_not_whatsapp",
+  [RequestStatus.EMPLOYEE]: "status.employee",
+  [RequestStatus.FEEDBACK_POSITIVE]: "status.feedback_pos",
+  [RequestStatus.FEEDBACK_NEGATIVE]: "status.feedback_neg",
+  [RequestStatus.FEEDBACK_NOT_RELATED]: "status.feedback_not_related",
 };
 
 const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
+  const { t } = useTranslation();
   switch (msg.type) {
     case EvidenceType.TEXT:
       return <Text size="sm">{msg.text}</Text>;
@@ -87,7 +93,7 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
           ) : (
             <Group gap="xs" c="dimmed">
               <IconPhoto size={20} />{" "}
-              <Text size="sm">Rasm (Fayl topilmadi)</Text>
+              <Text size="sm">{t("profile.imageMissing")}</Text>
             </Group>
           )}
           {msg.text && <Text size="sm">{msg.text}</Text>}
@@ -104,7 +110,8 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
             />
           ) : (
             <Group gap="xs" c="dimmed">
-              <IconMicrophone size={20} /> <Text size="sm">Audio xabar</Text>
+              <IconMicrophone size={20} />{" "}
+              <Text size="sm">{t("profile.audio")}</Text>
             </Group>
           )}
           {msg.text && (
@@ -125,7 +132,7 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
             target="_blank"
             style={{ textDecoration: "underline" }}
           >
-            Videoni ko'rish
+            {t("profile.watchVideo")}
           </Text>
         </Group>
       );
@@ -141,7 +148,7 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
             target="_blank"
             style={{ textDecoration: "underline" }}
           >
-            Hujjatni yuklab olish
+            {t("profile.downloadDocument")}
           </Text>
         </Group>
       );
@@ -149,6 +156,7 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
 };
 
 export const PatientCard = ({ patient: request }: Props) => {
+  const { t } = useTranslation();
   const person = request.patient;
   const cleanPhone = person?.phone ? person.phone.replace(/[^0-9+]/g, "") : "";
   const evidenceMessages = request.feedback?.evidenceMessages || [];
@@ -169,7 +177,7 @@ export const PatientCard = ({ patient: request }: Props) => {
 
         <div style={{ textAlign: "center" }}>
           <Text size="xl" fw={700} style={{ lineHeight: 1.2 }}>
-            {person?.name || "Noma'lum"}
+            {person?.name || t("table.unknown")}
           </Text>
           <Badge
             variant="light"
@@ -177,7 +185,9 @@ export const PatientCard = ({ patient: request }: Props) => {
             color={STATUS_COLORS[request.status] || "gray"}
             mt="xs"
           >
-            {STATUS_LABELS[request.status] || request.status}
+            {STATUS_KEYS[request.status]
+              ? t(STATUS_KEYS[request.status])
+              : request.status}
           </Badge>
         </div>
       </Stack>
@@ -210,7 +220,7 @@ export const PatientCard = ({ patient: request }: Props) => {
             </ThemeIcon>
             <div>
               <Text size="xs" c="dimmed">
-                Kelish sanasi
+                {t("profile.arrival")}
               </Text>
               <Text size="sm">
                 {dayjs(request.arrivalDate).format("DD.MM.YYYY")}
@@ -226,7 +236,7 @@ export const PatientCard = ({ patient: request }: Props) => {
             </ThemeIcon>
             <div>
               <Text size="xs" c="dimmed">
-                Ketish sanasi
+                {t("profile.departure")}
               </Text>
               <Text size="sm">
                 {dayjs(request.departureDate).format("DD.MM.YYYY")}
@@ -258,11 +268,11 @@ export const PatientCard = ({ patient: request }: Props) => {
               <div style={{ flex: 1 }}>
                 <Text size="xs" c="dimmed">
                   {request.status === RequestStatus.FEEDBACK_NEGATIVE
-                    ? "Shikoyat xulosasi"
-                    : "Fikr / Taklif xulosasi"}
+                    ? t("profile.complaintSummary")
+                    : t("profile.suggestionSummary")}
                 </Text>
                 <Text size="sm" style={{ wordBreak: "break-word" }}>
-                  {request.feedback.comment || "Izoh qoldirilmagan"}
+                  {request.feedback.comment || t("profile.noComment")}
                 </Text>
               </div>
             </Group>
@@ -279,7 +289,9 @@ export const PatientCard = ({ patient: request }: Props) => {
                     }
                   >
                     <Text size="sm" fw={500}>
-                      Dalillar tarixi ({evidenceMessages.length})
+                      {t("profile.evidenceHistory", {
+                        count: evidenceMessages.length,
+                      })}
                     </Text>
                   </Accordion.Control>
                   <Accordion.Panel>
@@ -314,7 +326,9 @@ export const PatientCard = ({ patient: request }: Props) => {
                                   fw={600}
                                   c={isOperator ? "blue.7" : "gray.7"}
                                 >
-                                  {isOperator ? "Operator" : "Bemor"}
+                                  {isOperator
+                                    ? t("common.operator")
+                                    : t("common.patient")}
                                 </Text>
                                 {timestamp && (
                                   <Text size="xs" c="dimmed">
@@ -347,7 +361,7 @@ export const PatientCard = ({ patient: request }: Props) => {
           leftSection={<IconPhone size={18} />}
           disabled={!cleanPhone}
         >
-          Qo'ng'iroq qilish
+          {t("profile.call")}
         </Button>
 
         <Button

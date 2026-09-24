@@ -3,8 +3,10 @@ import { Paper, Group, Button, Text } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { IconFileTypeXls } from "@tabler/icons-react";
 import { useGenerateReportMutation } from "@/entities/report";
+import { useTranslation } from "@/shared/i18n";
 
 export const ReportGenerator = () => {
+  const { tr } = useTranslation();
   const [value, setValue] = useState<[Date | null, Date | null]>([null, null]);
 
   const { mutate, isPending } = useGenerateReportMutation();
@@ -21,14 +23,14 @@ export const ReportGenerator = () => {
         onSuccess: () => {
           setValue([null, null]);
         },
-      }
+      },
     );
   };
 
   return (
     <Paper withBorder p="lg" radius="md" bg="white">
       <Text size="sm" fw={500} mb="xs">
-        Vaqt oralig'ini tanlang
+        {tr("Vaqt oralig'ini tanlang", "Выберите период")}
       </Text>
       <Group align="flex-start" gap="md">
         <DatePickerInput
@@ -48,7 +50,7 @@ export const ReportGenerator = () => {
           onClick={handleGenerate}
           disabled={!value[0] || !value[1]}
         >
-          Hisobotni shakllantirish
+          {tr("Hisobotni shakllantirish", "Сформировать отчёт")}
         </Button>
       </Group>
     </Paper>

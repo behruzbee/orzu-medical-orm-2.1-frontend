@@ -17,8 +17,10 @@ import {
   ImportErrorsTable,
   useImportErrorsQuery,
 } from "@/features/import-errors";
+import { useTranslation } from "@/shared/i18n";
 
 export const ImportErrorsPage = () => {
+  const { tr } = useTranslation();
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -62,13 +64,15 @@ export const ImportErrorsPage = () => {
   return (
     <Paper p="md" radius="md">
       <Group justify="space-between" mb="lg">
-        <Title order={3}>Import Xatoliklari Tarixi</Title>
+        <Title order={3}>
+          {tr("Import xatoliklari tarixi", "История ошибок импорта")}
+        </Title>
       </Group>
 
       <Flex gap="md" align="flex-end" wrap="wrap" mb="md">
         <TextInput
-          label="Qidiruv"
-          placeholder="Ism yoki telefon"
+          label={tr("Qidiruv", "Поиск")}
+          placeholder={tr("Ism yoki telefon", "Имя или телефон")}
           value={search}
           onChange={(e) => {
             setSearch(e.currentTarget.value);
@@ -79,15 +83,33 @@ export const ImportErrorsPage = () => {
         />
 
         <Select
-          label="Xatolik turi"
-          placeholder="Barchasi"
+          label={tr("Xatolik turi", "Тип ошибки")}
+          placeholder={tr("Barchasi", "Все")}
           data={[
-            { value: "ACTIVE_REQUEST_EXISTS", label: "Faol ariza mavjud" },
-            { value: "DUPLICATE_FILE", label: "Faylda takroriy" },
-            { value: "DUPLICATE_DB", label: "Bazada takroriy" },
-            { value: "INVALID_PHONE", label: "Noto'g'ri raqam" },
-            { value: "INVALID_DATES", label: "Sanada xatolik" },
-            { value: "MISSING_DATA", label: "Ma'lumot to'liq emas" },
+            {
+              value: "ACTIVE_REQUEST_EXISTS",
+              label: tr("Faol ariza mavjud", "Есть активная заявка"),
+            },
+            {
+              value: "DUPLICATE_FILE",
+              label: tr("Faylda takroriy", "Дубликат в файле"),
+            },
+            {
+              value: "DUPLICATE_DB",
+              label: tr("Bazada takroriy", "Дубликат в базе"),
+            },
+            {
+              value: "INVALID_PHONE",
+              label: tr("Noto'g'ri raqam", "Неверный номер"),
+            },
+            {
+              value: "INVALID_DATES",
+              label: tr("Sanada xatolik", "Ошибка в датах"),
+            },
+            {
+              value: "MISSING_DATA",
+              label: tr("Ma'lumot to'liq emas", "Неполные данные"),
+            },
           ]}
           value={category}
           onChange={(v) => {
@@ -99,8 +121,8 @@ export const ImportErrorsPage = () => {
         />
 
         <Select
-          label="Filial"
-          placeholder="Barcha filiallar"
+          label={tr("Filial", "Филиал")}
+          placeholder={tr("Barcha filiallar", "Все филиалы")}
           data={[
             "ОРЗУМЕД ЗАНГИОТА",
             "ОРЗУМЕД ЮНУСОБОД",
@@ -122,8 +144,8 @@ export const ImportErrorsPage = () => {
 
         <DatePickerInput
           type="range"
-          label="Kelgan sana (Kelish sanasi)"
-          placeholder="Sanani tanlang"
+          label={tr("Kelgan sana (Kelish sanasi)", "Дата прибытия")}
+          placeholder={tr("Sanani tanlang", "Выберите даты")}
           value={dateRange}
           onChange={(val) => {
             setDateRange(val as [Date | null, Date | null]);
@@ -143,7 +165,7 @@ export const ImportErrorsPage = () => {
             leftSection={<IconX size={16} />}
             onClick={clearFilters}
           >
-            Tozalash
+            {tr("Tozalash", "Очистить")}
           </Button>
         )}
       </Flex>

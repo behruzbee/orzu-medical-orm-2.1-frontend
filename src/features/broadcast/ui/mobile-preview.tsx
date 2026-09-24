@@ -5,8 +5,10 @@ import {
   IconArrowLeft,
   IconDotsVertical,
 } from "@tabler/icons-react";
+import { useTranslation } from "@/shared/i18n";
 
 export const MobilePreview = () => {
+  const { tr } = useTranslation();
   const { messageText } = useBroadcastStore();
 
   // Заменяем переменные на примеры для превью
@@ -17,7 +19,7 @@ export const MobilePreview = () => {
 
   return (
     <Stack align="center" w="100%">
-      <Text fw={700}>Preview (Ko'rinish)</Text>
+      <Text fw={700}>{tr("Ko'rinish", "Предпросмотр")}</Text>
 
       <Box
         style={{
@@ -58,7 +60,7 @@ export const MobilePreview = () => {
                 c="dimmed"
                 style={{ fontSize: 9, color: "rgba(255,255,255,0.7)" }}
               >
-                Official Account
+                {tr("Rasmiy akkaunt", "Официальный аккаунт")}
               </Text>
             </Stack>
             <IconDotsVertical color="white" size={20} />
@@ -68,7 +70,7 @@ export const MobilePreview = () => {
             <Group justify="center" mb="md">
               <Paper bg="#dcf8c6" px="xs" py={2} radius="md">
                 <Text size="xs" c="dimmed" style={{ fontSize: 10 }}>
-                  Bugun
+                  {tr("Bugun", "Сегодня")}
                 </Text>
               </Paper>
             </Group>
@@ -90,7 +92,10 @@ export const MobilePreview = () => {
                 </Text>
               ) : (
                 <Text size="sm" c="dimmed" fs="italic">
-                  Xabar matnini kiriting...
+                  {tr(
+                    "Xabar matnini kiriting...",
+                    "Введите текст сообщения...",
+                  )}
                 </Text>
               )}
 

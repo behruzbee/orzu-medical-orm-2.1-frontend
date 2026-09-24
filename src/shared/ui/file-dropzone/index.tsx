@@ -1,4 +1,5 @@
 import { useState, type DragEvent, type ChangeEvent } from "react";
+import { useTranslation } from "@/shared/i18n";
 
 interface FileDropzoneProps {
   onFileSelect: (file: File) => void;
@@ -7,7 +8,13 @@ interface FileDropzoneProps {
   label?: string;
 }
 
-export const FileDropzone = ({ onFileSelect, isLoading, accept, label }: FileDropzoneProps) => {
+export const FileDropzone = ({
+  onFileSelect,
+  isLoading,
+  accept,
+  label,
+}: FileDropzoneProps) => {
+  const { tr } = useTranslation();
   const [isDragOver, setIsDragOver] = useState(false);
 
   const handleDrop = (e: DragEvent<HTMLDivElement>) => {
@@ -26,10 +33,18 @@ export const FileDropzone = ({ onFileSelect, isLoading, accept, label }: FileDro
 
   return (
     <div
-      onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
-      onDragLeave={(e) => { e.preventDefault(); setIsDragOver(false); }}
+      onDragOver={(e) => {
+        e.preventDefault();
+        setIsDragOver(true);
+      }}
+      onDragLeave={(e) => {
+        e.preventDefault();
+        setIsDragOver(false);
+      }}
       onDrop={handleDrop}
-      onClick={() => !isLoading && document.getElementById("file-upload")?.click()}
+      onClick={() =>
+        !isLoading && document.getElementById("file-upload")?.click()
+      }
       style={{
         border: `2px dashed ${isDragOver ? "#2196F3" : "#ccc"}`,
         borderRadius: "8px",
@@ -41,7 +56,11 @@ export const FileDropzone = ({ onFileSelect, isLoading, accept, label }: FileDro
         transition: "all 0.2s ease",
       }}
     >
-      <p>{isLoading ? "Обработка..." : label || "Перетащите файл сюда"}</p>
+      <p>
+        {isLoading
+          ? tr("Qayta ishlanmoqda...", "Обработка...")
+          : label || tr("Faylni shu yerga tashlang", "Перетащите файл сюда")}
+      </p>
       <input
         id="file-upload"
         type="file"

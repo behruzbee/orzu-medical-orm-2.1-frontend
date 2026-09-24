@@ -12,15 +12,17 @@ import {
 } from "@mantine/core";
 import { IconDeviceFloppy, IconPhoneCall, IconLock } from "@tabler/icons-react";
 import { useAddCallStatusMutation } from "@/entities/patient/api";
-import { RequestStatus, type IPatientRequest } from "@/entities/patient"; 
+import { RequestStatus, type IPatientRequest } from "@/entities/patient";
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
-  patient: IPatientRequest; 
+  patient: IPatientRequest;
 }
 
 const EDITABLE_STATUSES = [RequestStatus.NEW, RequestStatus.CONTACTED];
 
 export const CallResultForm = ({ patient: request }: Props) => {
+  const { t } = useTranslation();
   const [status, setStatus] = useState<RequestStatus | null>(null);
   const [note, setNote] = useState("");
 
@@ -31,7 +33,7 @@ export const CallResultForm = ({ patient: request }: Props) => {
   useEffect(() => {
     if (isLocked) {
       setStatus(request.status);
-      
+
       if (request.callStatus?.note) {
         setNote(request.callStatus.note);
       } else if (request.feedback?.comment) {
@@ -61,7 +63,7 @@ export const CallResultForm = ({ patient: request }: Props) => {
           setNote("");
           setStatus(null);
         },
-      }
+      },
     );
   };
 
@@ -69,30 +71,28 @@ export const CallResultForm = ({ patient: request }: Props) => {
     <Paper withBorder p="md" radius="md" bg={isLocked ? "gray.0" : "white"}>
       <Group justify="space-between" mb="md">
         <Text fw={600} tt="uppercase" size="xs" c="dimmed">
-          {isLocked ? "Yakuniy natija" : "Qo'ng'iroq natijasini kiritish"}
+          {isLocked ? t("call.finalResult") : t("call.enterResult")}
         </Text>
         {isLocked && <IconLock size={16} color="gray" />}
       </Group>
 
       {isLocked && (
         <Alert variant="light" color="blue" mb="md" p="xs">
-          <Text size="xs">
-            Ushbu bemor bilan ishlash yakunlangan. O'zgartirish imkonsiz.
-          </Text>
+          <Text size="xs">{t("call.locked")}</Text>
         </Alert>
       )}
 
       <Radio.Group
         value={status || ""}
         onChange={(val) => !isLocked && setStatus(val as RequestStatus)}
-        label={isLocked ? "Tanlangan holat:" : "Natija qanday bo'ldi?"}
+        label={isLocked ? t("call.selectedStatus") : t("call.question")}
         withAsterisk={!isLocked}
         mb="md"
       >
         <Stack gap="sm" mt="xs">
           <Radio
             value={RequestStatus.ALL_OK}
-            label="✅ Hammasi ijobiy (OK)"
+            label={t("call.allOk")}
             color="green"
             disabled={isLocked && status !== RequestStatus.ALL_OK}
             style={{
@@ -102,7 +102,7 @@ export const CallResultForm = ({ patient: request }: Props) => {
 
           <Radio
             value={RequestStatus.NO_ANSWER}
-            label="📵 Ko'tarmadi (No Answer)"
+            label={t("call.noAnswer")}
             color="yellow"
             disabled={isLocked && status !== RequestStatus.NO_ANSWER}
             style={{
@@ -112,7 +112,7 @@ export const CallResultForm = ({ patient: request }: Props) => {
 
           <Radio
             value={RequestStatus.UNREACHABLE}
-            label="🔌 O'chirilgan / Bog'lanib bo'lmaydi"
+            label={t("call.unreachable")}
             color="orange"
             disabled={isLocked && status !== RequestStatus.UNREACHABLE}
             style={{
@@ -123,7 +123,7 @@ export const CallResultForm = ({ patient: request }: Props) => {
 
           <Radio
             value={RequestStatus.WRONG_NUMBER}
-            label="⚠️ Noto'g'ri raqam"
+            label={t("call.wrongNumber")}
             color="gray"
             disabled={isLocked && status !== RequestStatus.WRONG_NUMBER}
             style={{
@@ -134,7 +134,7 @@ export const CallResultForm = ({ patient: request }: Props) => {
 
           <Radio
             value={RequestStatus.HAS_NOT_WHATSAPP}
-            label="💬 WhatsApp tarmog'ida yo'q"
+            label={t("call.noWhatsapp")}
             color="violet"
             disabled={isLocked && status !== RequestStatus.HAS_NOT_WHATSAPP}
             style={{
@@ -145,12 +145,11 @@ export const CallResultForm = ({ patient: request }: Props) => {
 
           <Radio
             value={RequestStatus.EMPLOYEE}
-            label="👔 Xodim raqami"
+            label={t("call.employee")}
             color="blue"
             disabled={isLocked && status !== RequestStatus.EMPLOYEE}
             style={{
-              opacity:
-                isLocked && status !== RequestStatus.EMPLOYEE ? 0.5 : 1,
+              opacity: isLocked && status !== RequestStatus.EMPLOYEE ? 0.5 : 1,
             }}
           />
 
@@ -160,8 +159,8 @@ export const CallResultForm = ({ patient: request }: Props) => {
               value={status}
               label={
                 status === RequestStatus.FEEDBACK_POSITIVE
-                  ? "😊 Ijobiy fikr"
-                  : "😡 Shikoyat"
+                  ? t("call.positive")
+                  : t("call.complaint")
               }
               color={
                 status === RequestStatus.FEEDBACK_POSITIVE ? "green" : "red"
@@ -176,8 +175,8 @@ export const CallResultForm = ({ patient: request }: Props) => {
       <Divider my="sm" />
 
       <Textarea
-        label="Operator izohi"
-        placeholder={isLocked ? "Izoh yo'q" : "Izoh qoldirish..."}
+        label={t("call.operatorNote")}
+        placeholder={isLocked ? t("call.noNote") : t("call.notePlaceholder")}
         minRows={3}
         mb="md"
         value={note}
@@ -201,8 +200,8 @@ export const CallResultForm = ({ patient: request }: Props) => {
           disabled={!status}
         >
           {status === RequestStatus.CONTACTED
-            ? "Suhbatni boshlash / Saqlash"
-            : "Natijani saqlash"}
+            ? t("call.startSave")
+            : t("call.save")}
         </Button>
       )}
     </Paper>

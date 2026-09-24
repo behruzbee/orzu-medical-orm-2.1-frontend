@@ -19,8 +19,10 @@ import {
 import { IconDatabaseOff } from "@tabler/icons-react";
 import { useReports } from "@/entities/report/api/queries";
 import { useReportColumns } from "../model/columns";
+import { useTranslation } from "@/shared/i18n";
 
 export const ReportHistoryTable = () => {
+  const { tr } = useTranslation();
   const { data: reports = [], isLoading } = useReports();
 
   const columns = useReportColumns();
@@ -56,7 +58,7 @@ export const ReportHistoryTable = () => {
     total === 0 ? 0 : pagination.pageIndex * pagination.pageSize + 1;
   const endRow = Math.min(
     (pagination.pageIndex + 1) * pagination.pageSize,
-    total
+    total,
   );
 
   return (
@@ -84,7 +86,7 @@ export const ReportHistoryTable = () => {
                   >
                     {flexRender(
                       header.column.columnDef.header,
-                      header.getContext()
+                      header.getContext(),
                     )}
                   </Table.Th>
                 ))}
@@ -100,7 +102,7 @@ export const ReportHistoryTable = () => {
                     <Table.Td key={cell.id}>
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </Table.Td>
                   ))}
@@ -120,7 +122,12 @@ export const ReportHistoryTable = () => {
                       >
                         <IconDatabaseOff size={24} />
                       </ThemeIcon>
-                      <Text c="dimmed">Hozircha hisobotlar mavjud emas</Text>
+                      <Text c="dimmed">
+                        {tr(
+                          "Hozircha hisobotlar mavjud emas",
+                          "Отчётов пока нет",
+                        )}
+                      </Text>
                     </Stack>
                   </Center>
                 </Table.Td>
@@ -138,8 +145,8 @@ export const ReportHistoryTable = () => {
         style={{ borderTop: "1px solid var(--mantine-color-gray-3)" }}
       >
         <Text size="sm" c="dimmed">
-          Ko'rsatilmoqda <b>{startRow}</b> - <b>{endRow}</b>, jami{" "}
-          <b>{total}</b>
+          {tr("Ko'rsatilmoqda", "Показано")} <b>{startRow}</b> - <b>{endRow}</b>
+          , {tr("jami", "всего")} <b>{total}</b>
         </Text>
 
         <Pagination

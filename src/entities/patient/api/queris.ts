@@ -11,6 +11,7 @@ import {
   type AddFeedbackPayload,
 } from "./apis";
 import type { RequestsQueryParams } from "../model/types";
+import { useTranslation } from "@/shared/i18n";
 
 export const requestKeys = {
   all: ["requests"] as const,
@@ -37,6 +38,7 @@ export const useRequest = (id: string) => {
 };
 
 export const useRevertRequestStatusMutation = () => {
+  const { tr } = useTranslation();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => requestsApi.revertStatus(id),
@@ -44,17 +46,27 @@ export const useRevertRequestStatusMutation = () => {
       queryClient.invalidateQueries({ queryKey: requestKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: requestKeys.all });
       queryClient.invalidateQueries({ queryKey: requestKeys.stats() });
-      
+
       notifications.show({
-        title: "Status qaytarildi",
-        message: data.message || "Bemor bilan ishlashni davom ettirishingiz mumkin",
+        title: tr("Status qaytarildi", "Статус восстановлен"),
+        message:
+          data.message ||
+          tr(
+            "Bemor bilan ishlashni davom ettirishingiz mumkin",
+            "Можно продолжить работу с пациентом",
+          ),
         color: "green",
       });
     },
     onError: (error: any) => {
       notifications.show({
-        title: "Xatolik",
-        message: error?.response?.data?.message || "Muddat o'tib ketgan bo'lishi mumkin",
+        title: tr("Xatolik", "Ошибка"),
+        message:
+          error?.response?.data?.message ||
+          tr(
+            "Muddat o'tib ketgan bo'lishi mumkin",
+            "Возможно, срок восстановления истёк",
+          ),
         color: "red",
       });
     },
@@ -62,6 +74,7 @@ export const useRevertRequestStatusMutation = () => {
 };
 
 export const useAddCallStatusMutation = () => {
+  const { tr } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -69,25 +82,33 @@ export const useAddCallStatusMutation = () => {
       id,
       payload,
     }: {
-      id: string; 
+      id: string;
       payload: AddCallStatusPayload;
     }) => requestsApi.addCallStatus(id, payload),
 
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: requestKeys.all });
-      queryClient.invalidateQueries({ queryKey: requestKeys.detail(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: requestKeys.detail(variables.id),
+      });
       queryClient.invalidateQueries({ queryKey: requestKeys.stats() });
 
       notifications.show({
-        title: "Status yangilandi",
-        message: "Qo'ng'iroq natijasi muvaffaqiyatli saqlandi",
+        title: tr("Status yangilandi", "Статус обновлён"),
+        message: tr(
+          "Qo'ng'iroq natijasi muvaffaqiyatli saqlandi",
+          "Результат звонка успешно сохранён",
+        ),
         color: "green",
       });
     },
     onError: () => {
       notifications.show({
-        title: "Xatolik",
-        message: "Statusni o'zgartirishda xatolik yuz berdi",
+        title: tr("Xatolik", "Ошибка"),
+        message: tr(
+          "Statusni o'zgartirishda xatolik yuz berdi",
+          "Не удалось изменить статус",
+        ),
         color: "red",
       });
     },
@@ -103,6 +124,7 @@ export const useRequestStats = () => {
 };
 
 export const useAddFeedbackMutation = () => {
+  const { tr } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -116,19 +138,27 @@ export const useAddFeedbackMutation = () => {
 
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: requestKeys.all });
-      queryClient.invalidateQueries({ queryKey: requestKeys.detail(variables.id) });
+      queryClient.invalidateQueries({
+        queryKey: requestKeys.detail(variables.id),
+      });
       queryClient.invalidateQueries({ queryKey: requestKeys.stats() });
 
       notifications.show({
-        title: "Fikr saqlandi",
-        message: "Bemor fikri muvaffaqiyatli ro'yxatga olindi",
+        title: tr("Fikr saqlandi", "Обращение сохранено"),
+        message: tr(
+          "Bemor fikri muvaffaqiyatli ro'yxatga olindi",
+          "Обращение пациента успешно зарегистрировано",
+        ),
         color: "green",
       });
     },
     onError: () => {
       notifications.show({
-        title: "Xatolik",
-        message: "Fikrni saqlashda xatolik yuz berdi",
+        title: tr("Xatolik", "Ошибка"),
+        message: tr(
+          "Fikrni saqlashda xatolik yuz berdi",
+          "Не удалось сохранить обращение",
+        ),
         color: "red",
       });
     },
@@ -136,6 +166,7 @@ export const useAddFeedbackMutation = () => {
 };
 
 export const useDeleteRequestMutation = () => {
+  const { tr } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -146,15 +177,18 @@ export const useDeleteRequestMutation = () => {
       queryClient.invalidateQueries({ queryKey: requestKeys.stats() });
 
       notifications.show({
-        title: "O'chirildi",
-        message: "Ariza muvaffaqiyatli o'chirildi",
+        title: tr("O'chirildi", "Удалено"),
+        message: tr(
+          "Ariza muvaffaqiyatli o'chirildi",
+          "Заявка успешно удалена",
+        ),
         color: "gray",
       });
     },
     onError: () => {
       notifications.show({
-        title: "Xatolik",
-        message: "O'chirish imkoniyati yo'q",
+        title: tr("Xatolik", "Ошибка"),
+        message: tr("O'chirish imkoniyati yo'q", "Удаление недоступно"),
         color: "red",
       });
     },
@@ -170,6 +204,7 @@ export const usePatientProfile = (patientId: string) => {
 };
 
 export const useDeletePatientMutation = () => {
+  const { tr } = useTranslation();
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -179,15 +214,21 @@ export const useDeletePatientMutation = () => {
       queryClient.invalidateQueries({ queryKey: requestKeys.stats() });
 
       notifications.show({
-        title: "Bemor o'chirildi",
-        message: "Bemor va uning barcha arizalari muvaffaqiyatli o'chirildi",
+        title: tr("Bemor o'chirildi", "Пациент удалён"),
+        message: tr(
+          "Bemor va uning barcha arizalari muvaffaqiyatli o'chirildi",
+          "Пациент и все его заявки успешно удалены",
+        ),
         color: "gray",
       });
     },
     onError: () => {
       notifications.show({
-        title: "Xatolik",
-        message: "Bemorni o'chirishda xatolik yuz berdi",
+        title: tr("Xatolik", "Ошибка"),
+        message: tr(
+          "Bemorni o'chirishda xatolik yuz berdi",
+          "Не удалось удалить пациента",
+        ),
         color: "red",
       });
     },

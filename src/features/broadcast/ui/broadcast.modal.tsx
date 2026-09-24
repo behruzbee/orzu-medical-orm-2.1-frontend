@@ -1,8 +1,17 @@
 import { useState } from "react";
-import { Modal, Button, Textarea, Stack, Text, Group, Badge } from "@mantine/core";
+import {
+  Modal,
+  Button,
+  Textarea,
+  Stack,
+  Text,
+  Group,
+  Badge,
+} from "@mantine/core";
 import { IconSend } from "@tabler/icons-react";
 import { useBroadcastMutation } from "../api";
 import { useFilterStore } from "@/features/filter-patients/store/filter-store";
+import { useTranslation } from "@/shared/i18n";
 // import { useBroadcastMutation } from "./api/queries";
 
 interface Props {
@@ -11,6 +20,7 @@ interface Props {
 }
 
 export const BroadcastModal = ({ opened, onClose }: Props) => {
+  const { tr } = useTranslation();
   const [text, setText] = useState("");
   const filters = useFilterStore();
   const { mutate: sendBroadcast, isPending } = useBroadcastMutation();
@@ -22,46 +32,74 @@ export const BroadcastModal = ({ opened, onClose }: Props) => {
     const payload = {
       text,
       status: filters.status || undefined,
-      branch: filters.selectedBranches.length > 0 ? filters.selectedBranches[0] : undefined,
+      branch:
+        filters.selectedBranches.length > 0
+          ? filters.selectedBranches[0]
+          : undefined,
       phoneCode: filters.selectedCode || undefined,
-      dateFrom: filters.dateRange[0] ? filters.dateRange[0].toISOString() : undefined,
-      dateTo: filters.dateRange[1] ? filters.dateRange[1].toISOString() : undefined,
+      dateFrom: filters.dateRange[0]
+        ? filters.dateRange[0].toISOString()
+        : undefined,
+      dateTo: filters.dateRange[1]
+        ? filters.dateRange[1].toISOString()
+        : undefined,
     };
 
     sendBroadcast(payload, {
       onSuccess: () => {
         setText("");
         onClose();
-      }
+      },
     });
   };
 
   return (
-    <Modal opened={opened} onClose={onClose} title="Massaviy xabar yuborish (Rassilka)" centered>
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      title={tr("Ommaviy xabar yuborish", "Массовая рассылка")}
+      centered
+    >
       <Stack>
-        <Group justify="space-between" bg="blue.0" p="xs" style={{ borderRadius: 8 }}>
-          <Text size="sm" fw={500}>Joriy filtrlangan bemorlarga yuboriladi</Text>
-          <Badge color="blue">{filters.getActiveCount()} ta aktiv filtr</Badge>
+        <Group
+          justify="space-between"
+          bg="blue.0"
+          p="xs"
+          style={{ borderRadius: 8 }}
+        >
+          <Text size="sm" fw={500}>
+            {tr(
+              "Joriy filtrlangan bemorlarga yuboriladi",
+              "Будет отправлено отфильтрованным пациентам",
+            )}
+          </Text>
+          <Badge color="blue">
+            {filters.getActiveCount()}{" "}
+            {tr("ta aktiv filtr", "активных фильтров")}
+          </Badge>
         </Group>
 
         <Textarea
-          label="Xabar matni"
-          placeholder="Assalomu alaykum, sizning natijalaringiz tayyor..."
+          label={tr("Xabar matni", "Текст сообщения")}
+          placeholder={tr(
+            "Assalomu alaykum, sizning natijalaringiz tayyor...",
+            "Здравствуйте, ваши результаты готовы...",
+          )}
           minRows={5}
           value={text}
           onChange={(e) => setText(e.currentTarget.value)}
           required
         />
 
-        <Button 
-          fullWidth 
-          color="brand" 
+        <Button
+          fullWidth
+          color="brand"
           leftSection={<IconSend size={18} />}
           onClick={handleSend}
           loading={isPending}
           disabled={!text.trim()}
         >
-          Yuborish
+          {tr("Yuborish", "Отправить")}
         </Button>
       </Stack>
     </Modal>

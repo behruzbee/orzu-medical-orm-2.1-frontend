@@ -47,6 +47,7 @@ import {
   useWhatsappSendMessage,
 } from "@/features/whatsapp/api/queries";
 import { useAddFeedbackMutation } from "@/entities/patient/api";
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
   patientId: string;
@@ -88,38 +89,42 @@ const AudioBubble = ({
   isMe,
   isPlaying,
   onPlay,
-}: AudioBubbleProps) => (
-  <Group gap="xs" wrap="nowrap" align="center" style={{ minWidth: 200 }}>
-    <ActionIcon
-      variant="filled"
-      color={isMe ? "green.9" : "gray.7"}
-      radius="xl"
-      size="lg"
-      onClick={(e) => {
-        e.stopPropagation();
-        onPlay();
-      }}
-    >
-      {isPlaying ? (
-        <IconPlayerPauseFilled size={18} />
-      ) : (
-        <IconPlayerPlayFilled size={18} />
-      )}
-    </ActionIcon>
-    <Stack gap={0} style={{ flex: 1 }} onClick={(e) => e.stopPropagation()}>
-      <Slider
-        size="xs"
-        color={isMe ? "green.8" : "gray.5"}
-        label={null}
-        defaultValue={0}
-        thumbSize={12}
-      />
-      <Text size="xs" c="dimmed" mt={4}>
-        {isPlaying ? "Eshittirilmoqda..." : duration}
-      </Text>
-    </Stack>
-  </Group>
-);
+}: AudioBubbleProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <Group gap="xs" wrap="nowrap" align="center" style={{ minWidth: 200 }}>
+      <ActionIcon
+        variant="filled"
+        color={isMe ? "green.9" : "gray.7"}
+        radius="xl"
+        size="lg"
+        onClick={(e) => {
+          e.stopPropagation();
+          onPlay();
+        }}
+      >
+        {isPlaying ? (
+          <IconPlayerPauseFilled size={18} />
+        ) : (
+          <IconPlayerPlayFilled size={18} />
+        )}
+      </ActionIcon>
+      <Stack gap={0} style={{ flex: 1 }} onClick={(e) => e.stopPropagation()}>
+        <Slider
+          size="xs"
+          color={isMe ? "green.8" : "gray.5"}
+          label={null}
+          defaultValue={0}
+          thumbSize={12}
+        />
+        <Text size="xs" c="dimmed" mt={4}>
+          {isPlaying ? t("chat.playing") : duration}
+        </Text>
+      </Stack>
+    </Group>
+  );
+};
 
 export const WhatsAppChat = ({
   patientId,
@@ -127,6 +132,7 @@ export const WhatsAppChat = ({
   patientPhone,
   patientStatus,
 }: Props) => {
+  const { t } = useTranslation();
   const { data, isLoading } = useWhatsappHistory(patientPhone);
   const { mutate: sendMessage, isPending: isSending } =
     useWhatsappSendMessage();
@@ -239,7 +245,7 @@ export const WhatsAppChat = ({
           loaderProps={{
             children: (
               <Text fw={700} c="white">
-                Saqlanmoqda...
+                {t("chat.saving")}
               </Text>
             ),
           }}
@@ -262,12 +268,12 @@ export const WhatsAppChat = ({
           <Group gap="xs">
             {isLocked ? (
               <Badge color="gray" variant="light" size="lg">
-                Arxiv (Read-only)
+                {t("chat.readOnly")}
               </Badge>
             ) : selectedIds.length > 0 ? (
               <>
                 <Text size="xs" fw={700} c="brand">
-                  Tanlandi: {selectedIds.length}
+                  {t("chat.selected", { count: selectedIds.length })}
                 </Text>
                 <ActionIcon
                   variant="subtle"
@@ -285,7 +291,7 @@ export const WhatsAppChat = ({
                 leftSection={<IconFilePlus size={16} />}
                 onClick={openModal}
               >
-                Shikoyat / Taklif
+                {t("chat.feedback")}
               </Button>
             )}
           </Group>
@@ -318,7 +324,7 @@ export const WhatsAppChat = ({
                 py="xs"
                 style={{ borderRadius: 10, opacity: 0.8 }}
               >
-                Yozishmalar tarixi bo'sh
+                {t("chat.empty")}
               </Text>
             </Center>
           ) : (
@@ -416,7 +422,7 @@ export const WhatsAppChat = ({
                         <Group gap="xs" bg="gray.1" p="xs">
                           <IconFileText size={20} />
                           <Text size="xs" lineClamp={1}>
-                            {msg.text || "Fayl"}
+                            {msg.text || t("chat.file")}
                           </Text>
                         </Group>
                       )}
@@ -475,7 +481,7 @@ export const WhatsAppChat = ({
             </Popover>
 
             <TextInput
-              placeholder="Xabar yozing..."
+              placeholder={t("chat.messagePlaceholder")}
               style={{ flex: 1 }}
               radius="xl"
               value={input}
@@ -499,7 +505,7 @@ export const WhatsAppChat = ({
         ) : (
           <Box p="sm" bg="gray.1" style={{ borderTop: "1px solid #eee" }}>
             <Text size="sm" c="dimmed" ta="center" fs="italic">
-              Suhbat yakunlangan. Xabar yozish va shikoyat qoldirish imkonsiz.
+              {t("chat.finished")}
             </Text>
           </Box>
         )}
@@ -529,7 +535,7 @@ export const WhatsAppChat = ({
                   leftSection={<IconAlertTriangle size={20} />}
                   onClick={openModal}
                 >
-                  Tanlanganni biriktirish ({selectedIds.length})
+                  {t("chat.attachSelected", { count: selectedIds.length })}
                 </Button>
               </Box>
             )}

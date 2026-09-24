@@ -9,6 +9,7 @@ import {
   Box,
 } from "@mantine/core";
 import { IconVariable } from "@tabler/icons-react";
+import { useTranslation } from "@/shared/i18n";
 
 const VARIABLES = [
   { label: "Bemor Ismi", value: "{Patient Name}" },
@@ -16,19 +17,23 @@ const VARIABLES = [
 ];
 
 export const MessageComposer = () => {
+  const { tr } = useTranslation();
   const { messageText, setMessageText, insertVariable } = useBroadcastStore();
 
   return (
     <Paper withBorder p="md" radius="md" h="100%" bg="white">
       <Stack gap="md" h="100%">
         <Text fw={700} size="lg">
-          Message Composer
+          {tr("Xabar muharriri", "Редактор сообщения")}
         </Text>
 
         <Stack gap={4}>
           <Textarea
-            label="Message Content"
-            placeholder="Xabar matnini kiriting. Masalan: Assalomu alaykum, {Patient Name}..."
+            label={tr("Xabar matni", "Текст сообщения")}
+            placeholder={tr(
+              "Xabar matnini kiriting. Masalan: Assalomu alaykum, {Patient Name}...",
+              "Введите сообщение. Например: Здравствуйте, {Patient Name}...",
+            )}
             autosize
             minRows={6}
             maxRows={12}
@@ -55,7 +60,7 @@ export const MessageComposer = () => {
 
         <Box>
           <Text size="sm" fw={500} mb="xs">
-            Insert Variable Tags
+            {tr("O'zgaruvchini qo'shish", "Вставить переменную")}
           </Text>
           <Group gap="xs" wrap="wrap">
             {VARIABLES.map((v) => (

@@ -18,28 +18,36 @@ import { CallResultForm } from "@/widgets/call-form";
 import { WhatsAppChat } from "@/widgets/whatsapp-chat";
 import { PatientDoctorMessageForm } from "@/features/doctor-message";
 
-import { 
-  useRequest, 
-  usePatientProfile, 
-  useDeleteRequestMutation, 
-  useDeletePatientMutation 
+import {
+  useRequest,
+  usePatientProfile,
+  useDeleteRequestMutation,
+  useDeletePatientMutation,
 } from "@/entities/patient/api";
 import { PatientFinishAlert } from "@/widgets/patient-fnish-alert";
 import { notifications } from "@mantine/notifications";
+import { useTranslation } from "@/shared/i18n";
 
 export const PatientProfilePage = () => {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  
+
   // Состояние для двухэтапного модального окна
   const [opened, { open, close }] = useDisclosure(false);
   const [confirmStep, setConfirmStep] = useState<1 | 2>(1);
 
   // Данные текущей заявки
-  const { data: request, isLoading: isRequestLoading, isError } = useRequest(id || "");
-  
+  const {
+    data: request,
+    isLoading: isRequestLoading,
+    isError,
+  } = useRequest(id || "");
+
   // Данные профиля пациента (для проверки истории заявок)
-  const { data: profile, isLoading: isProfileLoading } = usePatientProfile(request?.patientId || "");
+  const { data: profile, isLoading: isProfileLoading } = usePatientProfile(
+    request?.patientId || "",
+  );
 
   const deleteRequestMutation = useDeleteRequestMutation();
   const deletePatientMutation = useDeletePatientMutation();
@@ -52,8 +60,12 @@ export const PatientProfilePage = () => {
       <Center h="100%">
         <Stack align="center">
           <IconAlertCircle size={40} color="red" />
-          <Text size="lg" fw={500}>Bemor topilmadi</Text>
-          <Button component={Link} to="/" variant="light">Orqaga</Button>
+          <Text size="lg" fw={500}>
+            {t("profile.notFound")}
+          </Text>
+          <Button component={Link} to="/" variant="light">
+            {t("common.back")}
+          </Button>
         </Stack>
       </Center>
     );
@@ -69,7 +81,8 @@ export const PatientProfilePage = () => {
 
     // Сортируем заявки от новых к старым
     const sortedRequests = [...profile.requests].sort(
-      (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      (a, b) =>
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     );
 
     const isFirstTimePatient = sortedRequests.length <= 1;
@@ -80,16 +93,16 @@ export const PatientProfilePage = () => {
     if (!isFirstTimePatient) {
       if (!isLatestRequest) {
         notifications.show({
-          title: "Taqiqlangan",
-          message: "Faqatgina eng oxirgi arizani o'chirishga ruxsat berilgan!",
+          title: t("profile.forbidden"),
+          message: t("profile.latestOnly"),
           color: "red",
         });
         return;
       }
       if (!isStatusNew) {
         notifications.show({
-          title: "Taqiqlangan",
-          message: "Arizani o'chirish uchun uning statusi 'Yangi' (NEW) bo'lishi shart!",
+          title: t("profile.forbidden"),
+          message: t("profile.newOnly"),
           color: "red",
         });
         return;
@@ -129,7 +142,7 @@ export const PatientProfilePage = () => {
           leftSection={<IconArrowLeft size={18} />}
           color="gray"
         >
-          Ro'yxatga qaytish
+          {t("profile.back")}
         </Button>
 
         {/* Кнопка удаления с вызовом проверки */}
@@ -138,9 +151,13 @@ export const PatientProfilePage = () => {
           color="red"
           leftSection={<IconTrash size={16} />}
           onClick={handleDeleteVerification}
-          loading={deleteRequestMutation.isPending || deletePatientMutation.isPending}
+          loading={
+            deleteRequestMutation.isPending || deletePatientMutation.isPending
+          }
         >
-          {isFirstTimePatient ? "Bemor va arizani o'chirish" : "Arizani o'chirish"}
+          {isFirstTimePatient
+            ? t("profile.deletePatient")
+            : t("profile.deleteRequest")}
         </Button>
       </Group>
 
@@ -153,7 +170,7 @@ export const PatientProfilePage = () => {
             <CallResultForm patient={request} />
             <PatientDoctorMessageForm
               requestId={request.id}
-              patientName={person.name || "Noma'lum"}
+              patientName={person.name || t("table.unknown")}
             />
           </Stack>
         </Grid.Col>
@@ -161,7 +178,7 @@ export const PatientProfilePage = () => {
         <Grid.Col span={{ base: 12, md: 8, lg: 9 }} h="100%">
           <WhatsAppChat
             patientId={request.id}
-            patientName={person.name || "Noma'lum"}
+            patientName={person.name || t("table.unknown")}
             patientPhone={person.phone || ""}
             patientStatus={request.status}
           />
@@ -171,34 +188,47 @@ export const PatientProfilePage = () => {
       <Modal
         opened={opened}
         onClose={close}
-        title={confirmStep === 1 ? "⚠️ Birinchi tasdiqlash" : "🛑 Yakuniy tasdiqlash"}
+        title={
+          confirmStep === 1
+            ? t("profile.firstConfirm")
+            : t("profile.finalConfirm")
+        }
         centered
       >
         {confirmStep === 1 ? (
           <Stack gap="md">
             <Text size="sm">
               {isFirstTimePatient
-                ? "Ushbu bemor tizimda birinchi marta ro'yxatdan o'tgan. Uni o'chirsangiz, bemor profili ham butunlay o'chib ketadi. Davom etasizmi?"
-                : "Haqiqatan ham ushbu oxirgi arizani o'chirmoqchimisiz? (Eski arizalar tarixi saqlanib qoladi)."}
+                ? t("profile.deletePatientWarning")
+                : t("profile.deleteRequestWarning")}
             </Text>
             <Group justify="flex-end" gap="xs">
-              <Button variant="default" onClick={close}>Bekor qilish</Button>
-              <Button color="orange" onClick={() => setConfirmStep(2)}>Keyingi qadam</Button>
+              <Button variant="default" onClick={close}>
+                {t("common.cancel")}
+              </Button>
+              <Button color="orange" onClick={() => setConfirmStep(2)}>
+                {t("profile.next")}
+              </Button>
             </Group>
           </Stack>
         ) : (
           <Stack gap="md">
             <Text size="sm" fw={700} color="red">
-              Diqqat! Bu amalni ortga qaytarib bo'lmaydi. Ma'lumotlar bazadan butunlay o'chiriladi.
+              {t("profile.irreversible")}
             </Text>
             <Group justify="flex-end" gap="xs">
-              <Button variant="default" onClick={close}>Ortga</Button>
-              <Button 
-                color="red" 
+              <Button variant="default" onClick={close}>
+                {t("common.back")}
+              </Button>
+              <Button
+                color="red"
                 onClick={handleFinalDelete}
-                loading={deleteRequestMutation.isPending || deletePatientMutation.isPending}
+                loading={
+                  deleteRequestMutation.isPending ||
+                  deletePatientMutation.isPending
+                }
               >
-                Ha, mutlaqo o'chirish
+                {t("profile.deleteForever")}
               </Button>
             </Group>
           </Stack>

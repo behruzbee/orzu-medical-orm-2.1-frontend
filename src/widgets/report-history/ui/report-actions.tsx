@@ -1,6 +1,7 @@
 import { ActionIcon, Group, rem } from "@mantine/core";
 import { IconDownload, IconTrash } from "@tabler/icons-react";
 import { useDeleteReportMutation } from "@/entities/report/api/queries";
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
   reportId: string;
@@ -9,6 +10,7 @@ interface Props {
 }
 
 export const ReportActions = ({ reportId, fileUrl, status }: Props) => {
+  const { tr } = useTranslation();
   const { mutate: deleteReport, isPending } = useDeleteReportMutation();
 
   const handleDownload = () => {
@@ -16,7 +18,14 @@ export const ReportActions = ({ reportId, fileUrl, status }: Props) => {
   };
 
   const handleDelete = () => {
-    if (confirm("Haqiqatan ham ushbu hisobotni o'chirmoqchimisiz?")) {
+    if (
+      confirm(
+        tr(
+          "Haqiqatan ham ushbu hisobotni o'chirmoqchimisiz?",
+          "Вы действительно хотите удалить этот отчёт?",
+        ),
+      )
+    ) {
       deleteReport(reportId);
     }
   };
@@ -28,7 +37,7 @@ export const ReportActions = ({ reportId, fileUrl, status }: Props) => {
         color="blue"
         disabled={status !== "ready"}
         onClick={handleDownload}
-        title="Yuklash"
+        title={tr("Yuklash", "Скачать")}
       >
         <IconDownload style={{ width: rem(18), height: rem(18) }} />
       </ActionIcon>
@@ -37,7 +46,7 @@ export const ReportActions = ({ reportId, fileUrl, status }: Props) => {
         color="red"
         onClick={handleDelete}
         loading={isPending}
-        title="O'chirish"
+        title={tr("O'chirish", "Удалить")}
       >
         <IconTrash style={{ width: rem(18), height: rem(18) }} />
       </ActionIcon>

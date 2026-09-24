@@ -25,6 +25,8 @@ export const LanguageProvider = ({ children }: PropsWithChildren) => {
             text.replaceAll(`{${name}}`, String(replacement)),
           translations[language][key] as string,
         ),
+      tr: (uzbek: string, russian: string) =>
+        language === "ru" ? russian : uzbek,
     }),
     [language],
   );

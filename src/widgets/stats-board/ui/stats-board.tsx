@@ -7,6 +7,7 @@ import {
 } from "@tabler/icons-react";
 import { StatCard } from "./stat-card";
 import type { IDashboardStats } from "@/entities/patient/model/types";
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
   stats?: IDashboardStats;
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const StatsBoard = ({ stats, isLoading }: Props) => {
+  const { tr } = useTranslation();
   const data = stats || {
     totalTasks: 0,
     newTasks: 0,
@@ -25,7 +27,7 @@ export const StatsBoard = ({ stats, isLoading }: Props) => {
     <SimpleGrid cols={{ base: 1, sm: 2, lg: 4 }} spacing="md">
       {/* 1. Bugungi vazifalar (Все активные) */}
       <StatCard
-        label="Umumiy vazifalar"
+        label={tr("Umumiy vazifalar", "Всего задач")}
         value={data.totalTasks}
         color="blue"
         icon={<IconListDetails size={24} />}
@@ -34,7 +36,7 @@ export const StatsBoard = ({ stats, isLoading }: Props) => {
 
       {/* 2. Yangi vazifalar (Пришли сегодня) */}
       <StatCard
-        label="Yangi bemorlar"
+        label={tr("Yangi bemorlar", "Новые пациенты")}
         value={data.newTasks}
         color="teal" // brand цвет
         icon={<IconUserPlus size={24} />}
@@ -43,7 +45,7 @@ export const StatsBoard = ({ stats, isLoading }: Props) => {
 
       {/* 3. Aloqaga chiqish (Сегодня связались) */}
       <StatCard
-        label="Aloqaga chiqildi"
+        label={tr("Aloqaga chiqildi", "Связались")}
         value={data.callBackTasks}
         color="orange"
         icon={<IconPhoneCheck size={24} />}
@@ -52,7 +54,7 @@ export const StatsBoard = ({ stats, isLoading }: Props) => {
 
       {/* 4. To'gatildi (Сегодня закрыты) */}
       <StatCard
-        label="Yakunlandi"
+        label={tr("Yakunlandi", "Завершено")}
         value={data.completedTasks}
         color="gray"
         icon={<IconCircleCheck size={24} />}

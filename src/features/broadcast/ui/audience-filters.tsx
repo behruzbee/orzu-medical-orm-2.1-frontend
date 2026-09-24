@@ -2,9 +2,11 @@ import { useBroadcastStore } from "@/entities/broadcast";
 import { Paper, Stack, Select, Text, Group, Divider } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { RequestStatus } from "@/entities/patient";
-import { PHONE_CODES_DATA } from "@/features/constants/filter-data";
+import { getPhoneCodesData } from "@/features/constants/filter-data";
+import { useTranslation } from "@/shared/i18n";
 
 export const AudienceFilters = () => {
+  const { language, tr } = useTranslation();
   const {
     branch,
     setBranch,
@@ -24,13 +26,15 @@ export const AudienceFilters = () => {
   return (
     <Paper withBorder p="md" radius="md" h="100%">
       <Group justify="space-between" mb="md">
-        <Text fw={700}>Filtrlar va Auditoriya</Text>
+        <Text fw={700}>
+          {tr("Filtrlar va auditoriya", "Фильтры и аудитория")}
+        </Text>
       </Group>
 
       <Stack gap="md">
         <Select
-          label="Filialni tanlang"
-          placeholder="Barcha filiallar"
+          label={tr("Filialni tanlang", "Выберите филиал")}
+          placeholder={tr("Barcha filiallar", "Все филиалы")}
           data={[
             "ОРЗУМЕД ЗАНГИОТА",
             "ОРЗУМЕД ЮНУСОБОД",
@@ -46,34 +50,64 @@ export const AudienceFilters = () => {
         />
 
         <Select
-          label="Bemor statusi"
-          placeholder="Statusni tanlang"
+          label={tr("Bemor statusi", "Статус пациента")}
+          placeholder={tr("Statusni tanlang", "Выберите статус")}
           data={[
-            { value: RequestStatus.NEW, label: "🔵 Yangi" },
-            { value: RequestStatus.CONTACTED, label: "✅ Bog'landi" },
-            { value: RequestStatus.ALL_OK, label: "👌 Hammasi ijobiy" },
-            { value: RequestStatus.NO_ANSWER, label: "📵 Ko'tarmadi" },
-            { value: RequestStatus.UNREACHABLE, label: "🔌 O'chirilgan" },
-            { value: RequestStatus.WRONG_NUMBER, label: "⚠️ Xato raqami" },
-            { value: RequestStatus.HAS_NOT_WHATSAPP, label: "📴 WhatsApp yo'q" },
-            { value: RequestStatus.EMPLOYEE, label: "👔 Xodim raqami" },
-            { value: RequestStatus.FEEDBACK_POSITIVE, label: "😊 Ijobiy" },
-            { value: RequestStatus.FEEDBACK_NEGATIVE, label: "😡 Shikoyat" },
+            { value: RequestStatus.NEW, label: tr("🔵 Yangi", "🔵 Новый") },
+            {
+              value: RequestStatus.CONTACTED,
+              label: tr("✅ Bog'landi", "✅ Связались"),
+            },
+            {
+              value: RequestStatus.ALL_OK,
+              label: tr("👌 Hammasi ijobiy", "👌 Всё хорошо"),
+            },
+            {
+              value: RequestStatus.NO_ANSWER,
+              label: tr("📵 Ko'tarmadi", "📵 Не ответил"),
+            },
+            {
+              value: RequestStatus.UNREACHABLE,
+              label: tr("🔌 O'chirilgan", "🔌 Недоступен"),
+            },
+            {
+              value: RequestStatus.WRONG_NUMBER,
+              label: tr("⚠️ Xato raqami", "⚠️ Неверный номер"),
+            },
+            {
+              value: RequestStatus.HAS_NOT_WHATSAPP,
+              label: tr("📴 WhatsApp yo'q", "📴 Нет WhatsApp"),
+            },
+            {
+              value: RequestStatus.EMPLOYEE,
+              label: tr("👔 Xodim raqami", "👔 Номер сотрудника"),
+            },
+            {
+              value: RequestStatus.FEEDBACK_POSITIVE,
+              label: tr("😊 Ijobiy", "😊 Положительный"),
+            },
+            {
+              value: RequestStatus.FEEDBACK_NEGATIVE,
+              label: tr("😡 Shikoyat", "😡 Жалоба"),
+            },
             {
               value: RequestStatus.FEEDBACK_NOT_RELATED,
-              label: "🤷 Boshqa (Klinikaga xos emas)",
+              label: tr(
+                "🤷 Boshqa (Klinikaga xos emas)",
+                "🤷 Другое (не относится к клинике)",
+              ),
             },
           ]}
-          value={status} 
+          value={status}
           onChange={(v) => setStatus(v as RequestStatus)}
           clearable
           checkIconPosition="right"
         />
 
         <Select
-          label="Telefon kodi"
-          placeholder="Operator kodini tanlang"
-          data={PHONE_CODES_DATA}
+          label={tr("Telefon kodi", "Телефонный код")}
+          placeholder={tr("Operator kodini tanlang", "Выберите код оператора")}
+          data={getPhoneCodesData(language)}
           value={phoneCode}
           onChange={setPhoneCode}
           clearable
@@ -82,8 +116,8 @@ export const AudienceFilters = () => {
 
         <DatePickerInput
           type="range"
-          label="Sana oralig'i (Ketish)"
-          placeholder="Sanani tanlang"
+          label={tr("Sana oralig'i (Ketish)", "Период (дата отъезда)")}
+          placeholder={tr("Sanani tanlang", "Выберите даты")}
           value={parsedDateRange}
           onChange={(val) => {
             setDateRange(val as [Date | null, Date | null]);
@@ -102,13 +136,17 @@ export const AudienceFilters = () => {
         >
           <Stack gap={0}>
             <Text size="sm" fw={600} c="blue.8">
-              Tanlangan filtrlar:
+              {tr("Tanlangan filtrlar:", "Выбранные фильтры:")}
             </Text>
             <Text size="xs" c="dimmed">
-              {branch ? `Filial: ${branch}` : "Barcha filiallar"}
+              {branch
+                ? `${tr("Filial", "Филиал")}: ${branch}`
+                : tr("Barcha filiallar", "Все филиалы")}
             </Text>
             <Text size="xs" c="dimmed">
-              {status ? `Status: ${status}` : "Barcha statuslar"}
+              {status
+                ? `${tr("Status", "Статус")}: ${status}`
+                : tr("Barcha statuslar", "Все статусы")}
             </Text>
           </Stack>
         </Paper>
