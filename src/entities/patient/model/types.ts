@@ -101,6 +101,8 @@ export interface RequestsQueryParams {
   phoneCode?: string;
   dateFrom?: string;
   dateTo?: string;
+  feedbackDateFrom?: string;
+  feedbackDateTo?: string;
 }
 
 export interface PaginationMeta {

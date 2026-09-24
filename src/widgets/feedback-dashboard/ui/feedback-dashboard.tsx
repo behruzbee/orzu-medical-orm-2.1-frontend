@@ -40,6 +40,8 @@ import {
   YAxis,
 } from "recharts";
 import { feedbackApi } from "@/entities/feedback";
+import { APP_PATHS } from "@/shared/constants/app-paths";
+import { useNavigate } from "react-router-dom";
 import classes from "./feedback-dashboard.module.scss";
 
 const CATEGORY_LABELS: Record<string, string> = {
@@ -62,6 +64,7 @@ const getLastDaysRange = (days: number): [Date, Date] => {
 };
 
 export const FeedbackDashboard = () => {
+  const navigate = useNavigate();
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>(
     getLastDaysRange(14),
   );
@@ -106,6 +109,7 @@ export const FeedbackDashboard = () => {
       hint: `${data.period.days} kunlik tanlangan davr`,
       color: "#1971c2",
       icon: IconChartHistogram,
+      type: null,
     },
     {
       label: "Shikoyatlar",
@@ -113,6 +117,7 @@ export const FeedbackDashboard = () => {
       hint: `${data.summary.total ? Math.round((data.summary.complaints / data.summary.total) * 100) : 0}% murojaatlardan`,
       color: "#e03131",
       icon: IconMessageReport,
+      type: "complaint" as const,
     },
     {
       label: "Takliflar",
@@ -120,6 +125,7 @@ export const FeedbackDashboard = () => {
       hint: `${data.summary.total ? Math.round((data.summary.suggestions / data.summary.total) * 100) : 0}% murojaatlardan`,
       color: "#099268",
       icon: IconBulb,
+      type: "suggestion" as const,
     },
     {
       label: "Takroriy",
@@ -127,6 +133,7 @@ export const FeedbackDashboard = () => {
       hint: `${data.summary.repeatRate}% barcha murojaatlardan`,
       color: "#f08c00",
       icon: IconRepeat,
+      type: null,
     },
   ];
 
@@ -207,8 +214,31 @@ export const FeedbackDashboard = () => {
               key={metric.label}
               p="md"
               radius="lg"
-              className={classes.metric}
+              className={`${classes.metric} ${metric.type ? classes.metricClickable : ""}`}
               style={{ "--metric-color": metric.color } as React.CSSProperties}
+              role={metric.type ? "button" : undefined}
+              tabIndex={metric.type ? 0 : undefined}
+              aria-label={
+                metric.type ? `${metric.label} ro'yxatini ochish` : undefined
+              }
+              onClick={() => {
+                if (!metric.type) return;
+                const params = new URLSearchParams({
+                  type: metric.type,
+                  dateFrom: data.period.dateFrom,
+                  dateTo: data.period.dateTo,
+                });
+                navigate(`${APP_PATHS.FEEDBACKS.FEEDBACKS_PATH}?${params}`);
+              }}
+              onKeyDown={(event) => {
+                if (
+                  metric.type &&
+                  (event.key === "Enter" || event.key === " ")
+                ) {
+                  event.preventDefault();
+                  event.currentTarget.click();
+                }
+              }}
             >
               <Group justify="space-between" align="flex-start" wrap="nowrap">
                 <Stack gap={4}>

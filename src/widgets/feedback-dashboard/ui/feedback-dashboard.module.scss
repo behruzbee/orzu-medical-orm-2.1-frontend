@@ -60,6 +60,19 @@
   box-shadow: 0 12px 30px rgba(24, 55, 43, 0.11);
 }
 
+.metricClickable {
+  cursor: pointer;
+}
+
+.metricClickable:focus-visible {
+  outline: 3px solid rgba(25, 113, 194, 0.3);
+  outline-offset: 3px;
+}
+
+.metricClickable:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
 .metric::before {
   position: absolute;
   top: 0;

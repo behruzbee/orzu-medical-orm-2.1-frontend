@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Stack,
   Title,
@@ -7,6 +8,9 @@ import {
   LoadingOverlay,
   Text,
   Center,
+  Group,
+  Badge,
+  Button,
 } from "@mantine/core";
 import { IconMessageReport, IconMessageStar } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -16,33 +20,86 @@ import { PatientTable } from "@/widgets/patient-table";
 import { requestsApi } from "@/entities/patient/api/apis";
 
 export const FeedbacksPage = () => {
-  const [activeTab, setActiveTab] = useState<RequestStatus>(
-    RequestStatus.FEEDBACK_NEGATIVE,
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedType = searchParams.get("type");
+  const requestedStatus =
+    requestedType === "suggestion"
+      ? RequestStatus.FEEDBACK_POSITIVE
+      : RequestStatus.FEEDBACK_NEGATIVE;
+  const [activeTab, setActiveTab] = useState<RequestStatus>(requestedStatus);
 
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
 
+  useEffect(() => {
+    setActiveTab(requestedStatus);
+    setPagination((current) => ({ ...current, pageIndex: 0 }));
+  }, [requestedStatus]);
+
+  const feedbackDateFrom = searchParams.get("dateFrom") || undefined;
+  const feedbackDateTo = searchParams.get("dateTo") || undefined;
+
   const { data, isLoading, isError } = useQuery({
-    queryKey: ["requests", "feedbacks", activeTab, pagination],
+    queryKey: [
+      "requests",
+      "feedbacks",
+      activeTab,
+      pagination,
+      feedbackDateFrom,
+      feedbackDateTo,
+    ],
     queryFn: () =>
       requestsApi.getAll({
         page: pagination.pageIndex + 1, // Прибавляем 1 для API
         limit: pagination.pageSize,
         status: activeTab,
+        feedbackDateFrom,
+        feedbackDateTo,
       }),
   });
 
   return (
     <Stack gap="md" pb="xl">
-      <Title order={2}>Shikoyat va Takliflar</Title>
+      <Group justify="space-between" align="center">
+        <Title order={2}>Shikoyat va Takliflar</Title>
+        {feedbackDateFrom && feedbackDateTo && (
+          <Group gap="xs">
+            <Badge size="lg" variant="light" color="teal">
+              Davr: {feedbackDateFrom.split("-").reverse().join(".")} —{" "}
+              {feedbackDateTo.split("-").reverse().join(".")}
+            </Badge>
+            <Button
+              size="compact-sm"
+              variant="subtle"
+              color="gray"
+              onClick={() => {
+                const nextParams = new URLSearchParams(searchParams);
+                nextParams.delete("dateFrom");
+                nextParams.delete("dateTo");
+                setSearchParams(nextParams, { replace: true });
+              }}
+            >
+              Barcha davr
+            </Button>
+          </Group>
+        )}
+      </Group>
 
       <Tabs
         value={activeTab}
         onChange={(val) => {
-          setActiveTab(val as RequestStatus);
+          const nextStatus = val as RequestStatus;
+          setActiveTab(nextStatus);
+          const nextParams = new URLSearchParams(searchParams);
+          nextParams.set(
+            "type",
+            nextStatus === RequestStatus.FEEDBACK_POSITIVE
+              ? "suggestion"
+              : "complaint",
+          );
+          setSearchParams(nextParams, { replace: true });
           // Сбрасываем пагинацию на первую страницу при смене вкладки
           setPagination({ pageIndex: 0, pageSize: 10 });
         }}
