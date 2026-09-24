@@ -18,8 +18,10 @@ import { useQuery } from "@tanstack/react-query";
 import { RequestStatus } from "@/entities/patient/model/types";
 import { PatientTable } from "@/widgets/patient-table";
 import { requestsApi } from "@/entities/patient/api/apis";
+import { useTranslation } from "@/shared/i18n";
 
 export const FeedbacksPage = () => {
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedType = searchParams.get("type");
   const requestedStatus =
@@ -63,11 +65,12 @@ export const FeedbacksPage = () => {
   return (
     <Stack gap="md" pb="xl">
       <Group justify="space-between" align="center">
-        <Title order={2}>Shikoyat va Takliflar</Title>
+        <Title order={2}>{t("feedback.title")}</Title>
         {feedbackDateFrom && feedbackDateTo && (
           <Group gap="xs">
             <Badge size="lg" variant="light" color="teal">
-              Davr: {feedbackDateFrom.split("-").reverse().join(".")} —{" "}
+              {t("feedback.period")}:{" "}
+              {feedbackDateFrom.split("-").reverse().join(".")} —{" "}
               {feedbackDateTo.split("-").reverse().join(".")}
             </Badge>
             <Button
@@ -81,7 +84,7 @@ export const FeedbacksPage = () => {
                 setSearchParams(nextParams, { replace: true });
               }}
             >
-              Barcha davr
+              {t("feedback.allPeriod")}
             </Button>
           </Group>
         )}
@@ -110,14 +113,14 @@ export const FeedbacksPage = () => {
             leftSection={<IconMessageReport size={18} />}
             color="red"
           >
-            Shikoyatlar
+            {t("feedback.complaints")}
           </Tabs.Tab>
           <Tabs.Tab
             value={RequestStatus.FEEDBACK_POSITIVE}
             leftSection={<IconMessageStar size={18} />}
             color="green"
           >
-            Takliflar
+            {t("feedback.suggestions")}
           </Tabs.Tab>
         </Tabs.List>
 
@@ -136,7 +139,7 @@ export const FeedbacksPage = () => {
           {isError ? (
             <Center h={300}>
               <Text c="red" fw={500}>
-                Ma'lumotlarni yuklashda xatolik yuz berdi.
+                {t("feedback.loadError")}
               </Text>
             </Center>
           ) : (
@@ -150,7 +153,7 @@ export const FeedbacksPage = () => {
                 />
               ) : (
                 <Center h={300}>
-                  <Text c="dimmed">Ushbu bo'limda hozircha ma'lumot yo'q</Text>
+                  <Text c="dimmed">{t("feedback.empty")}</Text>
                 </Center>
               )}
             </>

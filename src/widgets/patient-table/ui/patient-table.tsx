@@ -19,6 +19,7 @@ import { IconDatabaseOff } from "@tabler/icons-react";
 import { useColumnsPatientTable } from "../model/columns";
 
 import type { IPatientRequest } from "@/entities/patient/model/types";
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
   data: IPatientRequest[];
@@ -35,6 +36,7 @@ export const PatientTable = ({
   setPagination,
   loading,
 }: Props) => {
+  const { t } = useTranslation();
   const columns = useColumnsPatientTable();
 
   const table = useReactTable({
@@ -119,7 +121,7 @@ export const PatientTable = ({
                       >
                         <IconDatabaseOff size={24} />
                       </ThemeIcon>
-                      <Text c="dimmed">Нет данных по вашему запросу</Text>
+                      <Text c="dimmed">{t("table.noData")}</Text>
                     </Stack>
                   </Center>
                 </Table.Td>
@@ -136,8 +138,7 @@ export const PatientTable = ({
         style={{ borderTop: "1px solid var(--mantine-color-gray-3)" }}
       >
         <Text size="sm" c="dimmed">
-          Показано <b>{startRow}</b> - <b>{endRow}</b> из <b>{total}</b>{" "}
-          результатов
+          {t("table.showing", { from: startRow, to: endRow, total })}
         </Text>
 
         <Pagination

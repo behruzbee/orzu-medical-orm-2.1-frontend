@@ -9,53 +9,54 @@ import {
   IconAlertCircle, // <-- Добавили иконку для ошибок
   IconChartBar,
 } from "@tabler/icons-react";
-import { Code, Group, Image } from "@mantine/core";
+import { Code, Group, Image, SegmentedControl, Text } from "@mantine/core";
 import { useLocation, Link } from "react-router-dom";
 import { APP_PATHS } from "@/shared/constants/app-paths";
+import { useTranslation, type Language } from "@/shared/i18n";
 
 import classes from "../styles/navbar.module.scss";
 
-const data = [
-  {
-    link: APP_PATHS.HOME.HOME_PATH,
-    label: "Bemorlar ro'yxati",
-    icon: IconUsers,
-  },
-  {
-    link: APP_PATHS.DOCS.DOCS_PATH,
-    label: "Xujjatlar",
-    icon: IconFileText,
-  },
-  {
-    link: APP_PATHS.FEEDBACKS.FEEDBACKS_PATH,
-    label: "Taklif va Shikoyatlar",
-    icon: IconMail,
-  },
-  {
-    link: APP_PATHS.ANALYTICS.ANALYTICS_PATH,
-    label: "BI Analitika",
-    icon: IconChartBar,
-  },
-  {
-    link: APP_PATHS.BROADCAST.BROADCAST_PATH,
-    label: "Xabarnoma jo'natish",
-    icon: IconBrandWhatsapp,
-  },
-  {
-    link: APP_PATHS.IMPORT_PATIENTS.IMPORT_PATIENTS_PATH,
-    label: "Raqamlarni yuklash",
-    icon: IconDownload,
-  },
-  // <-- Добавили ссылку на новую страницу ошибок
-  {
-    link: APP_PATHS.IMPORT_ERRORS.IMPORT_ERRORS_PATH,
-    label: "Import xatoliklari",
-    icon: IconAlertCircle,
-  },
-];
-
 export function Navbar() {
   const location = useLocation();
+  const { language, setLanguage, t } = useTranslation();
+
+  const data = [
+    {
+      link: APP_PATHS.HOME.HOME_PATH,
+      label: t("nav.patients"),
+      icon: IconUsers,
+    },
+    {
+      link: APP_PATHS.DOCS.DOCS_PATH,
+      label: t("nav.documents"),
+      icon: IconFileText,
+    },
+    {
+      link: APP_PATHS.FEEDBACKS.FEEDBACKS_PATH,
+      label: t("nav.feedback"),
+      icon: IconMail,
+    },
+    {
+      link: APP_PATHS.ANALYTICS.ANALYTICS_PATH,
+      label: t("nav.analytics"),
+      icon: IconChartBar,
+    },
+    {
+      link: APP_PATHS.BROADCAST.BROADCAST_PATH,
+      label: t("nav.broadcast"),
+      icon: IconBrandWhatsapp,
+    },
+    {
+      link: APP_PATHS.IMPORT_PATIENTS.IMPORT_PATIENTS_PATH,
+      label: t("nav.import"),
+      icon: IconDownload,
+    },
+    {
+      link: APP_PATHS.IMPORT_ERRORS.IMPORT_ERRORS_PATH,
+      label: t("nav.importErrors"),
+      icon: IconAlertCircle,
+    },
+  ];
 
   const links = data.map((item) => (
     <Link
@@ -81,18 +82,33 @@ export function Navbar() {
           <Code fw={700}>v2.0</Code>
         </Group>
 
+        <Group justify="space-between" mb="sm" px="xs" gap="xs">
+          <Text size="xs" c="dimmed" fw={600}>
+            {t("language.label")}
+          </Text>
+          <SegmentedControl
+            size="xs"
+            value={language}
+            onChange={(value) => setLanguage(value as Language)}
+            data={[
+              { value: "uz", label: "UZ" },
+              { value: "ru", label: "RU" },
+            ]}
+          />
+        </Group>
+
         {links}
       </div>
 
       <div className={classes.footer}>
         <Link to={APP_PATHS.AUTH.LOGIN_PATH} className={classes.link}>
           <IconSwitchHorizontal className={classes.linkIcon} stroke={1.5} />
-          <span>Hisobni almashtirish</span>
+          <span>{t("nav.switchAccount")}</span>
         </Link>
 
         <Link to={APP_PATHS.AUTH.LOGIN_PATH} className={classes.link}>
           <IconLogout className={classes.linkIcon} stroke={1.5} />
-          <span>Chiqish</span>
+          <span>{t("nav.logout")}</span>
         </Link>
       </div>
     </nav>

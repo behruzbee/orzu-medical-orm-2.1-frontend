@@ -24,6 +24,8 @@ import {
 } from "@tabler/icons-react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
+import "dayjs/locale/ru";
+import "dayjs/locale/uz-latn";
 import {
   Area,
   AreaChart,
@@ -42,16 +44,17 @@ import {
 import { feedbackApi } from "@/entities/feedback";
 import { APP_PATHS } from "@/shared/constants/app-paths";
 import { useNavigate } from "react-router-dom";
+import { useTranslation, type TranslationKey } from "@/shared/i18n";
 import classes from "./feedback-dashboard.module.scss";
 
-const CATEGORY_LABELS: Record<string, string> = {
-  doctors: "Shifokorlar",
-  nurses: "Hamshiralar",
-  cleanliness: "Tozalik",
-  food: "Oshxona",
-  reception: "Registratura",
-  clinic: "Klinika",
-  other: "Boshqa",
+const CATEGORY_KEYS: Record<string, TranslationKey> = {
+  doctors: "category.doctors",
+  nurses: "category.nurses",
+  cleanliness: "category.cleanliness",
+  food: "category.food",
+  reception: "category.reception",
+  clinic: "category.clinic",
+  other: "category.other",
 };
 
 const PIE_COLORS = ["#fa5252", "#20c997"];
@@ -65,6 +68,7 @@ const getLastDaysRange = (days: number): [Date, Date] => {
 
 export const FeedbackDashboard = () => {
   const navigate = useNavigate();
+  const { language, t } = useTranslation();
   const [dateRange, setDateRange] = useState<[Date | null, Date | null]>(
     getLastDaysRange(14),
   );
@@ -97,40 +101,48 @@ export const FeedbackDashboard = () => {
   if (isError || !data) {
     return (
       <Alert color="red" icon={<IconAlertTriangle size={18} />}>
-        BI ma'lumotlarini yuklab bo'lmadi.
+        {t("analytics.loadError")}
       </Alert>
     );
   }
 
   const metrics = [
     {
-      label: "Jami murojaatlar",
+      label: t("analytics.total"),
       value: data.summary.total,
-      hint: `${data.period.days} kunlik tanlangan davr`,
+      hint: t("analytics.selectedPeriod", { count: data.period.days }),
       color: "#1971c2",
       icon: IconChartHistogram,
       type: null,
     },
     {
-      label: "Shikoyatlar",
+      label: t("analytics.complaints"),
       value: data.summary.complaints,
-      hint: `${data.summary.total ? Math.round((data.summary.complaints / data.summary.total) * 100) : 0}% murojaatlardan`,
+      hint: t("analytics.share", {
+        value: data.summary.total
+          ? Math.round((data.summary.complaints / data.summary.total) * 100)
+          : 0,
+      }),
       color: "#e03131",
       icon: IconMessageReport,
       type: "complaint" as const,
     },
     {
-      label: "Takliflar",
+      label: t("analytics.suggestions"),
       value: data.summary.suggestions,
-      hint: `${data.summary.total ? Math.round((data.summary.suggestions / data.summary.total) * 100) : 0}% murojaatlardan`,
+      hint: t("analytics.share", {
+        value: data.summary.total
+          ? Math.round((data.summary.suggestions / data.summary.total) * 100)
+          : 0,
+      }),
       color: "#099268",
       icon: IconBulb,
       type: "suggestion" as const,
     },
     {
-      label: "Takroriy",
+      label: t("analytics.repeated"),
       value: data.summary.repeated,
-      hint: `${data.summary.repeatRate}% barcha murojaatlardan`,
+      hint: t("analytics.repeatRate", { value: data.summary.repeatRate }),
       color: "#f08c00",
       icon: IconRepeat,
       type: null,
@@ -138,8 +150,8 @@ export const FeedbackDashboard = () => {
   ];
 
   const typeSplit = [
-    { name: "Shikoyatlar", value: data.summary.complaints },
-    { name: "Takliflar", value: data.summary.suggestions },
+    { name: t("analytics.complaints"), value: data.summary.complaints },
+    { name: t("analytics.suggestions"), value: data.summary.suggestions },
   ];
 
   return (
@@ -151,11 +163,13 @@ export const FeedbackDashboard = () => {
               Orzu Medical • BI
             </Text>
             <Title order={2} mt={2}>
-              Murojaatlar analitikasi
+              {t("analytics.title")}
             </Title>
             <Text size="sm" c="dimmed">
-              {dayjs(data.period.dateFrom).format("DD.MM.YYYY")} —{" "}
-              {dayjs(data.period.dateTo).format("DD.MM.YYYY")} davri bo'yicha
+              {t("analytics.subtitle", {
+                from: dayjs(data.period.dateFrom).format("DD.MM.YYYY"),
+                to: dayjs(data.period.dateTo).format("DD.MM.YYYY"),
+              })}
             </Text>
           </Box>
           <Badge
@@ -164,7 +178,7 @@ export const FeedbackDashboard = () => {
             color="teal"
             leftSection={<span className={classes.liveDot} />}
           >
-            {isFetching ? "Yangilanmoqda" : "Jonli"} · 10 sek
+            {isFetching ? t("analytics.updating") : t("analytics.live")} · 10 s
           </Badge>
         </Group>
 
@@ -172,8 +186,8 @@ export const FeedbackDashboard = () => {
           <Group justify="space-between" align="flex-end" wrap="wrap">
             <DatePickerInput
               type="range"
-              label="Hisobot davri / Период"
-              placeholder="Davrni tanlang"
+              label={t("analytics.period")}
+              placeholder={t("analytics.periodPlaceholder")}
               leftSection={<IconCalendar size={17} />}
               value={dateRange}
               onChange={(value) => {
@@ -184,6 +198,7 @@ export const FeedbackDashboard = () => {
                 }
               }}
               valueFormat="DD.MM.YYYY"
+              locale={language === "ru" ? "ru" : "uz-latn"}
               maxDate={new Date()}
               w={{ base: "100%", sm: 310 }}
             />
@@ -201,7 +216,7 @@ export const FeedbackDashboard = () => {
                     setAppliedRange(range);
                   }}
                 >
-                  {days} kun
+                  {t("analytics.days", { count: days })}
                 </Button>
               ))}
             </Group>
@@ -219,7 +234,9 @@ export const FeedbackDashboard = () => {
               role={metric.type ? "button" : undefined}
               tabIndex={metric.type ? 0 : undefined}
               aria-label={
-                metric.type ? `${metric.label} ro'yxatini ochish` : undefined
+                metric.type
+                  ? t("analytics.openList", { name: metric.label })
+                  : undefined
               }
               onClick={() => {
                 if (!metric.type) return;
@@ -273,9 +290,9 @@ export const FeedbackDashboard = () => {
           >
             <Group justify="space-between" mb="md">
               <Box>
-                <Text fw={700}>Murojaatlar dinamikasi</Text>
+                <Text fw={700}>{t("analytics.dynamics")}</Text>
                 <Text size="xs" c="dimmed">
-                  Kunlar bo'yicha yangi yozuvlar
+                  {t("analytics.newByDay")}
                 </Text>
               </Box>
             </Group>
@@ -323,7 +340,7 @@ export const FeedbackDashboard = () => {
                   <Area
                     type="monotone"
                     dataKey="complaints"
-                    name="Shikoyatlar"
+                    name={t("analytics.complaints")}
                     stroke="#fa5252"
                     fill="url(#complaints)"
                     strokeWidth={2.5}
@@ -332,7 +349,7 @@ export const FeedbackDashboard = () => {
                   <Area
                     type="monotone"
                     dataKey="suggestions"
-                    name="Takliflar"
+                    name={t("analytics.suggestions")}
                     stroke="#20c997"
                     fill="url(#suggestions)"
                     strokeWidth={2.5}
@@ -344,9 +361,9 @@ export const FeedbackDashboard = () => {
           </Paper>
 
           <Paper p="lg" radius="lg" className={classes.chartCard}>
-            <Text fw={700}>Turlar nisbati</Text>
+            <Text fw={700}>{t("analytics.typeRatio")}</Text>
             <Text size="xs" c="dimmed" mb="sm">
-              Jami murojaatlar tarkibi
+              {t("analytics.composition")}
             </Text>
             <Box h={270}>
               <ResponsiveContainer width="100%" height="100%">
@@ -375,13 +392,13 @@ export const FeedbackDashboard = () => {
         <Paper p="lg" radius="lg" className={classes.chartCard}>
           <Group justify="space-between" mb="md">
             <Box>
-              <Text fw={700}>Eng ko'p uchraydigan sabablar</Text>
+              <Text fw={700}>{t("analytics.topReasons")}</Text>
               <Text size="xs" c="dimmed">
-                Podkategoriya bo'yicha, TOP-8
+                {t("analytics.topReasonsHint")}
               </Text>
             </Box>
             <Badge variant="light" color="orange">
-              Takroriy: {data.summary.repeated}
+              {t("analytics.repeated")}: {data.summary.repeated}
             </Badge>
           </Group>
           <Box h={Math.max(220, data.subcategories.length * 38)}>
@@ -417,20 +434,22 @@ export const FeedbackDashboard = () => {
                 <Tooltip
                   formatter={(value, name) => [
                     value,
-                    name === "count" ? "Jami" : "Takroriy",
+                    name === "count"
+                      ? t("analytics.totalLegend")
+                      : t("analytics.repeated"),
                   ]}
                 />
                 <Legend />
                 <Bar
                   dataKey="count"
-                  name="Jami"
+                  name={t("analytics.totalLegend")}
                   fill="#1971c2"
                   radius={[0, 6, 6, 0]}
                   animationDuration={700}
                 />
                 <Bar
                   dataKey="repeated"
-                  name="Takroriy"
+                  name={t("analytics.repeated")}
                   fill="#f59f00"
                   radius={[0, 6, 6, 0]}
                   animationDuration={700}
@@ -442,8 +461,10 @@ export const FeedbackDashboard = () => {
             <Group gap="xs" mt="md">
               {data.categories.map((item) => (
                 <Badge key={item.category} variant="dot" color="teal">
-                  {CATEGORY_LABELS[item.category] || item.category}:{" "}
-                  {item.count}
+                  {CATEGORY_KEYS[item.category]
+                    ? t(CATEGORY_KEYS[item.category])
+                    : item.category}
+                  : {item.count}
                 </Badge>
               ))}
             </Group>

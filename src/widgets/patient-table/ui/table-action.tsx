@@ -3,6 +3,7 @@ import { Button } from "@mantine/core";
 import { IconPhone, IconEye } from "@tabler/icons-react";
 import { useNavigate } from "react-router-dom";
 import { RequestStatus } from "@/entities/patient";
+import { useTranslation } from "@/shared/i18n";
 
 interface Props {
   requestId: string;
@@ -11,6 +12,7 @@ interface Props {
 
 export const TableActions = ({ requestId, status }: Props) => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   const activeStatuses = [RequestStatus.NEW, RequestStatus.CONTACTED];
 
@@ -31,7 +33,7 @@ export const TableActions = ({ requestId, status }: Props) => {
         radius="xl"
         onClick={handleNavigate}
       >
-        Qo'ng'iroq
+        {t("action.call")}
       </Button>
     );
   }
@@ -45,7 +47,7 @@ export const TableActions = ({ requestId, status }: Props) => {
       radius="xl"
       onClick={handleNavigate}
     >
-      Tarix
+      {t("action.history")}
     </Button>
   );
 };
