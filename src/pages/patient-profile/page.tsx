@@ -89,20 +89,21 @@ export const PatientProfilePage = () => {
     const isLatestRequest = sortedRequests[0]?.id === request.id;
     const isStatusNew = request.status.toLowerCase() === "new";
 
+    if (!isStatusNew) {
+      notifications.show({
+        title: t("profile.forbidden"),
+        message: t("profile.newOnly"),
+        color: "red",
+      });
+      return;
+    }
+
     // Если у пациента БЫЛИ заявки ранее
     if (!isFirstTimePatient) {
       if (!isLatestRequest) {
         notifications.show({
           title: t("profile.forbidden"),
           message: t("profile.latestOnly"),
-          color: "red",
-        });
-        return;
-      }
-      if (!isStatusNew) {
-        notifications.show({
-          title: t("profile.forbidden"),
-          message: t("profile.newOnly"),
           color: "red",
         });
         return;
