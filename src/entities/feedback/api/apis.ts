@@ -9,6 +9,7 @@ export const feedbackApi = {
   getAnalytics: async (params?: {
     dateFrom?: string;
     dateTo?: string;
+    branch?: string;
   }): Promise<FeedbackAnalytics> => {
     const response = await api.get<FeedbackAnalytics>("/feedbacks/analytics", {
       params,

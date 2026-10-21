@@ -9,6 +9,13 @@
     light-dark(var(--mantine-color-gray-3), var(--mantine-color-dark-4));
 }
 
+@media (max-width: 47.99em) {
+  .navbar {
+    width: 100%;
+    height: calc(100dvh - 60px);
+  }
+}
+
 .logo {
   display: block;
   width: 100%;

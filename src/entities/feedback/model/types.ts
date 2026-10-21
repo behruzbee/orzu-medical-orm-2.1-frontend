@@ -9,6 +9,24 @@ export interface FeedbackSubcategory {
 }
 
 export interface FeedbackAnalytics {
+  branches: string[];
+  selectedBranch: string | null;
+  requests: {
+    summary: {
+      total: number;
+      processed: number;
+      answered: number;
+      missed: number;
+      complaints: number;
+      suggestions: number;
+    };
+    daily: Array<{
+      date: string;
+      total: number;
+      answered: number;
+      missed: number;
+    }>;
+  };
   summary: {
     total: number;
     complaints: number;

@@ -1,5 +1,6 @@
 import { Navbar } from "@/widgets/navbar";
-import { Flex, Box, LoadingOverlay } from "@mantine/core";
+import { useEffect, useState } from "react";
+import { Flex, Box, Burger, Drawer, Group, LoadingOverlay, Text } from "@mantine/core";
 import { Outlet, Navigate, useLocation } from "react-router-dom";
 import { useMe } from "@/features/auth/api/queries";
 import { APP_PATHS } from "@/shared/constants/app-paths"; // Путь к логину
@@ -7,6 +8,11 @@ import { DoctorMessageAlert } from "@/widgets/doctor-message-alert";
 
 export const ProtectLayout = () => {
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [location.pathname]);
 
   const { data: user, isLoading, isError } = useMe();
 
@@ -34,19 +40,45 @@ export const ProtectLayout = () => {
   }
 
   return (
-    <Flex h="100vh" w="100vw" style={{ overflow: "hidden" }}>
-      <Navbar />
+    <Flex
+      h="100vh"
+      w="100vw"
+      direction={{ base: "column", sm: "row" }}
+      style={{ overflow: "hidden" }}
+    >
+      <Box visibleFrom="sm">
+        <Navbar />
+      </Box>
+      <Group hiddenFrom="sm" h={56} px="md" gap="sm" style={{ flexShrink: 0 }}>
+        <Burger
+          opened={menuOpen}
+          onClick={() => setMenuOpen((open) => !open)}
+          aria-label="Открыть меню"
+          size="sm"
+        />
+        <Text fw={700}>Orzu Medical</Text>
+      </Group>
+      <Drawer
+        opened={menuOpen}
+        onClose={() => setMenuOpen(false)}
+        title="Orzu Medical"
+        size={300}
+        padding={0}
+        hiddenFrom="sm"
+      >
+        <Navbar />
+      </Drawer>
       <DoctorMessageAlert user={user} />
 
       <Flex
         flex={1}
         direction="column"
-        style={{ overflow: "hidden", position: "relative" }}
+        style={{ overflow: "hidden", position: "relative", minWidth: 0 }}
         bg="var(--mantine-color-gray-0)"
       >
         <Box
           h="100%"
-          p="md"
+          p={{ base: "xs", sm: "md" }}
           style={{ boxSizing: "border-box", overflowY: "auto" }}
         >
           <Outlet />

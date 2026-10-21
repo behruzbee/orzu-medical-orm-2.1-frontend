@@ -6,6 +6,7 @@ import {
   Button,
   Group,
   Paper,
+  Select,
   SimpleGrid,
   Skeleton,
   Stack,
@@ -75,13 +76,19 @@ export const FeedbackDashboard = () => {
   const [appliedRange, setAppliedRange] = useState<[Date, Date]>(
     getLastDaysRange(14),
   );
+  const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
 
   const dateFrom = dayjs(appliedRange[0]).format("YYYY-MM-DD");
   const dateTo = dayjs(appliedRange[1]).format("YYYY-MM-DD");
 
   const { data, isLoading, isError, isFetching } = useQuery({
-    queryKey: ["feedback-analytics", dateFrom, dateTo],
-    queryFn: () => feedbackApi.getAnalytics({ dateFrom, dateTo }),
+    queryKey: ["feedback-analytics", dateFrom, dateTo, selectedBranch],
+    queryFn: () =>
+      feedbackApi.getAnalytics({
+        dateFrom,
+        dateTo,
+        branch: selectedBranch || undefined,
+      }),
     refetchInterval: 10_000,
     refetchIntervalInBackground: true,
     staleTime: 5_000,
@@ -203,6 +210,21 @@ export const FeedbackDashboard = () => {
               w={{ base: "100%", sm: 310 }}
             />
 
+            <Select
+              label={t("analytics.branch")}
+              data={[
+                { value: "all", label: t("analytics.allBranches") },
+                ...data.branches.map((branch) => ({
+                  value: branch,
+                  label: branch,
+                })),
+              ]}
+              value={selectedBranch || "all"}
+              onChange={(value) => setSelectedBranch(value === "all" ? null : value)}
+              allowDeselect={false}
+              w={{ base: "100%", sm: 220 }}
+            />
+
             <Group gap="xs">
               {[7, 14, 30].map((days) => (
                 <Button
@@ -221,6 +243,66 @@ export const FeedbackDashboard = () => {
               ))}
             </Group>
           </Group>
+        </Paper>
+
+        <Box>
+          <Title order={3}>{t("analytics.requestsTitle")}</Title>
+          <Text size="sm" c="dimmed">
+            {t("analytics.requestsByDate")}
+          </Text>
+        </Box>
+
+        <SimpleGrid cols={{ base: 1, xs: 2, lg: 3 }} spacing="md">
+          {([
+            ["analytics.requestsTotal", data.requests.summary.total, "#1971c2"],
+            ["analytics.requestsProcessed", data.requests.summary.processed, "#0b7285"],
+            ["analytics.requestsAnswered", data.requests.summary.answered, "#2b8a3e"],
+            ["analytics.requestsMissed", data.requests.summary.missed, "#e67700"],
+            ["analytics.requestsComplaints", data.requests.summary.complaints, "#c92a2a"],
+            ["analytics.requestsSuggestions", data.requests.summary.suggestions, "#099268"],
+          ] as const).map(([label, value, color]) => (
+            <Paper
+              key={label}
+              p="md"
+              radius="lg"
+              className={classes.metric}
+              style={{ "--metric-color": color } as React.CSSProperties}
+            >
+              <Text size="sm" c="dimmed" fw={600}>
+                {t(label)}
+              </Text>
+              <Text size="32px" fw={800} c={color} className={classes.metricValue}>
+                {value.toLocaleString("ru-RU")}
+              </Text>
+            </Paper>
+          ))}
+        </SimpleGrid>
+
+        <Paper p="lg" radius="lg" className={classes.chartCard}>
+          <Text fw={700}>{t("analytics.requestsDynamics")}</Text>
+          <Text size="xs" c="dimmed" mb="md">
+            {t("analytics.requestsByDate")}
+          </Text>
+          <Box h={260}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={data.requests.daily} margin={{ left: -18, right: 8 }}>
+                <CartesianGrid strokeDasharray="4 4" stroke="#e9ecef" vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickFormatter={(value) => value.slice(5).split("-").reverse().join(".")}
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis allowDecimals={false} fontSize={11} tickLine={false} axisLine={false} />
+                <Tooltip />
+                <Legend />
+                <Area type="monotone" dataKey="total" name={t("analytics.requestsTotal")} stroke="#1971c2" fill="#1971c220" strokeWidth={2} />
+                <Area type="monotone" dataKey="answered" name={t("analytics.requestsAnswered")} stroke="#2b8a3e" fill="#2b8a3e20" strokeWidth={2} />
+                <Area type="monotone" dataKey="missed" name={t("analytics.requestsMissed")} stroke="#e67700" fill="#e6770020" strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </Box>
         </Paper>
 
         <SimpleGrid cols={{ base: 1, xs: 2, lg: 4 }} spacing="md">
