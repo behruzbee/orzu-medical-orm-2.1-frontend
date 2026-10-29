@@ -20,7 +20,6 @@ import {
 import {
   IconPhone,
   IconBuildingHospital,
-  IconBrandWhatsapp,
   IconPlaneDeparture,
   IconPlaneArrival,
   IconMessageReport,
@@ -366,19 +365,6 @@ export const PatientCard = ({ patient: request }: Props) => {
           {t("profile.call")}
         </Button>
 
-        <Button
-          component="a"
-          href={`https://wa.me/${cleanPhone}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          fullWidth
-          variant="light"
-          color="green"
-          leftSection={<IconBrandWhatsapp size={18} />}
-          disabled={!cleanPhone}
-        >
-          WhatsApp
-        </Button>
       </Stack>
     </Paper>
   );

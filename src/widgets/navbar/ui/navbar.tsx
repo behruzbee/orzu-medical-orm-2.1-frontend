@@ -2,7 +2,6 @@ import {
   IconLogout,
   IconUsers,
   IconFileText,
-  IconBrandWhatsapp,
   IconSwitchHorizontal,
   IconMail,
   IconDownload,
@@ -42,11 +41,6 @@ export function Navbar({ isAdmin }: { isAdmin: boolean }) {
       icon: IconChartBar,
     },
     {
-      link: APP_PATHS.BROADCAST.BROADCAST_PATH,
-      label: t("nav.broadcast"),
-      icon: IconBrandWhatsapp,
-    },
-    {
       link: APP_PATHS.IMPORT_PATIENTS.IMPORT_PATIENTS_PATH,
       label: t("nav.import"),
       icon: IconDownload,
@@ -75,7 +69,7 @@ export function Navbar({ isAdmin }: { isAdmin: boolean }) {
       <div className={classes.navbarMain}>
         <Group className={classes.header} justify="space-between" wrap="nowrap">
           <Image
-            src="https://orzumed.uz/wp-content/uploads/2024/07/orzu-med-logo-svg.svg"
+            src="/orzu-logo.svg"
             alt="Orzu Medical Logo"
             className={classes.logo}
           />

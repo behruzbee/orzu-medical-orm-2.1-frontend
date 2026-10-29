@@ -561,11 +561,13 @@ export const ComplaintModal = ({
         )}
 
         <Stack gap="md">
-          <Tabs defaultValue="list" variant="outline">
+          <Tabs defaultValue="manual" variant="outline">
             <Tabs.List mb="xs">
-              <Tabs.Tab value="list" leftSection={<IconCheck size={14} />}>
-                {tr("Tanlangan", "Выбрано")} ({selectedMessages.length})
-              </Tabs.Tab>
+              {selectedMessages.length > 0 && (
+                <Tabs.Tab value="list" leftSection={<IconCheck size={14} />}>
+                  {tr("Tanlangan", "Выбрано")} ({selectedMessages.length})
+                </Tabs.Tab>
+              )}
               <Tabs.Tab
                 value="manual"
                 leftSection={<IconDeviceFloppy size={14} />}
@@ -575,7 +577,7 @@ export const ComplaintModal = ({
               </Tabs.Tab>
             </Tabs.List>
 
-            <Tabs.Panel value="list">
+            {selectedMessages.length > 0 && <Tabs.Panel value="list">
               {selectedMessages.length === 0 ? (
                 <Text c="dimmed" fs="italic" size="sm" py="md" ta="center">
                   {tr(
@@ -617,7 +619,7 @@ export const ComplaintModal = ({
                   </Stack>
                 </ScrollArea.Autosize>
               )}
-            </Tabs.Panel>
+            </Tabs.Panel>}
 
             <Tabs.Panel value="manual">
               <Stack gap="md">

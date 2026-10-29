@@ -10,19 +10,21 @@ import {
   Modal,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
-import { IconArrowLeft, IconAlertCircle, IconTrash } from "@tabler/icons-react";
+import { IconArrowLeft, IconAlertCircle, IconMessageReport, IconTrash } from "@tabler/icons-react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 
 import { PatientCard } from "@/widgets/patient-info";
 import { CallResultForm } from "@/widgets/call-form";
-import { WhatsAppChat } from "@/widgets/whatsapp-chat";
+import { ComplaintModal } from "@/widgets/complaint-form-modal";
 import { PatientDoctorMessageForm } from "@/features/doctor-message";
+import { RequestStatus } from "@/entities/patient";
 
 import {
   useRequest,
   usePatientProfile,
   useDeleteRequestMutation,
   useDeletePatientMutation,
+  useAddFeedbackMutation,
 } from "@/entities/patient/api";
 import { PatientFinishAlert } from "@/widgets/patient-fnish-alert";
 import { notifications } from "@mantine/notifications";
@@ -35,6 +37,7 @@ export const PatientProfilePage = () => {
 
   // Состояние для двухэтапного модального окна
   const [opened, { open, close }] = useDisclosure(false);
+  const [feedbackOpened, { open: openFeedback, close: closeFeedback }] = useDisclosure(false);
   const [confirmStep, setConfirmStep] = useState<1 | 2>(1);
 
   // Данные текущей заявки
@@ -51,6 +54,7 @@ export const PatientProfilePage = () => {
 
   const deleteRequestMutation = useDeleteRequestMutation();
   const deletePatientMutation = useDeletePatientMutation();
+  const addFeedbackMutation = useAddFeedbackMutation();
 
   if (isRequestLoading || isProfileLoading)
     return <LoadingOverlay visible zIndex={1000} overlayProps={{ blur: 2 }} />;
@@ -132,6 +136,7 @@ export const PatientProfilePage = () => {
   };
 
   const isFirstTimePatient = (profile?.requests?.length || 0) <= 1;
+  const canAddFeedback = [RequestStatus.NEW, RequestStatus.CONTACTED].includes(request.status);
 
   return (
     <Stack h="100%" gap="md">
@@ -165,10 +170,18 @@ export const PatientProfilePage = () => {
       <PatientFinishAlert patientId={request.id} status={request.status} />
 
       <Grid gutter="md" style={{ flex: 1, minHeight: 0 }}>
-        <Grid.Col span={{ base: 12, md: 4, lg: 3 }} h="100%">
+        <Grid.Col span={{ base: 12, md: 8, lg: 6 }}>
           <Stack gap="md" pb="xl">
             <PatientCard patient={request} />
             <CallResultForm patient={request} />
+            <Button
+              variant="light"
+              leftSection={<IconMessageReport size={18} />}
+              onClick={openFeedback}
+              disabled={!canAddFeedback}
+            >
+              {t("chat.feedback")}
+            </Button>
             <PatientDoctorMessageForm
               requestId={request.id}
               patientName={person.name || t("table.unknown")}
@@ -176,15 +189,39 @@ export const PatientProfilePage = () => {
           </Stack>
         </Grid.Col>
 
-        <Grid.Col span={{ base: 12, md: 8, lg: 9 }} h="100%">
-          <WhatsAppChat
-            patientId={request.id}
-            patientName={person.name || t("table.unknown")}
-            patientPhone={person.phone || ""}
-            patientStatus={request.status}
-          />
-        </Grid.Col>
       </Grid>
+
+      <ComplaintModal
+        opened={feedbackOpened}
+        onClose={closeFeedback}
+        selectedMessages={[]}
+        isLoading={addFeedbackMutation.isPending}
+        onSubmit={(data) => {
+          addFeedbackMutation.mutate(
+            {
+              id: request.id,
+              payload: {
+                type: data.type,
+                category: data.category,
+                subcategory: data.subcategory,
+                ratings: data.ratings,
+                comment: data.evidenceMessages.find((message) => message.type === "text")?.text || data.subcategory,
+                sendToTrello: data.sendToTrello,
+                evidence: data.evidenceMessages.map((message) => ({
+                  type: message.type,
+                  text: message.text || "",
+                  mediaUrl: message.mediaUrl,
+                  duration: message.duration,
+                  source: "manual" as const,
+                  sender: message.sender,
+                  originalTimestamp: data.createdAt,
+                })),
+              },
+            },
+            { onSuccess: closeFeedback },
+          );
+        }}
+      />
 
       <Modal
         opened={opened}

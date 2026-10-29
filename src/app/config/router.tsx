@@ -3,7 +3,6 @@ import { APP_PATHS } from "@/shared/constants/app-paths";
 import { HomePage } from "@/pages/home";
 import { ProtectLayout } from "@/pages/protect-layout";
 import { PatientProfilePage } from "@/pages/patient-profile";
-import { BroadcastPage } from "@/pages/broadcast";
 import { LoginPage } from "@/pages/auth";
 import { NotFoundPage } from "@/pages/404/page";
 import { DocsPage } from "@/pages/docs";
@@ -25,10 +24,6 @@ export const router = createBrowserRouter([
       {
         path: APP_PATHS.PATIENT_PROFILE.PROFILE_PATH,
         element: <PatientProfilePage />,
-      },
-      {
-        path: APP_PATHS.BROADCAST.BROADCAST_PATH,
-        element: <BroadcastPage />,
       },
       {
         path: APP_PATHS.DOCS.DOCS_PATH,

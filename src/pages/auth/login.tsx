@@ -25,8 +25,7 @@ export const LoginPage = () => {
         <Box
           style={{
             height: "100vh",
-            backgroundImage:
-              "url(https://sp-ao.shortpixel.ai/client/to_webp,q_glossy,ret_img/https://orzumed.uz/wp-content/uploads/2025/05/igloukol.jpg)",
+            backgroundImage: "url(/orzu-login.jpg)",
             backgroundSize: "cover",
             backgroundPosition: "center",
             position: "relative",
