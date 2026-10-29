@@ -19,6 +19,11 @@ export const reportsApi = {
     return response.data;
   },
 
+  regenerate: async (id: string): Promise<IReport> => {
+    const response = await api.post<IReport>(`/reports/${id}/regenerate`);
+    return response.data;
+  },
+
   delete: async (id: string): Promise<void> => {
     await api.delete(`/reports/${id}`);
   },

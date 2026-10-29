@@ -1,4 +1,4 @@
-export type ReportStatus = "ready" | "processing" | "error";
+export type ReportStatus = "ready" | "processing" | "error" | "missing" | "recreated";
 
 export interface IReport {
   id: string;

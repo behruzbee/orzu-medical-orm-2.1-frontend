@@ -28,8 +28,8 @@ export const useReportColumns = () => {
       header: tr("Davr", "Период"),
       cell: ({ row }) => (
         <Text size="sm" c="dimmed" style={{ whiteSpace: "nowrap" }}>
-          {dayjs(row.original.startDate).format("DD.MM.YYYY")} -{" "}
-          {dayjs(row.original.endDate).format("DD.MM.YYYY")}
+          {dayjs(row.original.startDate.slice(0, 10)).format("DD.MM.YYYY")} -{" "}
+          {dayjs(row.original.endDate.slice(0, 10)).format("DD.MM.YYYY")}
         </Text>
       ),
     }),
@@ -57,6 +57,12 @@ export const useReportColumns = () => {
       header: tr("Holati", "Статус"),
       cell: ({ getValue }) => {
         const status = getValue();
+        if (status === "missing") {
+          return <Badge color="orange" variant="light" radius="sm">{tr("Fayl yo'q", "Файл отсутствует")}</Badge>;
+        }
+        if (status === "recreated") {
+          return <Badge color="teal" variant="light" radius="sm">{tr("Qayta yaratilgan", "Пересоздан")}</Badge>;
+        }
         if (status === "ready") {
           return (
             <Badge color="green" variant="light" radius="sm">
