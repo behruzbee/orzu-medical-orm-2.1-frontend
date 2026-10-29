@@ -13,4 +13,5 @@ export interface IReport {
 export interface GenerateReportPayload {
   startDate: string;
   endDate: string;
+  includePersonalData?: boolean;
 }

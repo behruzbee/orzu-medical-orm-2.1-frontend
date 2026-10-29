@@ -16,7 +16,7 @@ import { useTranslation, type Language } from "@/shared/i18n";
 
 import classes from "../styles/navbar.module.scss";
 
-export function Navbar() {
+export function Navbar({ isAdmin }: { isAdmin: boolean }) {
   const location = useLocation();
   const { language, setLanguage, t } = useTranslation();
 
@@ -58,7 +58,7 @@ export function Navbar() {
     },
   ];
 
-  const links = data.map((item) => (
+  const links = data.filter((item) => isAdmin || item.link !== APP_PATHS.DOCS.DOCS_PATH).map((item) => (
     <Link
       className={classes.link}
       data-active={location.pathname === item.link || undefined}

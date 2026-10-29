@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Paper, Group, Button, Text } from "@mantine/core";
+import { Paper, Group, Button, Text, Checkbox, Stack } from "@mantine/core";
 import { DatePickerInput } from "@mantine/dates";
 import { IconFileTypeXls } from "@tabler/icons-react";
 import { useGenerateReportMutation } from "@/entities/report";
@@ -8,6 +8,7 @@ import { useTranslation } from "@/shared/i18n";
 export const ReportGenerator = () => {
   const { tr } = useTranslation();
   const [value, setValue] = useState<[Date | null, Date | null]>([null, null]);
+  const [includePersonalData, setIncludePersonalData] = useState(false);
 
   const { mutate, isPending } = useGenerateReportMutation();
 
@@ -18,10 +19,12 @@ export const ReportGenerator = () => {
       {
         startDate: new Date(value[0]).toISOString(),
         endDate: new Date(value[1]).toISOString(),
+        includePersonalData,
       },
       {
         onSuccess: () => {
           setValue([null, null]);
+          setIncludePersonalData(false);
         },
       },
     );
@@ -32,6 +35,7 @@ export const ReportGenerator = () => {
       <Text size="sm" fw={500} mb="xs">
         {tr("Vaqt oralig'ini tanlang", "Выберите период")}
       </Text>
+      <Stack gap="md">
       <Group align="flex-start" gap="md">
         <DatePickerInput
           type="range"
@@ -53,6 +57,15 @@ export const ReportGenerator = () => {
           {tr("Hisobotni shakllantirish", "Сформировать отчёт")}
         </Button>
       </Group>
+      <Checkbox
+        checked={includePersonalData}
+        onChange={(event) => setIncludePersonalData(event.currentTarget.checked)}
+        label={tr(
+          "Bemor ismlari, telefonlari va havolalarni kiritish",
+          "Включить имена, телефоны и ссылки пациентов",
+        )}
+      />
+      </Stack>
     </Paper>
   );
 };

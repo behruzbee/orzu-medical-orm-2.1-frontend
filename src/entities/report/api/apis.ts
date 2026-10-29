@@ -12,6 +12,13 @@ export const reportsApi = {
     return response.data;
   },
 
+  download: async (id: string): Promise<Blob> => {
+    const response = await api.get<Blob>(`/reports/${id}/download`, {
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
   delete: async (id: string): Promise<void> => {
     await api.delete(`/reports/${id}`);
   },

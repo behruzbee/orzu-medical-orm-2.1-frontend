@@ -33,8 +33,9 @@ import {
 } from "@tabler/icons-react";
 import dayjs from "dayjs";
 import { useTranslation, type TranslationKey } from "@/shared/i18n";
+import { useProtectedMediaUrl } from "@/shared/hooks/use-protected-media-url";
 
-export enum EvidenceType {
+enum EvidenceType {
   TEXT = "text",
   AUDIO = "audio",
   VIDEO = "video",
@@ -76,15 +77,16 @@ const STATUS_KEYS: Record<string, TranslationKey> = {
 
 const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
   const { t } = useTranslation();
+  const mediaUrl = useProtectedMediaUrl(msg.mediaUrl);
   switch (msg.type) {
     case EvidenceType.TEXT:
       return <Text size="sm">{msg.text}</Text>;
     case EvidenceType.IMAGE:
       return (
         <Stack gap="xs">
-          {msg.mediaUrl ? (
+          {mediaUrl ? (
             <Image
-              src={msg.mediaUrl}
+              src={mediaUrl}
               radius="md"
               alt="evidence"
               fit="contain"
@@ -102,10 +104,10 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
     case EvidenceType.AUDIO:
       return (
         <Stack gap="xs">
-          {msg.mediaUrl ? (
+          {mediaUrl ? (
             <audio
               controls
-              src={msg.mediaUrl}
+              src={mediaUrl}
               style={{ width: "100%", height: "36px" }}
             />
           ) : (
@@ -128,7 +130,7 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
           <Text
             size="sm"
             component="a"
-            href={msg.mediaUrl}
+            href={mediaUrl}
             target="_blank"
             style={{ textDecoration: "underline" }}
           >
@@ -144,7 +146,7 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
           <Text
             size="sm"
             component="a"
-            href={msg.mediaUrl}
+            href={mediaUrl}
             target="_blank"
             style={{ textDecoration: "underline" }}
           >

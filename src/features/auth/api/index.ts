@@ -1,1 +1,1 @@
-export { useLoginMutation, useQrStream, useMe } from "./queries";
+export { useLoginMutation, useMe } from "./queries";

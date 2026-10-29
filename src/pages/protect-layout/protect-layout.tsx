@@ -47,7 +47,7 @@ export const ProtectLayout = () => {
       style={{ overflow: "hidden" }}
     >
       <Box visibleFrom="sm">
-        <Navbar />
+        <Navbar isAdmin={user.role === "admin"} />
       </Box>
       <Group hiddenFrom="sm" h={56} px="md" gap="sm" style={{ flexShrink: 0 }}>
         <Burger
@@ -66,7 +66,7 @@ export const ProtectLayout = () => {
         padding={0}
         hiddenFrom="sm"
       >
-        <Navbar />
+        <Navbar isAdmin={user.role === "admin"} />
       </Drawer>
       <DoctorMessageAlert user={user} />
 

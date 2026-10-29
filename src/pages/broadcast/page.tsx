@@ -1,5 +1,6 @@
 import { Stack, Grid, Button, Group, Text } from "@mantine/core";
-import { IconSend } from "@tabler/icons-react";
+import { IconQrcode, IconSend } from "@tabler/icons-react";
+import { useState } from "react";
 import { AudienceFilters } from "@/features/broadcast/ui/audience-filters";
 import { MobilePreview } from "@/features/broadcast/ui/mobile-preview";
 import { MessageComposer } from "@/features/broadcast";
@@ -7,9 +8,13 @@ import { MessageComposer } from "@/features/broadcast";
 import { useBroadcastStore } from "@/entities/broadcast";
 import { useBroadcastMutation } from "@/features/broadcast/api/queries";
 import { useTranslation } from "@/shared/i18n";
+import { useMe } from "@/features/auth/api/queries";
+import { WhatsappQrModal } from "@/features/broadcast/ui/whatsapp-qr-modal";
 
 export const BroadcastPage = () => {
   const { tr } = useTranslation();
+  const { data: user } = useMe();
+  const [qrOpened, setQrOpened] = useState(false);
   const { messageText, branch, phoneCode, status, dateRange, resetStore } =
     useBroadcastStore();
 
@@ -56,6 +61,15 @@ export const BroadcastPage = () => {
           </Text>
         </Stack>
         <Group>
+          {user?.role === "admin" && (
+            <Button
+              variant="light"
+              leftSection={<IconQrcode size={18} />}
+              onClick={() => setQrOpened(true)}
+            >
+              {tr("WhatsApp ulash", "Подключить WhatsApp")}
+            </Button>
+          )}
           <Button
             color="blue"
             leftSection={<IconSend size={18} />}
@@ -79,6 +93,7 @@ export const BroadcastPage = () => {
           <MobilePreview />
         </Grid.Col>
       </Grid>
+      <WhatsappQrModal opened={qrOpened} onClose={() => setQrOpened(false)} />
     </Stack>
   );
 };

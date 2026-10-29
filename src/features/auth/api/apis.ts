@@ -8,11 +8,6 @@ export const authApi = {
     return response.data;
   },
 
-  getQrStreamUrl: (): string => {
-    const baseURL = api.defaults.baseURL || "";
-    return `${baseURL}/auth/qr-stream`;
-  },
-
   getMe: async (): Promise<User> => {
     const response = await api.get<User>("/auth/me");
     return response.data;

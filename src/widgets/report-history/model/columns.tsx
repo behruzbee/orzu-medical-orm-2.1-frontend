@@ -84,7 +84,7 @@ export const useReportColumns = () => {
       cell: ({ row }) => (
         <ReportActions
           reportId={row.original.id}
-          fileUrl={row.original.fileUrl}
+          fileName={row.original.name}
           status={row.original.status}
         />
       ),

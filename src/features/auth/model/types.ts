@@ -5,7 +5,7 @@ export interface AuthResponse {
   user: User;
 }
 export interface LoginRequest {
-  method: "pin" | "qr";
+  method: "pin";
   phone?: string;
   pin?: string;
 }

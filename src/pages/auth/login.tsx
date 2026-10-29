@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Grid,
   Box,
@@ -12,17 +11,13 @@ import {
   rem,
 } from "@mantine/core";
 import {
-  IconQrcode,
-  IconDeviceMobile,
   IconHeartbeat,
 } from "@tabler/icons-react";
-import { QrLogin } from "@/features/auth/ui/qr-login";
 import { PhoneLogin } from "@/features/auth/ui/phone-login";
 import { useTranslation } from "@/shared/i18n";
 
 export const LoginPage = () => {
   const { language, setLanguage, tr } = useTranslation();
-  const [loginMethod, setLoginMethod] = useState("phone");
 
   return (
     <Grid gutter={0} style={{ minHeight: "100vh" }}>
@@ -98,36 +93,7 @@ export const LoginPage = () => {
             </Stack>
 
             <Paper shadow="md" radius="lg" p="xl" w="100%" bg="white">
-              <SegmentedControl
-                fullWidth
-                radius="md"
-                mb="xl"
-                value={loginMethod}
-                onChange={setLoginMethod}
-                color="brand"
-                data={[
-                  {
-                    value: "phone",
-                    label: (
-                      <Center style={{ gap: 10 }}>
-                        <IconDeviceMobile size={16} />
-                        <span>{tr("Telefon raqam", "Номер телефона")}</span>
-                      </Center>
-                    ),
-                  },
-                  {
-                    value: "qr",
-                    label: (
-                      <Center style={{ gap: 10 }}>
-                        <IconQrcode size={16} />
-                        <span>QR Kod</span>
-                      </Center>
-                    ),
-                  },
-                ]}
-              />
-
-              {loginMethod === "qr" ? <QrLogin /> : <PhoneLogin />}
+              <PhoneLogin />
             </Paper>
           </Stack>
         </Center>
