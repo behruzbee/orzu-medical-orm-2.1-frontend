@@ -11,7 +11,7 @@ import {
 } from "@mantine/core";
 import { IMaskInput } from "react-imask";
 import { IconPhone, IconCheck, IconAlertCircle } from "@tabler/icons-react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { APP_PATHS } from "@/shared/constants/app-paths";
 import { useLoginMutation } from "../api/queries"; // Импорт нашего хука
 import { useTranslation } from "@/shared/i18n";
@@ -19,6 +19,7 @@ import { useTranslation } from "@/shared/i18n";
 export const PhoneLogin = () => {
   const { tr } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Подключаем мутацию
   const { mutate, isPending, error } = useLoginMutation();
@@ -45,8 +46,18 @@ export const PhoneLogin = () => {
       },
       {
         onSuccess: () => {
-          // Токен уже сохранен в queries.ts, делаем редирект
-          navigate(APP_PATHS.HOME.HOME_PATH);
+          const from = location.state?.from as
+            | { pathname?: string; search?: string; hash?: string }
+            | undefined;
+          const destination =
+            from?.pathname?.startsWith("/") && !from.pathname.startsWith("//")
+              ? {
+                  pathname: from.pathname,
+                  search: from.search || "",
+                  hash: from.hash || "",
+                }
+              : APP_PATHS.HOME.HOME_PATH;
+          navigate(destination, { replace: true });
         },
       },
     );
