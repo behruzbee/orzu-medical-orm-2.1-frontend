@@ -16,6 +16,8 @@ import {
 import { IconDownload, IconRefresh } from "@tabler/icons-react";
 import { api } from "@/shared/api/api";
 import { useTranslation } from "@/shared/i18n";
+import { ProtectedAudioPlayer } from "@/shared/ui/protected-audio-player";
+import { AudioShareControls } from "@/shared/ui/audio-share-controls";
 
 type Evidence = {
   id: string;
@@ -26,6 +28,7 @@ type Evidence = {
   mimeType: string | null;
   bytes: number;
   source: string;
+  evidenceType?: string;
 };
 
 export function ArchiveEvidencePage() {
@@ -51,6 +54,18 @@ export function ArchiveEvidencePage() {
         const { data: evidence } = await api.get<Evidence>(path, {
           signal: controller.signal,
         });
+        if (
+          evidence.evidenceType === "audio" ||
+          evidence.mimeType?.startsWith("audio/")
+        ) {
+          if (!controller.signal.aborted)
+            setResult({
+              key,
+              evidence,
+              mimeType: evidence.mimeType || "audio/unknown",
+            });
+          return;
+        }
         const { data } = await api.get<Blob>(`${path}/file`, {
           responseType: "blob",
           signal: controller.signal,
@@ -74,7 +89,7 @@ export function ArchiveEvidencePage() {
 
   if (result?.key !== key)
     return <Loader aria-label={uz ? "Yuklanmoqda" : "Загрузка"} />;
-  if (result.error || !result.evidence || !result.url) {
+  if (result.error || !result.evidence) {
     return (
       <Stack maw={640}>
         <Alert color="red" title={uz ? "Arxiv fayli" : "Архивное вложение"}>
@@ -128,12 +143,12 @@ export function ArchiveEvidencePage() {
           FileID: {evidence.id}
         </Text>
       </Stack>
-      {mimeType.startsWith("audio/") && (
-        <audio
-          controls
-          preload="metadata"
-          src={url}
-          style={{ width: "100%", maxWidth: 640 }}
+      {(evidence.evidenceType === "audio" || mimeType.startsWith("audio/")) && (
+        <ProtectedAudioPlayer
+          key={`${source}/${feedbackId}/${id}`}
+          source={source!}
+          feedbackId={feedbackId!}
+          id={id!}
         />
       )}
       {mimeType.startsWith("video/") && (
@@ -152,22 +167,32 @@ export function ArchiveEvidencePage() {
         />
       )}
       <Group>
-        <Tooltip label={download}>
-          <ActionIcon
-            component="a"
-            href={url}
-            download={`${source}-${id}`}
-            aria-label={download}
-            variant="light"
-            size="lg"
-          >
-            <IconDownload size={20} />
-          </ActionIcon>
-        </Tooltip>
+        {url && (
+          <Tooltip label={download}>
+            <ActionIcon
+              component="a"
+              href={url}
+              download={`${source}-${id}`}
+              aria-label={download}
+              variant="light"
+              size="lg"
+            >
+              <IconDownload size={20} />
+            </ActionIcon>
+          </Tooltip>
+        )}
         <Text size="sm" c="dimmed">
           {(evidence.bytes / 1024).toFixed(1)} KB
         </Text>
       </Group>
+      {(evidence.evidenceType === "audio" || mimeType.startsWith("audio/")) && (
+        <AudioShareControls
+          key={`share-${source}-${feedbackId}-${id}`}
+          source={source!}
+          feedbackId={feedbackId!}
+          id={id!}
+        />
+      )}
     </Stack>
   );
 }

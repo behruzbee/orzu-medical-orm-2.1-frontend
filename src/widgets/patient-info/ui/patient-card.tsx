@@ -33,6 +33,7 @@ import {
 import dayjs from "dayjs";
 import { useTranslation, type TranslationKey } from "@/shared/i18n";
 import { useProtectedMediaUrl } from "@/shared/hooks/use-protected-media-url";
+import { ProtectedAudioPlayer } from "@/shared/ui/protected-audio-player";
 
 enum EvidenceType {
   TEXT = "text",
@@ -74,9 +75,17 @@ const STATUS_KEYS: Record<string, TranslationKey> = {
   [RequestStatus.FEEDBACK_NOT_RELATED]: "status.feedback_not_related",
 };
 
-const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
+const EvidenceContent = ({
+  msg,
+  feedbackId,
+}: {
+  msg: IEvidenceMessage;
+  feedbackId: string;
+}) => {
   const { t } = useTranslation();
-  const mediaUrl = useProtectedMediaUrl(msg.mediaUrl);
+  const mediaUrl = useProtectedMediaUrl(
+    msg.type === EvidenceType.AUDIO ? undefined : msg.mediaUrl,
+  );
   switch (msg.type) {
     case EvidenceType.TEXT:
       return <Text size="sm">{msg.text}</Text>;
@@ -103,11 +112,13 @@ const EvidenceContent = ({ msg }: { msg: IEvidenceMessage }) => {
     case EvidenceType.AUDIO:
       return (
         <Stack gap="xs">
-          {mediaUrl ? (
-            <audio
-              controls
-              src={mediaUrl}
-              style={{ width: "100%", height: "36px" }}
+          {msg.id ? (
+            <ProtectedAudioPlayer
+              key={msg.id}
+              source="v21"
+              feedbackId={feedbackId}
+              id={msg.id}
+              scope="current"
             />
           ) : (
             <Group gap="xs" c="dimmed">
@@ -338,7 +349,10 @@ export const PatientCard = ({ patient: request }: Props) => {
                                 )}
                               </Group>
 
-                              <EvidenceContent msg={msg} />
+                              <EvidenceContent
+                                msg={msg}
+                                feedbackId={request.feedback!.id}
+                              />
                             </Paper>
                           );
                         })}
@@ -364,7 +378,6 @@ export const PatientCard = ({ patient: request }: Props) => {
         >
           {t("profile.call")}
         </Button>
-
       </Stack>
     </Paper>
   );

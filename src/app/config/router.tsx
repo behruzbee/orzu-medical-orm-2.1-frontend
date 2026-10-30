@@ -12,8 +12,10 @@ import { AnalyticsPage } from "@/pages/analytics";
 // Импортируем новую страницу
 import { ImportErrorsPage } from "@/pages/import-errors";
 import { ArchiveEvidencePage } from "@/pages/archive-evidence/page";
+import { AudioListenPage } from "@/pages/audio-listen/page";
 
 export const router = createBrowserRouter([
+  { path: "/listen", element: <AudioListenPage /> },
   {
     path: APP_PATHS.HOME.HOME_PATH,
     element: <ProtectLayout />,
