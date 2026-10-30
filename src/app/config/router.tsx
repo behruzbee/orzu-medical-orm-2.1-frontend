@@ -11,12 +11,17 @@ import { FeedbacksPage } from "@/pages/feedbacks";
 import { AnalyticsPage } from "@/pages/analytics";
 // Импортируем новую страницу
 import { ImportErrorsPage } from "@/pages/import-errors";
+import { ArchiveEvidencePage } from "@/pages/archive-evidence/page";
 
 export const router = createBrowserRouter([
   {
     path: APP_PATHS.HOME.HOME_PATH,
     element: <ProtectLayout />,
     children: [
+      {
+        path: "/archive/:source/feedbacks/:feedbackId/evidence/:id",
+        element: <ArchiveEvidencePage />,
+      },
       {
         index: true,
         element: <HomePage />,
