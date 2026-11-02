@@ -22,7 +22,9 @@ import {
   IconMessageReport,
   IconRepeat,
   IconCalendar,
+  IconDownload,
 } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import "dayjs/locale/ru";
@@ -77,6 +79,7 @@ export const FeedbackDashboard = () => {
     getLastDaysRange(14),
   );
   const [selectedBranch, setSelectedBranch] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const dateFrom = dayjs(appliedRange[0]).format("YYYY-MM-DD");
   const dateTo = dayjs(appliedRange[1]).format("YYYY-MM-DD");
@@ -161,6 +164,39 @@ export const FeedbackDashboard = () => {
     { name: t("analytics.suggestions"), value: data.summary.suggestions },
   ];
 
+  const handleExcelDownload = async () => {
+    setIsExporting(true);
+    try {
+      const blob = await feedbackApi.downloadAnalytics({
+        dateFrom,
+        dateTo,
+        branch: selectedBranch || undefined,
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const branchPart = selectedBranch
+        ? `_${selectedBranch.replace(/[^a-zA-Zа-яА-ЯЁё0-9_-]+/g, "_")}`
+        : "";
+      link.href = url;
+      link.download = `BI_${dateFrom}_${dateTo}${branchPart}.xlsx`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
+      notifications.show({
+        color: "green",
+        message: t("analytics.downloadSuccess"),
+      });
+    } catch {
+      notifications.show({
+        color: "red",
+        message: t("analytics.downloadError"),
+      });
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <Box className={classes.shell}>
       <Stack gap="lg">
@@ -241,6 +277,16 @@ export const FeedbackDashboard = () => {
                   {t("analytics.days", { count: days })}
                 </Button>
               ))}
+              <Button
+                size="sm"
+                variant="filled"
+                color="green"
+                leftSection={<IconDownload size={17} />}
+                loading={isExporting}
+                onClick={handleExcelDownload}
+              >
+                {t("analytics.downloadExcel")}
+              </Button>
             </Group>
           </Group>
         </Paper>
