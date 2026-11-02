@@ -14,4 +14,5 @@ export interface GenerateReportPayload {
   startDate: string;
   endDate: string;
   includePersonalData?: boolean;
+  branch?: string;
 }

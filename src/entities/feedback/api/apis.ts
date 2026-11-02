@@ -17,18 +17,6 @@ export const feedbackApi = {
     return response.data;
   },
 
-  downloadAnalytics: async (params: {
-    dateFrom: string;
-    dateTo: string;
-    branch?: string;
-  }): Promise<Blob> => {
-    const response = await api.get<Blob>('/feedbacks/analytics/export', {
-      params,
-      responseType: 'blob',
-    });
-    return response.data;
-  },
-
   getSubcategories: async (
     type: FeedbackType,
     category: string,

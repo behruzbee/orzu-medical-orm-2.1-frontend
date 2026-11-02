@@ -45,6 +45,7 @@ import {
   YAxis,
 } from "recharts";
 import { feedbackApi } from "@/entities/feedback";
+import { reportsApi } from "@/entities/report/api/apis";
 import { APP_PATHS } from "@/shared/constants/app-paths";
 import { useNavigate } from "react-router-dom";
 import { useTranslation, type TranslationKey } from "@/shared/i18n";
@@ -167,18 +168,17 @@ export const FeedbackDashboard = () => {
   const handleExcelDownload = async () => {
     setIsExporting(true);
     try {
-      const blob = await feedbackApi.downloadAnalytics({
-        dateFrom,
-        dateTo,
+      const report = await reportsApi.generate({
+        startDate: dateFrom,
+        endDate: dateTo,
         branch: selectedBranch || undefined,
+        includePersonalData: true,
       });
+      const blob = await reportsApi.download(report.id);
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      const branchPart = selectedBranch
-        ? `_${selectedBranch.replace(/[^a-zA-Zа-яА-ЯЁё0-9_-]+/g, "_")}`
-        : "";
       link.href = url;
-      link.download = `BI_${dateFrom}_${dateTo}${branchPart}.xlsx`;
+      link.download = report.name;
       document.body.appendChild(link);
       link.click();
       link.remove();
