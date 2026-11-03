@@ -1,7 +1,11 @@
 import { api } from "@/shared/api/api"; // Ваш настроенный axios instance
-import type { IReport, GenerateReportPayload } from "../model/types";
+import type { IReport, GenerateReportPayload, ReportSummary } from "../model/types";
 
 export const reportsApi = {
+  getSummary: async (params: Omit<GenerateReportPayload, "includePersonalData">): Promise<ReportSummary> => {
+    const response = await api.get<ReportSummary>("/reports/summary", { params });
+    return response.data;
+  },
   getAll: async (): Promise<IReport[]> => {
     const response = await api.get<IReport[]>("/reports");
     return response.data;

@@ -85,6 +85,17 @@ export const FeedbackDashboard = () => {
   const dateFrom = dayjs(appliedRange[0]).format("YYYY-MM-DD");
   const dateTo = dayjs(appliedRange[1]).format("YYYY-MM-DD");
 
+  const reportSummary = useQuery({
+    queryKey: ["standard-report-summary", dateFrom, dateTo, selectedBranch],
+    queryFn: () => reportsApi.getSummary({
+      startDate: dateFrom,
+      endDate: dateTo,
+      branch: selectedBranch || undefined,
+    }),
+    refetchInterval: 10_000,
+    staleTime: 5_000,
+  });
+
   const { data, isLoading, isError, isFetching } = useQuery({
     queryKey: ["feedback-analytics", dateFrom, dateTo, selectedBranch],
     queryFn: () =>
@@ -277,18 +288,47 @@ export const FeedbackDashboard = () => {
                   {t("analytics.days", { count: days })}
                 </Button>
               ))}
-              <Button
-                size="sm"
-                variant="filled"
-                color="green"
-                leftSection={<IconDownload size={17} />}
-                loading={isExporting}
-                onClick={handleExcelDownload}
-              >
-                {t("analytics.downloadExcel")}
-              </Button>
             </Group>
           </Group>
+        </Paper>
+
+        <Paper p="lg" radius="lg" className={classes.chartCard}>
+          <Group justify="space-between" mb="sm">
+            <Box>
+              <Title order={3}>{t("analytics.standardReport")}</Title>
+              <Text size="sm" c="dimmed">
+                {t("analytics.arrivalPeriod", {
+                  from: dayjs(dateFrom).format("DD.MM.YYYY"),
+                  to: dayjs(dateTo).format("DD.MM.YYYY"),
+                })} · {selectedBranch || t("analytics.allBranches")}
+              </Text>
+            </Box>
+            <Button color="green" leftSection={<IconDownload size={17} />}
+              loading={isExporting} onClick={handleExcelDownload}>
+              {t("analytics.downloadExcel")}
+            </Button>
+          </Group>
+          <Text size="sm" c="dimmed" mb="md">{t("analytics.reportRules")}</Text>
+          {reportSummary.isError ? (
+            <Alert color="red">{t("analytics.reportSummaryError")}</Alert>
+          ) : !reportSummary.data ? (
+            <Skeleton height={90} radius="md" />
+          ) : (
+            <SimpleGrid cols={{ base: 1, xs: 2, lg: 4 }}>
+              {([
+                ["analytics.handedOver", reportSummary.data.handedOver],
+                ["analytics.complaints", reportSummary.data.complaints],
+                ["analytics.suggestions", reportSummary.data.suggestions],
+                ["analytics.notRelated", reportSummary.data.notRelated],
+              ] as const).map(([label, value]) => (
+                <Box key={label}>
+                  <Text size="sm" c="dimmed">{t(label)}</Text>
+                  <Text size="28px" fw={800}>{value.toLocaleString("ru-RU")}</Text>
+                </Box>
+              ))}
+            </SimpleGrid>
+          )}
+          <Text size="xs" c="dimmed" mt="md">{t("analytics.trelloComparison")}</Text>
         </Paper>
 
         <Box>
@@ -350,6 +390,11 @@ export const FeedbackDashboard = () => {
             </ResponsiveContainer>
           </Box>
         </Paper>
+
+        <Box>
+          <Title order={3}>{t("analytics.feedbackByCreation")}</Title>
+          <Text size="sm" c="dimmed">{t("analytics.feedbackDateRules")}</Text>
+        </Box>
 
         <SimpleGrid cols={{ base: 1, xs: 2, lg: 4 }} spacing="md">
           {metrics.map((metric) => (

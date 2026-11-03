@@ -16,3 +16,12 @@ export interface GenerateReportPayload {
   includePersonalData?: boolean;
   branch?: string;
 }
+
+export interface ReportSummary {
+  period: { startDate: string; endDate: string; branch: string | null };
+  requests: number;
+  handedOver: number;
+  complaints: number;
+  suggestions: number;
+  notRelated: number;
+}
