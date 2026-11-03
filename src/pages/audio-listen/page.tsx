@@ -1,17 +1,13 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import {
   Alert,
-  Button,
   Container,
   Group,
   Image,
   Loader,
   Stack,
-  Text,
   Title,
 } from "@mantine/core";
-import { IconLogin } from "@tabler/icons-react";
 import {
   guestAudioApi,
   ProtectedAudioPlayer,
@@ -89,32 +85,21 @@ export function AudioListenPage() {
             feedbackId=""
             id=""
             guestToken={token}
-            onConsumed={() =>
-              setResult(
-                (current) => current && { ...current, available: false },
-              )
-            }
           />
         )}
         {result && !result.available && (
-          <Text c="dimmed">
-            {uz ? "Mehmon kirishi yakunlandi." : "Гостевой доступ завершён."}
-          </Text>
+          <Alert color="red">
+            {uz
+              ? "Havola mavjud emas yoki muddati tugagan. Yangi havolani so'rang."
+              : "Ссылка недоступна или истекла. Запросите новую ссылку."}
+          </Alert>
         )}
         {failed && (
           <Alert color="red">
-            {uz ? "Havola mavjud emas." : "Ссылка недоступна."}
+            {uz
+              ? "Havola mavjud emas yoki muddati tugagan. Yangi havolani so'rang."
+              : "Ссылка недоступна или истекла. Запросите новую ссылку."}
           </Alert>
-        )}
-        {(failed || (result && !result.available)) && (
-          <Button
-            component={Link}
-            to={result?.path || "/login"}
-            leftSection={<IconLogin size={18} />}
-            style={{ alignSelf: "flex-start" }}
-          >
-            {uz ? "Hisobga kirish" : "Войти в аккаунт"}
-          </Button>
         )}
       </Stack>
     </Container>

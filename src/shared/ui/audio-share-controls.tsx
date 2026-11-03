@@ -67,7 +67,7 @@ export function AudioShareControls({
         {!share && (
           <Tooltip
             label={
-              uz ? "Bir martalik havola yaratish" : "Создать одноразовую ссылку"
+              uz ? "Mehmon havolasini yaratish" : "Создать ссылку без входа"
             }
           >
             <ActionIcon
@@ -77,8 +77,8 @@ export function AudioShareControls({
               onClick={create}
               aria-label={
                 uz
-                  ? "Bir martalik havola yaratish"
-                  : "Создать одноразовую ссылку"
+                  ? "Mehmon havolasini yaratish"
+                  : "Создать ссылку без входа"
               }
             >
               <IconLink size={20} />
@@ -88,7 +88,7 @@ export function AudioShareControls({
         {share && (
           <>
             <TextInput
-              aria-label={uz ? "Bir martalik havola" : "Одноразовая ссылка"}
+              aria-label={uz ? "Mehmon havolasi" : "Ссылка без входа"}
               readOnly
               value={share.url}
               style={{ flex: 1, minWidth: 0 }}
