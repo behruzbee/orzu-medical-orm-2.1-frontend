@@ -313,7 +313,9 @@ export const ComplaintModal = ({
     setManualEvidence((prev) => prev.filter((i) => i.id !== id));
   };
 
-  const isFormValid = CATEGORIES.every((cat) => (ratings[cat.id] || 0) > 0);
+  const needsLowerRating = feedbackType === "complaint" &&
+    !CATEGORIES.some(({ id }) => ratings[id] >= 2 && ratings[id] < 5);
+  const isFormValid = !needsLowerRating && CATEGORIES.every((cat) => (ratings[cat.id] || 0) > 0);
 
   const totalEvidenceCount =
     selectedMessages.length +
@@ -325,7 +327,7 @@ export const ComplaintModal = ({
     : subcategory;
 
   const handleSubmit = () => {
-    if (!feedbackType || !category || !selectedSubcategory) return;
+    if (!isFormValid || !feedbackType || !category || !selectedSubcategory) return;
     stopPlaying();
 
     const combinedEvidence: ComplaintEvidence[] = [
@@ -789,6 +791,10 @@ export const ComplaintModal = ({
                   { value: "suggestion", label: tr("Taklif", "Предложение") },
                 ]}
                 value={feedbackType}
+                error={needsLowerRating && tr(
+                  "Shikoyat yuborish uchun kamida bitta bo'limga 2, 3 yoki 4 baho qo'ying.",
+                  "Чтобы отправить жалобу, поставьте 2, 3 или 4 хотя бы по одной категории.",
+                )}
                 onChange={(value) => {
                   setFeedbackType(value as FeedbackType | null);
                   setSubcategory(null);
